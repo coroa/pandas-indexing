@@ -1,0 +1,139 @@
+[project]
+name = "pandas-indexing"
+description = "Helpers to facilitate working with pandas indices in particular multiindices"
+readme = "README.rst"
+license = {text = "MIT"}
+authors = [
+    {name = "Jonas Hörsch", email = "coroa@posteo.de"},
+]
+
+# complete classifier list:
+# http://pypi.org/classifiers/
+classifiers = [
+    'Development Status :: 4 - Beta',
+    # 'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+    'License :: OSI Approved :: MIT License',
+    'Intended Audience :: Science/Research',
+    'Natural Language :: English',
+    'Operating System :: POSIX',
+    'Operating System :: MacOS',
+    'Operating System :: Microsoft',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+
+keywords=[
+    'pandas'
+    # eg: 'keyword1', 'keyword2', 'keyword3',
+]
+
+requires-python = ">=3.8, <4"
+dependencies = [
+    # https://stackoverflow.com/questions/14399534
+    'pandas>=1.2',
+    'deprecated',
+]
+
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/coroa/pandas-indexing"
+documentation = "https://pandas-indexing.readthedocs.io/en/latest/"
+repository = "https://github.com/coroa/pandas-indexing.git"
+changelog = "https://github.com/coroa/pandas-indexing/blob/main/CHANGELOG.rst"
+
+[project.optional-dependencies]
+# Add dependencies for building docs and running tests
+docs = [
+    "sphinx>=2.2",
+    "sphinx-py3doc-enhanced-theme",
+    "sphinx-argparse",
+]
+
+test = [
+    "coverage",
+    "pytest",
+    "pytest-cov",
+    "hypothesis"
+]
+
+lint = [
+    "black",
+    "ruff"
+]
+
+[project.scripts]
+
+[tool.pytest.ini_options]
+# If a pytest section is found in one of the possible config files
+# (pytest.ini, tox.ini or setup.cfg), then pytest will not look for any others,
+# so if you add a pytest config section elsewhere,
+# you will need to delete this section from setup.cfg.
+#norecursedirs =
+#migrations
+addopts = "-p pytest_cov"
+python_files = [
+    "test_*.py",
+    "*_test.py",
+    "tests.py"
+]
+#addopts =
+#    -ra
+#    --strict
+#    --doctest-modules
+#    --doctest-glob=\*.rst
+#    --tb=short
+testpaths = [
+    "tests"
+]
+
+[tool.ruff]
+target-version = "py38"
+builtins = ["ellipsis"]
+exclude = [
+    ".eggs",
+    "doc",
+    "_typed_ops.pyi",
+]
+# E402: module level import not at top of file
+# E501: line too long - let black worry about that
+# E731: do not assign a lambda expression, use a def
+# E741: ambiguous variable names
+ignore = [
+    "E402",
+    "E501",
+    "E731",
+    "E741"
+]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I",
+    # Pyupgrade
+    "UP",
+]
+
+[tool.ruff.per-file-ignores]
+# F401: imported but unsued
+"__init__.py" = ["F401"]  
+
+[tool.ruff.isort]
+lines-after-imports = 2
+known-first-party = ["pandas_indexing"]
+
+[tool.setuptools_scm]
+fallback_version = "999"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=6.2"]
+
