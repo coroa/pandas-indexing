@@ -3,10 +3,9 @@ Core module.
 """
 from functools import reduce
 from operator import and_
-from typing import Any, Sequence, Union
+from typing import Any, Literal, Sequence, Union
 
 import numpy as np
-from deprecated import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
@@ -54,7 +53,7 @@ def assignlevel(
     order: bool = False,
     axis: int = 0,
     **labels: Any,
-):
+) -> Union[MultiIndex, DataFrame, Series]:
     """
     Add or overwrite levels on a multiindex.
 
@@ -91,15 +90,6 @@ def assignlevel(
     return df.set_axis(new_index, axis=axis)
 
 
-set_label = deprecated(
-    version="0.2",
-    reason=(
-        "set_label has been renamed to assignlevel "
-        "(and moved to dedicated index module)"
-    ),
-)(assignlevel)
-
-
 def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     levels = np.atleast_1d(levels)
     if len(levels) == 1:
@@ -112,7 +102,7 @@ def projectlevel(
     index_or_series: Union[Index, Series, DataFrame],
     levels: Sequence[str],
     axis: Union[int, str] = 0,
-):
+) -> Union[Index, Series, DataFrame]:
     """
     Project multiindex to given `levels`
 
@@ -172,7 +162,9 @@ def _ensure_multiindex(s: Index) -> MultiIndex:
     return MultiIndex.from_arrays([s], names=[s.name])
 
 
-def ensure_multiindex(s):
+def ensure_multiindex(
+    s: Union[DataFrame, Series, Index]
+) -> Union[DataFrame, Series, MultiIndex]:
     if isinstance(s, Index):
         return _ensure_multiindex(s)
 
@@ -205,6 +197,82 @@ def alignlevels(l, r):
         ensure_multiindex(l).reorder_levels(l_and_r.union(l_but_not_r)),
         ensure_multiindex(r).reorder_levels(l_and_r.union(r_but_not_l)),
     )
+
+
+def semijoin(
+    df_or_series: Union[DataFrame, Series],
+    other: Index,
+    *,
+    how: Literal["left", "right", "inner", "outer"] = "left",
+    level: Union[str, int, None] = None,
+    sort: bool = False,
+    axis: Literal[0, 1] = 0,
+) -> Union[DataFrame, Series]:
+    """
+    Semijoin `df_or_series` by index `other`
+
+    Parameters
+    ----------
+    df_or_series : DataFrame or Series
+        data to be filtered
+    other : Index
+        other index to join with
+    how : {'left', 'right', 'inner', 'outer'}
+        Join method to use
+    level : None or str or int or
+        single level on which to join, if not given join on all
+    sort : bool, optional
+        whether to sort the index
+    axis : {0, 1}
+        Axis on which to join
+
+    Returns
+    -------
+    DataFrame or Series
+
+    Raises
+    ------
+    TypeError
+        If axis is not 0 or 1, or
+        if df_or_series does not derive from DataFrame or Series
+
+    See also
+    --------
+    pandas.Index.join
+    """
+
+    index = df_or_series.axes[axis]
+    if level is None:
+        index = ensure_multiindex(index)
+        other = ensure_multiindex(other)
+
+    new_index, left_idx, _ = index.join(
+        other, how=how, level=level, return_indexers=True, sort=sort
+    )
+    cls = df_or_series.__class__
+    if isinstance(df_or_series, DataFrame):
+        if axis == 0:
+            new_df_or_series = cls(
+                df_or_series.values[left_idx],
+                index=new_index,
+                columns=df_or_series.columns,
+            )
+        elif axis == 1:
+            new_df_or_series = cls(
+                df_or_series.values[:, left_idx],
+                index=df_or_series.columns,
+                columns=new_index,
+            )
+        else:
+            raise TypeError(f"axis must be 0 or 1, not {axis}")
+    elif isinstance(df_or_series, Series):
+        new_df_or_series = cls(df_or_series.values[left_idx], index=new_index)
+    else:
+        raise TypeError(
+            f"df_or_series must derive from DataFrame or Series, but is {type(df_or_series)}"
+        )
+
+    return new_df_or_series.__finalize__(df_or_series)
 
 
 def isin(df=None, **filters):
