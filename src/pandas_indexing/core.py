@@ -241,7 +241,8 @@ def semijoin(
     pandas.Index.join
     """
 
-    index = df_or_series.axes[axis]
+    axes = df_or_series.axes
+    index = axes[axis]
     if level is None:
         index = ensure_multiindex(index)
         other = ensure_multiindex(other)
@@ -249,30 +250,28 @@ def semijoin(
     new_index, left_idx, _ = index.join(
         other, how=how, level=level, return_indexers=True, sort=sort
     )
+
     cls = df_or_series.__class__
+    axes[axis] = new_index
+
+    if left_idx is None:
+        return cls(df_or_series.values, *axes).__finalize__(df_or_series)
+
     if isinstance(df_or_series, DataFrame):
         if axis == 0:
-            new_df_or_series = cls(
-                df_or_series.values[left_idx],
-                index=new_index,
-                columns=df_or_series.columns,
+            data = np.where(
+                left_idx[:, np.newaxis] != -1, df_or_series.values[left_idx, :], np.nan
             )
         elif axis == 1:
-            new_df_or_series = cls(
-                df_or_series.values[:, left_idx],
-                index=df_or_series.columns,
-                columns=new_index,
-            )
-        else:
-            raise TypeError(f"axis must be 0 or 1, not {axis}")
+            data = np.where(left_idx != -1, df_or_series.values[:, left_idx], np.nan)
     elif isinstance(df_or_series, Series):
-        new_df_or_series = cls(df_or_series.values[left_idx], index=new_index)
+        data = np.where(left_idx != -1, df_or_series.values[left_idx], np.nan)
     else:
         raise TypeError(
             f"df_or_series must derive from DataFrame or Series, but is {type(df_or_series)}"
         )
 
-    return new_df_or_series.__finalize__(df_or_series)
+    return cls(data, *axes).__finalize__(df_or_series)
 
 
 def isin(df=None, **filters):
