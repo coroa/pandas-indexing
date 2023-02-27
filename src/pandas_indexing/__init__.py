@@ -1,5 +1,5 @@
 """
-Pandas indexing helper
+Pandas indexing helper.
 """
 
 
@@ -14,6 +14,7 @@ from .core import (
     isin,
     ismatch,
     projectlevel,
+    semijoin,
 )
 
 
