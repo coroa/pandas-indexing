@@ -15,12 +15,14 @@ Contents
    :caption: API reference
 
    reference/core
+   reference/accessors
 
 .. toctree::
    :maxdepth: 2
    :caption: Versions
 
    changelog
+   AUTHORS
 
 Indices and tables
 ==================

@@ -5,7 +5,7 @@ Pandas indexing helper.
 
 from importlib.metadata import version as _version
 
-from . import core
+from . import core, datasets
 from .core import (
     alignlevel,
     alignlevels,

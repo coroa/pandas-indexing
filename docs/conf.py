@@ -22,7 +22,7 @@ copyright = f"{year}, {author}"
 
 # Retrieve package version from installed metadata
 release = version("pandas-indexing")
-version = ".".join(release.split(".")[:2])
+version = ".".join(release.split(".")[:3])
 
 
 # -- General configuration ---------------------------------------------------

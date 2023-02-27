@@ -17,7 +17,7 @@ from pandas import DataFrame, Index, MultiIndex, Series
 from .core import assignlevel, projectlevel, semijoin
 
 
-class IdxAccessor:
+class _IdxAccessor:
     """
     Convenience accessor for accessing `pandas-indexing` functions.
     """
@@ -78,7 +78,7 @@ class IdxAccessor:
         return projectlevel(self._obj, levels=levels, axis=axis)
 
 
-class DataIdxAccessor(IdxAccessor):
+class _DataIdxAccessor(_IdxAccessor):
     def semijoin(
         self,
         other: Index,
@@ -122,15 +122,15 @@ class DataIdxAccessor(IdxAccessor):
 
 
 @pd.api.extensions.register_dataframe_accessor("idx")
-class DataFrameIdxAccessor(DataIdxAccessor):
+class DataFrameIdxAccessor(_DataIdxAccessor):
     pass
 
 
 @pd.api.extensions.register_series_accessor("idx")
-class SeriesIdxAccessor(DataIdxAccessor):
+class SeriesIdxAccessor(_DataIdxAccessor):
     pass
 
 
 @pd.api.extensions.register_index_accessor("idx")
-class IndexIdxAccessor(IdxAccessor):
+class IndexIdxAccessor(_IdxAccessor):
     pass

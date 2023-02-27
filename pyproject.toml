@@ -53,7 +53,8 @@ docs = [
     "sphinx>=2.2",
     "sphinx-argparse",
     "sphinx-rtd-theme",
-    "nbsphinx"
+    "nbsphinx",
+    "ipython",
 ]
 
 test = [

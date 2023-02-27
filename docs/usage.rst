@@ -8,7 +8,7 @@ You can either view static versions of them below, or download and execute them 
 .. toctree::
    :maxdepth: 2
 
-   .. notebooks/introduction.ipynb
+   notebooks/introduction.ipynb
 
 .. _interactive jupyter notebooks:
    https://github.com/coroa/pandas-indexing/tree/main/docs/notebooks
