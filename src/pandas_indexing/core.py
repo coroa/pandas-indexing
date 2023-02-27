@@ -1,5 +1,5 @@
 """
-core module
+Core module.
 """
 from functools import reduce
 from operator import and_
@@ -55,7 +55,8 @@ def assignlevel(
     axis: int = 0,
     **labels: Any,
 ):
-    """Add or overwrite levels on a multiindex
+    """
+    Add or overwrite levels on a multiindex.
 
     Parameters
     ----------
@@ -112,7 +113,8 @@ def projectlevel(
     levels: Sequence[str],
     axis: Union[int, str] = 0,
 ):
-    """Project multiindex to given `levels`
+    """
+    Project multiindex to given `levels`
 
     Drops all levels except the ones explicitly mentioned from a given multiindex
     or an axis of a series or a dataframe.
@@ -132,7 +134,9 @@ def projectlevel(
 
     See also
     --------
-    `MultiIndex.droplevel`, `Series.droplevel`, `DataFrame.droplevel`
+    pandas.MultiIndex.droplevel
+    pandas.Series.droplevel
+    pandas.DataFrame.droplevel
     """
     if isinstance(index_or_series, Index):
         return _projectlevel(index_or_series, levels)
@@ -204,13 +208,16 @@ def alignlevels(l, r):
 
 
 def isin(df=None, **filters):
-    """Constructs a MultiIndex selector
+    """
+    Constructs a MultiIndex selector.
 
     Usage
     -----
-    > df.loc[isin(region="World", gas=["CO2", "N2O"])]
+    >>> df.loc[isin(region="World", gas=["CO2", "N2O"])]
+
     or with explicit df to get a boolean mask
-    > isin(df, region="World", gas=["CO2", "N2O"])
+
+    >>> isin(df, region="World", gas=["CO2", "N2O"])
     """
 
     def tester(df):
@@ -225,14 +232,18 @@ def isin(df=None, **filters):
 
 
 def ismatch(df=None, singlefilter=None, regex=False, **filters):
-    """Constructs an Index or MultiIndex selector based on pattern matching
+    """
+    Constructs an Index or MultiIndex selector based on pattern matching.
 
     Usage
     -----
-    > df.loc[ismatch(variable="Emissions|*|Fossil Fuel and Industry")]
-    for a multiindex or
-    > df.loc[ismatch("*bla*")]
-    for a single index
+    for a multiindex:
+
+    >>> df.loc[ismatch(variable="Emissions|*|Fossil Fuel and Industry")]
+
+    for a single index:
+
+    >>> df.loc[ismatch("*bla*")]
     """
 
     def index_match(index, patterns):
