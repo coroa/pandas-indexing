@@ -4,14 +4,23 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :caption: Documentation
 
-   readme
    installation
    usage
    contributing
-   reference/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API reference
+
+   reference/core
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Versions
+
    changelog
-   AUTHORS
 
 Indices and tables
 ==================
