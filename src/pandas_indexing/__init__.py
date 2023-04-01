@@ -12,11 +12,10 @@ from .core import (
     alignlevels,
     assignlevel,
     index_names,
-    isin,
-    ismatch,
     projectlevel,
     semijoin,
 )
+from .selectors import isin, ismatch
 
 
 try:

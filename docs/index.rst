@@ -16,6 +16,7 @@ Contents
 
    reference/core
    reference/arithmetics
+   reference/selectors
    reference/accessors
 
 .. toctree::

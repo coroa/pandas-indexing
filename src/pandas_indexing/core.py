@@ -1,15 +1,11 @@
 """
 Core module.
 """
-from functools import reduce
-from operator import and_
 from typing import Any, Literal, Sequence, Union
 
 import numpy as np
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
-
-from .utils import shell_pattern_to_regex
 
 
 def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex:
@@ -272,90 +268,3 @@ def semijoin(
         )
 
     return cls(data, *axes).__finalize__(df_or_series)
-
-
-def isin(df=None, **filters):
-    """
-    Constructs a MultiIndex selector.
-
-    Usage
-    -----
-    >>> df.loc[isin(region="World", gas=["CO2", "N2O"])]
-
-    or with explicit df to get a boolean mask
-
-    >>> isin(df, region="World", gas=["CO2", "N2O"])
-    """
-
-    def tester(df):
-        if isinstance(df, Index):
-            index = df
-        else:
-            index = df.index
-        tests = (index.isin(np.atleast_1d(v), level=k) for k, v in filters.items())
-        return reduce(and_, tests)
-
-    return tester if df is None else tester(df)
-
-
-def ismatch(df=None, singlefilter=None, regex=False, **filters):
-    """
-    Constructs an Index or MultiIndex selector based on pattern matching.
-
-    Usage
-    -----
-    for a multiindex:
-
-    >>> df.loc[ismatch(variable="Emissions|*|Fossil Fuel and Industry")]
-
-    for a single index:
-
-    >>> df.loc[ismatch("*bla*")]
-    """
-
-    def index_match(index, patterns):
-        matches = np.zeros((len(index),), dtype=bool)
-        for pat in patterns:
-            if isinstance(pat, str):
-                if not regex:
-                    pat = shell_pattern_to_regex(pat) + "$"
-                matches |= index.str.match(pat, na=False)
-            else:
-                matches |= index == pat
-        return matches
-
-    def multiindex_match(index, patterns, level):
-        level_num = index.names.index(level)
-        levels = index.levels[level_num]
-
-        matches = index_match(levels, patterns)
-
-        (indices,) = np.where(matches)
-        return np.in1d(index.codes[level_num], indices)
-
-    def tester(df):
-        if isinstance(df, Index):
-            index = df
-        else:
-            index = df.index
-
-        if singlefilter is not None:
-            matches = index_match(index, np.atleast_1d(singlefilter))
-        else:
-            tests = (
-                multiindex_match(index, np.atleast_1d(v), level=k)
-                for k, v in filters.items()
-            )
-            matches = reduce(and_, tests)
-
-        return Series(matches, index=index)
-
-    if df is None:
-        return tester
-    elif not isinstance(df, (DataFrame, Series)):
-        # Special case: a pattern was passed in through `df` which wants to be applied to
-        # hopefully a non-MultiIndex based Series or dataframe that we get afterwards
-        singlefilter = df
-        return tester
-    else:
-        return tester(df)

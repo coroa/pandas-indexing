@@ -38,6 +38,7 @@ dependencies = [
     'pandas>=1.2',
     'deprecated',
     "pandas",
+    "attrs",
 ]
 
 dynamic = ["version"]
