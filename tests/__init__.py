@@ -1,1 +1,3 @@
-"""Test suite for pandas_indexing."""
+"""
+Test suite for pandas_indexing.
+"""
