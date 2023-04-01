@@ -15,6 +15,7 @@ Contents
    :caption: API reference
 
    reference/core
+   reference/arithmetics
    reference/accessors
 
 .. toctree::

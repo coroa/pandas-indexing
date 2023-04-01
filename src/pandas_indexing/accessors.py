@@ -14,6 +14,7 @@ from typing import Any, Literal, Sequence, Union
 import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
 
+from . import arithmetics
 from .core import assignlevel, projectlevel, semijoin
 
 
@@ -119,6 +120,18 @@ class _DataIdxAccessor(_IdxAccessor):
         pandas.Index.join
         """
         return semijoin(self._obj, other, how=how, level=level, sort=sort, axis=axis)
+
+    def multiply(self, other, **align_kwds):
+        return arithmetics.multiply(self._obj, other, **align_kwds)
+
+    def divide(self, other, **align_kwds):
+        return arithmetics.divide(self._obj, other, **align_kwds)
+
+    def add(self, other, **align_kwds):
+        return arithmetics.add(self._obj, other, **align_kwds)
+
+    def subtract(self, other, **align_kwds):
+        return arithmetics.subtract(self._obj, other, **align_kwds)
 
 
 @pd.api.extensions.register_dataframe_accessor("idx")
