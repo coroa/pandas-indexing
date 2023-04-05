@@ -14,22 +14,36 @@ See also
 `pandas.DataFrame.align`
 """
 
+from typing import Union
+
+from pandas import DataFrame, Series
+
+
+def _needs_axis(df: Union[Series, DataFrame], other: Union[Series, DataFrame]) -> bool:
+    return (isinstance(df, DataFrame) and isinstance(other, Series)) or (
+        isinstance(df, Series) and isinstance(other, DataFrame)
+    )
+
 
 def add(df, other, **align_kwds):
+    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
     df, other = df.align(other, **align_kwds)
-    return df + other
+    return df.add(other, axis=axis)
 
 
 def divide(df, other, **align_kwds):
+    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
     df, other = df.align(other, **align_kwds)
-    return df / other
+    return df.div(other, axis=axis)
 
 
 def multiply(df, other, **align_kwds):
+    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
     df, other = df.align(other, **align_kwds)
-    return df * other
+    return df.mul(other, axis=axis)
 
 
 def subtract(df, other, **align_kwds):
+    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
     df, other = df.align(other, **align_kwds)
-    return df - other
+    return df.sub(other, axis=axis)
