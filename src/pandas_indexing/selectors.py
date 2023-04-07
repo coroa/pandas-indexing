@@ -4,12 +4,13 @@ Selectors improve .loc[] indexing for multi-index pandas data.
 
 from functools import reduce
 from operator import and_
-from typing import Any
+from typing import Any, Optional, Union
 
 import numpy as np
 from attrs import define
 from pandas import DataFrame, Index, Series
 
+from .core import Data
 from .utils import shell_pattern_to_regex
 
 
@@ -20,9 +21,6 @@ def maybe_const(x):
 class Selector:
     # Tell numpy that we want precedence
     __array_ufunc__ = None
-
-    def reshape(self, _):
-        return self
 
     def __invert__(self):
         return Not(self)
@@ -74,17 +72,25 @@ class Not(Selector):
 @define
 class Isin(Selector):
     filters: dict[str, Any]
+    ignore_missing_levels: bool = False
 
     def __call__(self, df):
         if isinstance(df, Index):
             index = df
         else:
             index = df.index
-        tests = (index.isin(np.atleast_1d(v), level=k) for k, v in self.filters.items())
+
+        filters = self.filters
+        if self.ignore_missing_levels:
+            filters = {k: v for k, v in filters.items() if k in index.names}
+
+        tests = (index.isin(np.atleast_1d(v), level=k) for k, v in filters.items())
         return reduce(and_, tests)
 
 
-def isin(df=None, **filters):
+def isin(
+    df: Optional[Data] = None, ignore_missing_levels: bool = False, **filters: Any
+) -> Union[Isin, Data]:
     """
     Constructs a MultiIndex selector.
 
@@ -97,7 +103,7 @@ def isin(df=None, **filters):
     >>> isin(df, region="World", gas=["CO2", "N2O"])
     """
 
-    tester = Isin(filters)
+    tester = Isin(filters, ignore_missing_levels=ignore_missing_levels)
     return tester if df is None else tester(df)
 
 
@@ -105,6 +111,7 @@ def isin(df=None, **filters):
 class Ismatch(Selector):
     filters: dict[str, Any]
     regex: bool = False
+    ignore_missing_levels: bool = False
 
     def index_match(self, index, patterns):
         matches = np.zeros((len(index),), dtype=bool)
@@ -136,16 +143,26 @@ class Ismatch(Selector):
         if single is not None:
             matches = self.index_match(index, np.atleast_1d(single))
         else:
+            filters = self.filters
+            if self.ignore_missing_levels:
+                filters = {k: v for k, v in filters.items() if k in index.names}
+
             tests = (
                 self.multiindex_match(index, np.atleast_1d(v), level=k)
-                for k, v in self.filters.items()
+                for k, v in filters.items()
             )
             matches = reduce(and_, tests)
 
         return Series(matches, index=index)
 
 
-def ismatch(df=None, singlefilter=None, regex=False, **filters):
+def ismatch(
+    df=None,
+    singlefilter=None,
+    regex: bool = False,
+    ignore_missing_levels: bool = False,
+    **filters,
+) -> Union[Ismatch, Data]:
     """
     Constructs an Index or MultiIndex selector based on pattern matching.
 
@@ -164,11 +181,15 @@ def ismatch(df=None, singlefilter=None, regex=False, **filters):
         filters = {None: singlefilter}
 
     if df is None:
-        return Ismatch(filters, regex)
+        return Ismatch(
+            filters, regex=regex, ignore_missing_levels=ignore_missing_levels
+        )
     elif not isinstance(df, (DataFrame, Series)):
         # Special case: a pattern was passed in through `df` which wants to be applied to
         # hopefully a non-MultiIndex based Series or dataframe that we get afterwards
         filters = {None: df}
-        return Ismatch(filters, regex)
+        return Ismatch(filters, regex=regex)
     else:
-        return Ismatch(filters, regex)(df)
+        return Ismatch(
+            filters, regex=regex, ignore_missing_levels=ignore_missing_levels
+        )(df)

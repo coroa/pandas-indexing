@@ -14,12 +14,11 @@ See also
 `pandas.DataFrame.align`
 """
 
-from typing import Any, Tuple, Union
+from typing import Any, Tuple
 
 from pandas import DataFrame, Series
 
-
-Data = Union[Series, DataFrame]
+from .core import Data
 
 
 def _needs_axis(df: Data, other: Data) -> bool:

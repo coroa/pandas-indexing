@@ -8,6 +8,9 @@ from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
 
+Data = Union[Series, DataFrame]
+
+
 def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex:
     if isinstance(index, MultiIndex):
         new_levels = list(index.levels)
