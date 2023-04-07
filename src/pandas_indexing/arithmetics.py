@@ -14,36 +14,45 @@ See also
 `pandas.DataFrame.align`
 """
 
-from typing import Union
+from typing import Any, Tuple, Union
 
 from pandas import DataFrame, Series
 
 
-def _needs_axis(df: Union[Series, DataFrame], other: Union[Series, DataFrame]) -> bool:
+Data = Union[Series, DataFrame]
+
+
+def _needs_axis(df: Data, other: Data) -> bool:
     return (isinstance(df, DataFrame) and isinstance(other, Series)) or (
         isinstance(df, Series) and isinstance(other, DataFrame)
     )
 
 
-def add(df, other, **align_kwds):
-    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
-    df, other = df.align(other, **align_kwds)
-    return df.add(other, axis=axis)
+def _prepare_op(
+    df: Data, other: Data, kwargs: dict[str, Any]
+) -> Tuple[Data, Data, dict[str, Any]]:
+    kwargs.setdefault("copy", True)
+    if _needs_axis(df, other):
+        kwargs.setdefault("axis", 0)
+    df, other = df.align(other, **kwargs)
+    return df, other, kwargs
 
 
-def divide(df, other, **align_kwds):
-    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
-    df, other = df.align(other, **align_kwds)
-    return df.div(other, axis=axis)
+def add(df: Data, other: Data, **align_kwargs: Any) -> Data:
+    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
+    return df.add(other, axis=align_kwargs.get("axis", 0))
 
 
-def multiply(df, other, **align_kwds):
-    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
-    df, other = df.align(other, **align_kwds)
-    return df.mul(other, axis=axis)
+def divide(df: Data, other: Data, **align_kwargs: Any) -> Data:
+    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
+    return df.div(other, axis=align_kwargs.get("axis", 0))
 
 
-def subtract(df, other, **align_kwds):
-    axis = align_kwds.setdefault("axis", 0) if _needs_axis(df, other) else 0
-    df, other = df.align(other, **align_kwds)
-    return df.sub(other, axis=axis)
+def multiply(df: Data, other: Data, **align_kwargs: Any) -> Data:
+    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
+    return df.mul(other, axis=align_kwargs.get("axis", 0))
+
+
+def subtract(df: Data, other: Data, **align_kwargs: Any) -> Data:
+    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
+    return df.sub(other, axis=align_kwargs.get("axis", 0))
