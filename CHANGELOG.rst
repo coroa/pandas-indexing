@@ -14,6 +14,7 @@ v0.2 (2023-04-07)
   :py:mod:`arithmetics` module extend the standard pandas operations with ``join`` and
   other arguments known from :py:meth:`pandas.DataFrame.align`.
   They are also available from the :py:mod:`idx accessor <accessors>`.
+* Both additions were introduced in :pull:`3`
 
 v0.1.2 (2023-02-27)
 ------------------------------------------------------------
