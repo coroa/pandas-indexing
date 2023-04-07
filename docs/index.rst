@@ -1,3 +1,5 @@
+.. module:: pandas_indexing
+
 ========
 Contents
 ========
@@ -14,10 +16,7 @@ Contents
    :maxdepth: 2
    :caption: API reference
 
-   reference/core
-   reference/arithmetics
-   reference/selectors
-   reference/accessors
+   api
 
 .. toctree::
    :maxdepth: 2

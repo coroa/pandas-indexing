@@ -56,8 +56,11 @@ templates_path = ["."]
 
 
 extlinks = {
-    "issue": ("https://github.com/coroa/pandas-indexing/issues/%s", "#"),  # noqa: E501
-    "pr": ("https://github.com/coroa/pandas-indexing/pull/%s", "PR #"),  # noqa: E501
+    "issue": (
+        "https://github.com/coroa/pandas-indexing/issues/%s",
+        "GH%s",
+    ),
+    "pull": ("https://github.com/coroa/pandas-indexing/pull/%s", "PR%s"),
 }
 
 # codecov io closes connection if host is accessed too repetitively.
@@ -97,6 +100,8 @@ coverage_write_headline = False  # do not write headlines.
 
 # -- Options for autodoc extension -------------------------------------------
 
+# Do not add module names in the doc to hide the internal package structure of SeisBench
+add_module_names = False
 autodoc_default_options = {
     "members": True,
     "undoc-members": False,

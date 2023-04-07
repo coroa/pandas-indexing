@@ -1,8 +1,9 @@
 """
 Provide aligned basic arithmetic ops.
 
-Simple arithmetic operations ``add``, ``divide``, ``multiply`` and ``subtract`` which
-allow setting the standard how="outer" alignment that pandas uses by default.
+Simple arithmetic operations :py:func:`add`, :py:func:`divide`, :py:func:`multiply` and
+:py:func:`subtract` which allow setting the standard how="outer" alignment that pandas
+uses by default.
 
 In practice, this means if dataframes do not share the same axes one can choose to get
 the results for only the items index items existing in both indices (``how="inner"``) or
@@ -11,7 +12,7 @@ operand.
 
 See also
 --------
-`pandas.DataFrame.align`
+pandas.DataFrame.align
 """
 
 from typing import Any, Tuple

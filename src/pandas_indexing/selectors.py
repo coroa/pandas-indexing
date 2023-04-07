@@ -7,7 +7,7 @@ from operator import and_
 from typing import Any, Optional, Union
 
 import numpy as np
-from attrs import define
+from attrs import define, field
 from pandas import DataFrame, Index, Series
 
 from .core import Data
@@ -72,7 +72,7 @@ class Not(Selector):
 @define
 class Isin(Selector):
     filters: dict[str, Any]
-    ignore_missing_levels: bool = False
+    ignore_missing_levels: bool = field(default=False, repr=False)
 
     def __call__(self, df):
         if isinstance(df, Index):
@@ -111,7 +111,7 @@ def isin(
 class Ismatch(Selector):
     filters: dict[str, Any]
     regex: bool = False
-    ignore_missing_levels: bool = False
+    ignore_missing_levels: bool = field(default=False, repr=False)
 
     def index_match(self, index, patterns):
         matches = np.zeros((len(index),), dtype=bool)
