@@ -1,7 +1,7 @@
 """
 Core module.
 """
-from typing import Any, Literal, Sequence, Union
+from typing import Any, Literal, Sequence, TypeVar, Union
 
 import numpy as np
 from pandas import DataFrame, Index, MultiIndex, Series
@@ -9,6 +9,8 @@ from pandas.core.indexes.frozen import FrozenList
 
 
 Data = Union[Series, DataFrame]
+T = TypeVar("T", bound=Union[Index, DataFrame, Series])
+S = TypeVar("S", bound=Union[DataFrame, Series])
 
 
 def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex:
@@ -47,12 +49,7 @@ def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex
     return new_index
 
 
-def assignlevel(
-    df: Union[Index, DataFrame, Series],
-    order: bool = False,
-    axis: int = 0,
-    **labels: Any,
-) -> Union[MultiIndex, DataFrame, Series]:
+def assignlevel(df: T, order: bool = False, axis: int = 0, **labels: Any) -> T:
     """
     Add or overwrite levels on a multiindex.
 
@@ -98,10 +95,8 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
 
 
 def projectlevel(
-    index_or_series: Union[Index, Series, DataFrame],
-    levels: Sequence[str],
-    axis: Union[int, str] = 0,
-) -> Union[Index, Series, DataFrame]:
+    index_or_series: T, levels: Sequence[str], axis: Union[int, str] = 0
+) -> T:
     """
     Project multiindex to given `levels`
 
@@ -161,9 +156,7 @@ def _ensure_multiindex(s: Index) -> MultiIndex:
     return MultiIndex.from_arrays([s], names=[s.name])
 
 
-def ensure_multiindex(
-    s: Union[DataFrame, Series, Index]
-) -> Union[DataFrame, Series, MultiIndex]:
+def ensure_multiindex(s: T) -> T:
     if isinstance(s, Index):
         return _ensure_multiindex(s)
 
@@ -199,14 +192,14 @@ def alignlevels(l, r):
 
 
 def semijoin(
-    df_or_series: Union[DataFrame, Series],
+    df_or_series: S,
     other: Index,
     *,
     how: Literal["left", "right", "inner", "outer"] = "left",
     level: Union[str, int, None] = None,
     sort: bool = False,
     axis: Literal[0, 1] = 0,
-) -> Union[DataFrame, Series]:
+) -> S:
     """
     Semijoin `df_or_series` by index `other`
 

@@ -7,6 +7,8 @@ Usage
 >>> df.idx.project(["model", "scenario"])
 
 >>> df.index.idx.assign(unit="Mt CO2")
+
+>>> df.idx.multiply(other, how="left")
 """
 
 from typing import Any, Literal, Sequence, Union

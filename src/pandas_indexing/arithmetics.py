@@ -15,7 +15,7 @@ See also
 pandas.DataFrame.align
 """
 
-from typing import Any, Tuple
+from typing import Any, Mapping, Tuple
 
 from pandas import DataFrame, Series
 
@@ -29,8 +29,8 @@ def _needs_axis(df: Data, other: Data) -> bool:
 
 
 def _prepare_op(
-    df: Data, other: Data, kwargs: dict[str, Any]
-) -> Tuple[Data, Data, dict[str, Any]]:
+    df: Data, other: Data, kwargs: Mapping[str, Any]
+) -> Tuple[Data, Data, Mapping[str, Any]]:
     kwargs.setdefault("copy", True)
     if _needs_axis(df, other):
         kwargs.setdefault("axis", 0)

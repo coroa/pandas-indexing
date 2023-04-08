@@ -4,7 +4,7 @@ Selectors improve .loc[] indexing for multi-index pandas data.
 
 from functools import reduce
 from operator import and_
-from typing import Any, Optional, Union
+from typing import Any, Mapping, Optional, Union
 
 import numpy as np
 from attrs import define, field
@@ -71,7 +71,7 @@ class Not(Selector):
 
 @define
 class Isin(Selector):
-    filters: dict[str, Any]
+    filters: Mapping[str, Any]
     ignore_missing_levels: bool = field(default=False, repr=False)
 
     def __call__(self, df):
@@ -90,7 +90,7 @@ class Isin(Selector):
 
 def isin(
     df: Optional[Data] = None, ignore_missing_levels: bool = False, **filters: Any
-) -> Union[Isin, Data]:
+) -> Union[Isin, Series]:
     """
     Constructs a MultiIndex selector.
 
@@ -109,7 +109,7 @@ def isin(
 
 @define
 class Ismatch(Selector):
-    filters: dict[str, Any]
+    filters: Mapping[str, Any]
     regex: bool = False
     ignore_missing_levels: bool = field(default=False, repr=False)
 
@@ -157,12 +157,12 @@ class Ismatch(Selector):
 
 
 def ismatch(
-    df=None,
-    singlefilter=None,
+    df: Union[None, Index, DataFrame, Series, str] = None,
+    singlefilter: Optional[str] = None,
     regex: bool = False,
     ignore_missing_levels: bool = False,
     **filters,
-) -> Union[Ismatch, Data]:
+) -> Union[Ismatch, Series]:
     """
     Constructs an Index or MultiIndex selector based on pattern matching.
 

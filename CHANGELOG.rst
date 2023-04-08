@@ -3,6 +3,13 @@
 Changelog
 =========
 
+v0.2.1 (2023-04-08)
+------------------------------------------------------------
+
+* Restore compatibility with python 3.8
+* Improve typing and add tests for :py:func:`~selectors.isin` and
+  :py:func:`~selectors.ismatch`
+
 v0.2 (2023-04-07)
 ------------------------------------------------------------
 
