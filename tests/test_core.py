@@ -2,7 +2,6 @@
 Performs general tests.
 """
 
-import numpy as np
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal
 
@@ -17,14 +16,14 @@ def test_assignlevel_index(sidx: Index, midx: MultiIndex):
     # Check adding to single index
     assert_index_equal(
         assignlevel(sidx, new=2),
-        MultiIndex.from_arrays([sidx.values, np.full(3, 2)], names=["str", "new"]),
+        MultiIndex.from_arrays([sidx.values, [2, 2, 2]], names=["str", "new"]),
     )
 
     # Check whether adding multiple levels works
     assert_index_equal(
         assignlevel(sidx, new=2, new2=3),
         MultiIndex.from_arrays(
-            [sidx.values, np.full(3, 2), np.full(3, 3)], names=["str", "new", "new2"]
+            [sidx.values, [2, 2, 2], [3, 3, 3]], names=["str", "new", "new2"]
         ),
     )
 
@@ -41,8 +40,7 @@ def test_assignlevel_index(sidx: Index, midx: MultiIndex):
     assert_index_equal(
         assignlevel(midx, num=2),
         MultiIndex.from_arrays(
-            [midx.get_level_values(0), np.full(3, 2)],
-            names=["str", "num"],
+            [midx.get_level_values(0), [2, 2, 2]], names=["str", "num"]
         ),
     )
 
@@ -82,8 +80,7 @@ def test_assignlevel_dataframe(mdf: DataFrame):
             mdf.values,
             index=mdf.index,
             columns=MultiIndex.from_arrays(
-                [mdf.columns.values, np.full(2, 2)],
-                names=[None, "new"],
+                [mdf.columns.values, [2, 2]], names=[None, "new"]
             ),
         ),
     )
