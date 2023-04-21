@@ -17,7 +17,7 @@ import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
-from .core import assignlevel, dropnalevel, projectlevel, semijoin
+from .core import Data, assignlevel, dropnalevel, projectlevel, semijoin
 
 
 class _IdxAccessor:
@@ -29,13 +29,19 @@ class _IdxAccessor:
         self._obj = pandas_obj
 
     def assign(
-        self, order: bool = False, axis: int = 0, **labels: Any
+        self,
+        frame: Optional[Data] = None,
+        order: bool = False,
+        axis: int = 0,
+        **labels: Any,
     ) -> Union[DataFrame, Series, MultiIndex]:
         """
         Add or overwrite levels on a multiindex.
 
         Parameters
         ----------
+        frame : Series|DataFrame, optional
+            Additional labels
         order : list of str, optional
             Level names in desired order or False, by default False
         axis : int, optional
@@ -48,7 +54,7 @@ class _IdxAccessor:
         df
             Series or DataFrame with changed index or new MultiIndex
         """
-        return assignlevel(self._obj, order=order, axis=axis, **labels)
+        return assignlevel(self._obj, frame=frame, order=order, axis=axis, **labels)
 
     def project(
         self,
