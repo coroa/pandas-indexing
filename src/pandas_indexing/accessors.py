@@ -11,13 +11,13 @@ Usage
 >>> df.idx.multiply(other, how="left")
 """
 
-from typing import Any, Literal, Sequence, Union
+from typing import Any, Literal, Optional, Sequence, Union
 
 import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
-from .core import assignlevel, projectlevel, semijoin
+from .core import assignlevel, dropna, projectlevel, semijoin
 
 
 class _IdxAccessor:
@@ -79,6 +79,39 @@ class _IdxAccessor:
         pandas.DataFrame.droplevel
         """
         return projectlevel(self._obj, levels=levels, axis=axis)
+
+    def dropna(
+        self,
+        subset: Optional[Sequence[str]] = None,
+        how: Literal["any", "all"] = "any",
+        axis: Union[int, str] = 0,
+    ) -> Union[DataFrame, Series, Index]:
+        """
+        Remove missing index values.
+
+        Drops all index entries for which any or all (`how`) levels are
+        undefined.
+
+        Parameters
+        ----------
+        subset : Sequence[str], optional
+            Names of levels on which to check for NA values
+        how : "any" (default) or "all"
+            Whether to remove an entry if all levels are NA only a single one
+        axis : int, optional
+            Axis of DataFrame to check on, by default 0
+
+        Returns
+        -------
+        index_or_series : Index|MultiIndex|Series|DataFrame
+
+        See also
+        --------
+        pandas.DataFrame.dropna
+        pandas.Series.dropna
+        pandas.Index.dropna
+        """
+        return dropna(self._obj, subset=subset, how=how, axis=axis)
 
 
 class _DataIdxAccessor(_IdxAccessor):

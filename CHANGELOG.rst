@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Add :py:func:`~core.dropna` to remove missing index entries
+
 v0.2.1 (2023-04-08)
 ------------------------------------------------------------
 

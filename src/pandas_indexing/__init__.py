@@ -11,6 +11,7 @@ from .core import (
     alignlevel,
     alignlevels,
     assignlevel,
+    dropna,
     index_names,
     projectlevel,
     semijoin,
