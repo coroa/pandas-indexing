@@ -1,7 +1,9 @@
 """
 Core module.
 """
-from typing import Any, Literal, Sequence, TypeVar, Union
+from functools import reduce
+from operator import and_, or_
+from typing import Any, Literal, Optional, Sequence, TypeVar, Union
 
 import numpy as np
 from pandas import DataFrame, Index, MultiIndex, Series
@@ -127,6 +129,61 @@ def projectlevel(
 
     index = index_or_series.index if axis in (0, "index") else index_or_series.columns
     return index_or_series.set_axis(_projectlevel(index, levels), axis=axis)
+
+
+def _notna(
+    index: Index,
+    subset: Optional[Sequence[str]] = None,
+    how: Literal["any", "all"] = "any",
+) -> np.ndarray:
+    index = ensure_multiindex(index)
+
+    subset = index.names if subset is None else np.atleast_1d(subset)
+    codes = [index.codes[index.names.index(n)] for n in subset]
+    op = and_ if how == "any" else or_
+    return reduce(op, [c != -1 for c in codes])
+
+
+def dropna(
+    index_or_series: T,
+    subset: Optional[Sequence[str]] = None,
+    how: Literal["any", "all"] = "any",
+    axis: Union[int, str] = 0,
+) -> T:
+    """
+    Remove missing index values.
+
+    Drops all index entries for which any or all (`how`) levels are
+    undefined.
+
+    Parameters
+    ----------
+    index_or_series : MultiIndex|Series|DataFrame
+        MultiIndex, Series or DataFrame to project
+    subset : Sequence[str], optional
+        Names of levels on which to check for NA values
+    how : "any" (default) or "all"
+        Whether to remove an entry if all levels are NA only a single one
+    axis : int, optional
+        Axis of DataFrame to check on, by default 0
+
+    Returns
+    -------
+    index_or_series : Index|MultiIndex|Series|DataFrame
+
+    See also
+    --------
+    pandas.DataFrame.dropna
+    pandas.Series.dropna
+    pandas.Index.dropna
+    """
+    if isinstance(index_or_series, Index):
+        return index_or_series[_notna(index_or_series, subset, how)]
+
+    if axis in (0, "index"):
+        return index_or_series.loc[_notna(index_or_series.index, subset, how)]
+
+    return index_or_series.loc[:, _notna(index_or_series.columns, subset, how)]
 
 
 def index_names(s, raise_on_index=False):

@@ -2,10 +2,11 @@
 Performs general tests.
 """
 
+from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal
 
-from pandas_indexing.core import assignlevel
+from pandas_indexing.core import assignlevel, dropna
 
 
 def test_assignlevel_index(sidx: Index, midx: MultiIndex):
@@ -84,3 +85,18 @@ def test_assignlevel_dataframe(mdf: DataFrame):
             ),
         ),
     )
+
+
+def test_dropna(mdf):
+    midx = MultiIndex.from_tuples(
+        [("foo", nan, nan), ("foo", nan, 2), ("bar", 3, 3)],
+        names=["str", "num", "num2"],
+    )
+    mdf = mdf.set_axis(midx)
+
+    assert_index_equal(dropna(midx), midx[[2]])
+    assert_frame_equal(dropna(mdf), mdf.iloc[[2]])
+
+    assert_index_equal(dropna(midx, subset=["num", "num2"], how="all"), midx[[1, 2]])
+    assert_index_equal(dropna(midx, subset=["str", "num"]), midx[[2]])
+    assert_index_equal(dropna(midx, subset="num2"), midx[[1, 2]])
