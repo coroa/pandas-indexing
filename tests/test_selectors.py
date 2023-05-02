@@ -18,6 +18,15 @@ def test_isin_mseries(mseries: Series):
     assert_series_equal(mseries.loc[sel], mseries.iloc[[1]])
 
 
+def test_isin_ignore_missing_levels(mseries: Series):
+    sel = isin(str="foo", bla=False)
+    with pytest.raises(KeyError):
+        mseries.loc[sel]
+
+    sel = isin(str="foo", bla=False, ignore_missing_levels=True)
+    assert_series_equal(mseries.loc[sel], Series([1, 2], mseries.index[:2]))
+
+
 def test_isin_operations(mdf: DataFrame):
     sel = isin(str="foo") & ~isin(num=2)
     assert sel == And(Isin(dict(str="foo")), Not(Isin(dict(num=2))))
