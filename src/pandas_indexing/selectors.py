@@ -94,6 +94,19 @@ def isin(
     """
     Constructs a MultiIndex selector.
 
+    Arguments
+    ---------
+    df : Data, optional
+        Data on which to match, if missing an Isin object is returned
+    ignore_missing_levels : bool, default False
+        If set, levels missing in data index will be ignored
+    **filters
+        Filter to apply on given levels (lists are `or`ed, levels are `and`ed)
+
+    Returns
+    -------
+    Isin or Series
+
     Usage
     -----
     >>> df.loc[isin(region="World", gas=["CO2", "N2O"])]
@@ -165,6 +178,25 @@ def ismatch(
 ) -> Union[Ismatch, Series]:
     """
     Constructs an Index or MultiIndex selector based on pattern matching.
+
+    Arguments
+    ---------
+    df : Data, optional
+        Data on which to match, if missing an Isin object is returned.
+    singlefilter : str, optional
+        Filter to apply on a non-multiindex index (can also be handed into the `df`
+        argument)
+    regex : bool, default False
+        If set, filters are interpreted as plain regex strings, otherwise (by default) a
+        glob-like syntax is used
+    ignore_missing_levels : bool, default False
+        If set, levels missing in data index will be ignored
+    **filters
+        Filter to apply on given levels (lists are `or`ed, levels are `and`ed)
+
+    Returns
+    -------
+    Isin or Series
 
     Usage
     -----
