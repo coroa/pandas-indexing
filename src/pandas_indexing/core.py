@@ -144,7 +144,7 @@ def _notna(
     return reduce(op, [c != -1 for c in codes])
 
 
-def dropna(
+def dropnalevel(
     index_or_series: T,
     subset: Optional[Sequence[str]] = None,
     how: Literal["any", "all"] = "any",

@@ -3,7 +3,7 @@
 Changelog
 =========
 
-* Add :py:func:`~core.dropna` to remove missing index entries
+* Add :py:func:`~core.dropnalevel` to remove missing index entries :pull:`4`, :pull:`6`
 
 v0.2.1 (2023-04-08)
 ------------------------------------------------------------
