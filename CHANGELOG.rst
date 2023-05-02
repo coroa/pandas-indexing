@@ -3,6 +3,8 @@
 Changelog
 =========
 
+v0.2.2 (2023-05-02)
+------------------------------------------------------------
 * :py:func:`~core.assignlevel` takes labels from an optional positional dataframe :pull:`5`
 * Add :py:func:`~core.dropnalevel` to remove missing index entries :pull:`4`, :pull:`6`
 
