@@ -2,6 +2,7 @@
 Core module.
 """
 from functools import reduce
+from itertools import chain
 from operator import and_, or_
 from typing import Any, Literal, Optional, Sequence, TypeVar, Union
 
@@ -15,7 +16,9 @@ T = TypeVar("T", bound=Union[Index, DataFrame, Series])
 S = TypeVar("S", bound=Union[DataFrame, Series])
 
 
-def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex:
+def _assignlevel(
+    index: Index, frame: Optional[Data] = None, order: bool = False, **labels: Any
+) -> MultiIndex:
     if isinstance(index, MultiIndex):
         new_levels = list(index.levels)
         new_codes = list(index.codes)
@@ -25,6 +28,11 @@ def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex
         new_levels = [level]
         new_codes = [level.get_indexer(index)]
         new_names = [index.name]
+
+    if isinstance(frame, Series):
+        frame = frame.to_frame()
+    if isinstance(frame, DataFrame):
+        labels = dict(chain(frame.items(), labels.items()))
 
     for level, lbls in labels.items():
         if np.isscalar(lbls):
@@ -51,7 +59,13 @@ def _assignlevel(index: Index, order: bool = False, **labels: Any) -> MultiIndex
     return new_index
 
 
-def assignlevel(df: T, order: bool = False, axis: int = 0, **labels: Any) -> T:
+def assignlevel(
+    df: T,
+    frame: Optional[Data] = None,
+    order: bool = False,
+    axis: int = 0,
+    **labels: Any,
+) -> T:
     """
     Add or overwrite levels on a multiindex.
 
@@ -59,6 +73,8 @@ def assignlevel(df: T, order: bool = False, axis: int = 0, **labels: Any) -> T:
     ----------
     df : Series|DataFrame|MultiIndex
         Series or DataFrame on which to change index or index to change
+    frame : Series|DataFrame, optional
+        Additional labels
     order : list of str, optional
         Level names in desired order or False, by default False
     axis : int, optional
@@ -72,7 +88,7 @@ def assignlevel(df: T, order: bool = False, axis: int = 0, **labels: Any) -> T:
         Series or DataFrame with changed index or new MultiIndex
     """
     if isinstance(df, Index):
-        return _assignlevel(df, order=order, **labels)
+        return _assignlevel(df, frame=frame, order=order, **labels)
 
     if isinstance(df, Series):
         index = df.index
@@ -83,7 +99,7 @@ def assignlevel(df: T, order: bool = False, axis: int = 0, **labels: Any) -> T:
             f"assignlevel expects an Index, Series or DataFrame ({type(df)=})"
         )
 
-    new_index = _assignlevel(index, order=order, **labels)
+    new_index = _assignlevel(index, frame=frame, order=order, **labels)
 
     return df.set_axis(new_index, axis=axis)
 
