@@ -17,7 +17,7 @@ import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
-from .core import assignlevel, dropna, projectlevel, semijoin
+from .core import assignlevel, dropnalevel, projectlevel, semijoin
 
 
 class _IdxAccessor:
@@ -111,7 +111,7 @@ class _IdxAccessor:
         pandas.Series.dropna
         pandas.Index.dropna
         """
-        return dropna(self._obj, subset=subset, how=how, axis=axis)
+        return dropnalevel(self._obj, subset=subset, how=how, axis=axis)
 
 
 class _DataIdxAccessor(_IdxAccessor):
