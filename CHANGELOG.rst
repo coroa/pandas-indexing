@@ -3,6 +3,8 @@
 Changelog
 =========
 
+v0.2.3 (2023-05-03)
+------------------------------------------------------------
 * :py:func:`~core.uniquelevel` or ``.idx.unique`` returns the unique values of one
   or multiple levels. :pull:`8`
 * :py:func:`~core.summarylevel` creates a string summarizing the index levels and their
