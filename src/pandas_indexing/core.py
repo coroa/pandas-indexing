@@ -10,6 +10,8 @@ import numpy as np
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
+from .utils import print_list
+
 
 Data = Union[Series, DataFrame]
 T = TypeVar("T", bound=Union[Index, DataFrame, Series])
@@ -240,6 +242,47 @@ def uniquelevel(
         return index_or_data.unique(level=levels[0])
 
     return projectlevel(index_or_data, levels).unique()
+
+
+def _summarylevel(index: Index, n: int = 80) -> str:
+    def name(l):
+        return "<unnamed>" if l is None else l
+
+    c1 = max(len(name(l)) for l in index.names) + 1
+    c2 = n - c1 - 5
+    return "\n".join(
+        f" * {name(l):{c1}}: {print_list(index.unique(l), c2)}" for l in index.names
+    )
+
+
+def summarylevel(index_or_data: Union[DataFrame, Series, Index], n: int = 80):
+    """
+    Summarize index levels.
+
+    Parameters
+    ----------
+    index_or_data : Index|Series|DataFrame
+        Index, Series or DataFrame of which to summarize index levels
+    n : int, default 80
+        The maximum line length
+
+    Returns
+    -------
+    summary : str
+
+    See also
+    --------
+    pandas.DataFrame.describe
+    """
+    if isinstance(index_or_data, DataFrame):
+        index_desc = _summarylevel(index_or_data.index, n=n)
+        columns_desc = _summarylevel(index_or_data.columns, n=n)
+        return f"Index:\n{index_desc}\n\nColumns:\n{columns_desc}"
+
+    if isinstance(index_or_data, Series):
+        index_or_data = index_or_data.index
+
+    return f"Index:\n{_summarylevel(index_or_data, n=n)}"
 
 
 def index_names(s, raise_on_index=False):

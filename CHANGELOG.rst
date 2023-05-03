@@ -4,7 +4,9 @@ Changelog
 =========
 
 * :py:func:`~core.uniquelevel` or :py:code:`.idx.unique` returns the unique values of one
-  or multiple levels. :pull:`8`
+  or multiple levels. :pull:`9`
+* :py:func:`~core.summarylevel` creates a string summarizing the index levels and their
+  values. Can also be accessed as :py:code:`df.idx` or :py:code:`index.idx.` :pull:`8`
 
 v0.2.2 (2023-05-02)
 ------------------------------------------------------------

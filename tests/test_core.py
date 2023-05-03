@@ -2,11 +2,13 @@
 Performs general tests.
 """
 
+from textwrap import dedent
+
 from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal
 
-from pandas_indexing.core import assignlevel, dropnalevel, uniquelevel
+from pandas_indexing.core import assignlevel, dropnalevel, summarylevel, uniquelevel
 
 
 def test_assignlevel_index(sidx: Index, midx: MultiIndex):
@@ -117,3 +119,30 @@ def test_uniquelevel(mdf, midx):
     assert_index_equal(uniquelevel(mdf, "str"), Index(["foo", "bar"], name="str"))
 
     assert_index_equal(uniquelevel(midx, ["str", "num"]), midx)
+
+
+def test_summarylevel(mdf, midx):
+    assert (
+        summarylevel(mdf)
+        == dedent(
+            """
+            Index:
+             * str : foo, bar (2)
+             * num : 1, 2, 3 (3)
+
+            Columns:
+             * <unnamed> : one, two (2)
+            """
+        ).strip()
+    )
+
+    assert (
+        summarylevel(midx)
+        == dedent(
+            """
+            Index:
+             * str : foo, bar (2)
+             * num : 1, 2, 3 (3)
+            """
+        ).strip()
+    )

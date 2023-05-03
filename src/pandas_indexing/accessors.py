@@ -23,6 +23,7 @@ from .core import (
     dropnalevel,
     projectlevel,
     semijoin,
+    summarylevel,
     uniquelevel,
 )
 
@@ -34,6 +35,9 @@ class _IdxAccessor:
 
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
+
+    def __repr__(self):
+        return summarylevel(self.obj)
 
     def assign(
         self,
