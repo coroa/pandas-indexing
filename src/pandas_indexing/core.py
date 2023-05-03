@@ -202,6 +202,46 @@ def dropnalevel(
     return index_or_series.loc[:, _notna(index_or_series.columns, subset, how)]
 
 
+def uniquelevel(
+    index_or_data: Union[DataFrame, Series, Index],
+    levels: Union[str, Sequence[str], None],
+    axis: Union[int, Literal["index", "columns"]] = 0,
+) -> Index:
+    """
+    Return unique index levels.
+
+    Parameters
+    ----------
+    index_or_data : Index|Series|DataFrame
+        Index, Series or DataFrame from which to get unique values
+    levels : str or Sequence[str], optional
+        Names of levels to get unique values of
+    axis : int, optional
+        Axis of DataFrame to check on, by default 0
+
+    Returns
+    -------
+    unique_index : Index
+
+    See also
+    --------
+    pandas.Index.unique
+    """
+    if isinstance(index_or_data, (DataFrame, Series)):
+        index_or_data = (
+            index_or_data.index if axis in (0, "index") else index_or_data.columns
+        )
+
+    if levels is None or isinstance(levels, str):
+        return index_or_data.unique(level=levels)
+
+    levels = list(levels)
+    if len(levels) == 1:
+        return index_or_data.unique(level=levels[0])
+
+    return projectlevel(index_or_data, levels).unique()
+
+
 def index_names(s, raise_on_index=False):
     if isinstance(s, (Series, DataFrame)):
         s = s.index
