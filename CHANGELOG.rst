@@ -3,8 +3,16 @@
 Changelog
 =========
 
+v0.2.4 (2023-05-03)
+------------------------------------------------------------
+
+* Paper-bag release: Fix new accessors :py:func:`~accessors._IdxAccessor.unique` and
+  :py:func:`~accessors._IdxAccessor.__repr__` and improve tests to catch trivial errors
+  like these earlier :pull:`10`
+
 v0.2.3 (2023-05-03)
 ------------------------------------------------------------
+
 * :py:func:`~core.uniquelevel` or ``.idx.unique`` returns the unique values of one
   or multiple levels. :pull:`8`
 * :py:func:`~core.summarylevel` creates a string summarizing the index levels and their
@@ -12,6 +20,7 @@ v0.2.3 (2023-05-03)
 
 v0.2.2 (2023-05-02)
 ------------------------------------------------------------
+
 * :py:func:`~core.assignlevel` takes labels from an optional positional dataframe :pull:`5`
 * Add :py:func:`~core.dropnalevel` to remove missing index entries :pull:`4`, :pull:`6`
 
