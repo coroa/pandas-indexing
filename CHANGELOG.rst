@@ -3,6 +3,9 @@
 Changelog
 =========
 
+* :py:func:`~core.uniquelevel` or :py:code:`.idx.unique` returns the unique values of one
+  or multiple levels. :pull:`7`
+
 v0.2.2 (2023-05-02)
 ------------------------------------------------------------
 * :py:func:`~core.assignlevel` takes labels from an optional positional dataframe :pull:`5`

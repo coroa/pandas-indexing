@@ -17,7 +17,14 @@ import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
-from .core import Data, assignlevel, dropnalevel, projectlevel, semijoin
+from .core import (
+    Data,
+    assignlevel,
+    dropnalevel,
+    projectlevel,
+    semijoin,
+    uniquelevel,
+)
 
 
 class _IdxAccessor:
@@ -55,6 +62,31 @@ class _IdxAccessor:
             Series or DataFrame with changed index or new MultiIndex
         """
         return assignlevel(self._obj, frame=frame, order=order, axis=axis, **labels)
+
+    def unique(
+        self,
+        levels: Union[str, Sequence[str], None],
+        axis: Union[int, Literal["index", "columns"]] = 0,
+    ) -> Index:
+        """
+        Return unique index levels.
+
+        Parameters
+        ----------
+        levels : str or Sequence[str], optional
+            Names of levels to get unique values of
+        axis : int, optional
+            Axis of DataFrame to check on, by default 0
+
+        Returns
+        -------
+        unique_index : Index
+
+        See also
+        --------
+        pandas.Index.unique
+        """
+        return uniquelevel(self.obj, levels=levels, axis=axis)
 
     def project(
         self,
