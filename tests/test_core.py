@@ -8,7 +8,13 @@ from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal
 
-from pandas_indexing.core import assignlevel, dropnalevel, summarylevel, uniquelevel
+from pandas_indexing.core import (
+    assignlevel,
+    dropnalevel,
+    projectlevel,
+    summarylevel,
+    uniquelevel,
+)
 
 
 def test_assignlevel_index(sidx: Index, midx: MultiIndex):
@@ -113,6 +119,18 @@ def test_dropnalevel(mdf):
     )
     assert_index_equal(dropnalevel(midx, subset=["str", "num"]), midx[[2]])
     assert_index_equal(dropnalevel(midx, subset="num2"), midx[[1, 2]])
+
+
+def test_projectlevel(midx, mdf):
+    assert_frame_equal(
+        projectlevel(mdf, "str"), mdf.set_axis(mdf.index.get_level_values("str"))
+    )
+    assert_index_equal(
+        projectlevel(midx, ["num", "str"]),
+        MultiIndex.from_arrays(
+            [mdf.index.get_level_values("num"), mdf.index.get_level_values("str")]
+        ),
+    )
 
 
 def test_uniquelevel(mdf, midx):
