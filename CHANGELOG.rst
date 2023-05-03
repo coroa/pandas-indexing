@@ -6,9 +6,9 @@ Changelog
 v0.2.4 (2023-05-03)
 ------------------------------------------------------------
 
-* Paper-bag release: Fix new accessors :py:func:`~accessors._IdxAccessor.unique` and
-  :py:func:`~accessors._IdxAccessor.__repr__` and improve tests to catch trivial errors
-  like these earlier :pull:`10`
+* Paper-bag release: Fix new accessors :py:func:`~accessors.IndexIdxAccessor.unique` and
+  :py:func:`~accessors.IndexIdxAccessor.__repr__` and improve tests to catch trivial
+  errors like these earlier :pull:`10`
 
 v0.2.3 (2023-05-03)
 ------------------------------------------------------------
