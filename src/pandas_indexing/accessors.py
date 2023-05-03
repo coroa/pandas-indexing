@@ -37,7 +37,7 @@ class _IdxAccessor:
         self._obj = pandas_obj
 
     def __repr__(self):
-        return summarylevel(self.obj)
+        return summarylevel(self._obj)
 
     def assign(
         self,
@@ -90,7 +90,7 @@ class _IdxAccessor:
         --------
         pandas.Index.unique
         """
-        return uniquelevel(self.obj, levels=levels, axis=axis)
+        return uniquelevel(self._obj, levels=levels, axis=axis)
 
     def project(
         self,
