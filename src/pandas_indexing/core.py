@@ -11,7 +11,7 @@ from deprecated import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
-from .utils import Axis, get_axis, print_list
+from .utils import Axis, doc, get_axis, print_list
 
 
 Data = Union[Series, DataFrame]
@@ -62,6 +62,12 @@ def _assignlevel(
     return new_index
 
 
+@doc(
+    df="""
+    df : DataFrame, Series or Index
+        Index, Series or DataFrame of which to change index levels\
+    """
+)
 def assignlevel(
     df: T,
     frame: Optional[Data] = None,
@@ -73,14 +79,13 @@ def assignlevel(
     Add or overwrite levels on a multiindex.
 
     Parameters
-    ----------
-    df : Series|DataFrame|MultiIndex
-        Series or DataFrame on which to change index or index to change
+    ----------\
+    {df}
     frame : Series|DataFrame, optional
         Additional labels
     order : list of str, optional
         Level names in desired order or False, by default False
-    axis : {0, 1, "index", "columns"}, default 0
+    axis : {{0, 1, "index", "columns"}}, default 0
         Axis where to update multiindex
     **labels
         Labels for each new index level
@@ -106,7 +111,13 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     return index.droplevel(index.names.difference(levels)).reorder_levels(levels)
 
 
-def projectlevel(index_or_series: T, levels: Sequence[str], axis: Axis = 0) -> T:
+@doc(
+    index_or_data="""
+    index_or_data : DataFrame, Series or Index
+        Index, Series or DataFrame to project\
+    """
+)
+def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
     """
     Project multiindex to given `levels`
 
@@ -114,17 +125,16 @@ def projectlevel(index_or_series: T, levels: Sequence[str], axis: Axis = 0) -> T
     or an axis of a series or a dataframe.
 
     Parameters
-    ----------
-    index_or_series : MultiIndex|Series|DataFrame
-        MultiIndex, Series or DataFrame to project
+    ----------\
+    {index_or_data}
     levels : Sequence[str]
         Names of levels to project on (to keep)
-    axis : {0, 1, "index", "columns"}, default 0
+    axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to project
 
     Returns
     -------
-    index_or_series : Index|MultiIndex|Series|DataFrame
+    index_or_data : Index|MultiIndex|Series|DataFrame
 
     See also
     --------
@@ -132,11 +142,11 @@ def projectlevel(index_or_series: T, levels: Sequence[str], axis: Axis = 0) -> T
     pandas.Series.droplevel
     pandas.DataFrame.droplevel
     """
-    if isinstance(index_or_series, Index):
-        return _projectlevel(index_or_series, levels)
+    if isinstance(index_or_data, Index):
+        return _projectlevel(index_or_data, levels)
 
-    index = get_axis(index_or_series.index, axis)
-    return index_or_series.set_axis(_projectlevel(index, levels), axis=axis)
+    index = get_axis(index_or_data.index, axis)
+    return index_or_data.set_axis(_projectlevel(index, levels), axis=axis)
 
 
 def _notna(
@@ -152,8 +162,14 @@ def _notna(
     return reduce(op, [c != -1 for c in codes])
 
 
+@doc(
+    index_or_data="""
+    index_or_data : DataFrame, Series or Index
+        Index, Series or DataFrame of which to drop rows or columns\
+    """
+)
 def dropnalevel(
-    index_or_series: T,
+    index_or_data: T,
     subset: Optional[Sequence[str]] = None,
     how: Literal["any", "all"] = "any",
     axis: Axis = 0,
@@ -165,19 +181,18 @@ def dropnalevel(
     undefined.
 
     Parameters
-    ----------
-    index_or_series : MultiIndex|Series|DataFrame
-        MultiIndex, Series or DataFrame to project
+    ----------\
+    {index_or_data}
     subset : Sequence[str], optional
         Names of levels on which to check for NA values
     how : "any" (default) or "all"
         Whether to remove an entry if all levels are NA only a single one
-    axis : {0, 1, "index", "columns"}, default 0
+    axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to check on
 
     Returns
     -------
-    index_or_series : Index|MultiIndex|Series|DataFrame
+    index_or_data : Index|MultiIndex|Series|DataFrame
 
     See also
     --------
@@ -185,15 +200,21 @@ def dropnalevel(
     pandas.Series.dropna
     pandas.Index.dropna
     """
-    if isinstance(index_or_series, Index):
-        return index_or_series[_notna(index_or_series, subset, how)]
+    if isinstance(index_or_data, Index):
+        return index_or_data[_notna(index_or_data, subset, how)]
 
     if axis in (0, "index"):
-        return index_or_series.loc[_notna(index_or_series.index, subset, how)]
+        return index_or_data.loc[_notna(index_or_data.index, subset, how)]
 
-    return index_or_series.loc[:, _notna(index_or_series.columns, subset, how)]
+    return index_or_data.loc[:, _notna(index_or_data.columns, subset, how)]
 
 
+@doc(
+    index_or_data="""
+    index_or_data : DataFrame, Series or Index
+        Index, Series or DataFrame of which to describe index levels\
+    """
+)
 def uniquelevel(
     index_or_data: Union[DataFrame, Series, Index],
     levels: Union[str, Sequence[str], None],
@@ -203,12 +224,11 @@ def uniquelevel(
     Return unique index levels.
 
     Parameters
-    ----------
-    index_or_data : Index|Series|DataFrame
-        Index, Series or DataFrame from which to get unique values
+    ----------\
+    {index_or_data}
     levels : str or Sequence[str], optional
         Names of levels to get unique values of
-    axis : {0, 1, "index", "columns"}, default 0
+    axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to check on
 
     Returns
@@ -242,6 +262,12 @@ def _describelevel(index: Index, n: int = 80) -> str:
     )
 
 
+@doc(
+    index_or_data="""
+    index_or_data : DataFrame, Series or Index
+        Index, Series or DataFrame of which to describe index levels\
+    """
+)
 def describelevel(
     index_or_data: Union[DataFrame, Series, Index], n: int = 80, as_str: bool = False
 ) -> Optional[str]:
@@ -249,9 +275,8 @@ def describelevel(
     Describe index levels.
 
     Parameters
-    ----------
-    index_or_data : Index|Series|DataFrame
-        Index, Series or DataFrame of which to describe index levels
+    ----------\
+    {index_or_data}
     n : int, default 80
         The maximum line length
     as_str : bool, default False
@@ -348,8 +373,14 @@ def alignlevels(l, r):
     )
 
 
+@doc(
+    frame_or_series="""
+    frame_or_series : DataFrame or Series
+        data to be filtered\
+    """
+)
 def semijoin(
-    df_or_series: S,
+    frame_or_series: S,
     other: Index,
     *,
     how: Literal["left", "right", "inner", "outer"] = "left",
@@ -358,21 +389,20 @@ def semijoin(
     axis: Axis = 0,
 ) -> S:
     """
-    Semijoin `df_or_series` by index `other`
+    Semijoin ``data`` by index ``other``
 
     Parameters
-    ----------
-    df_or_series : DataFrame or Series
-        data to be filtered
+    ----------\
+    {frame_or_series}
     other : Index
         other index to join with
-    how : {'left', 'right', 'inner', 'outer'}
+    how : {{'left', 'right', 'inner', 'outer'}}
         Join method to use
     level : None or str or int or
         single level on which to join, if not given join on all
     sort : bool, optional
         whether to sort the index
-    axis : {0, 1, "index", "columns"}
+    axis : {{0, 1, "index", "columns"}}
         Axis on which to join
 
     Returns
@@ -383,7 +413,7 @@ def semijoin(
     ------
     TypeError
         If axis is not 0 or 1, or
-        if df_or_series does not derive from DataFrame or Series
+        if frame_or_series does not derive from DataFrame or Series
 
     See also
     --------
@@ -400,7 +430,7 @@ def semijoin(
                 f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
             )
 
-    axes = df_or_series.axes
+    axes = frame_or_series.axes
     index = axes[axis]
     if level is None:
         index = ensure_multiindex(index)
@@ -410,24 +440,26 @@ def semijoin(
         other, how=how, level=level, return_indexers=True, sort=sort
     )
 
-    cls = df_or_series.__class__
+    cls = frame_or_series.__class__
     axes[axis] = new_index
 
     if left_idx is None:
-        return cls(df_or_series.values, *axes).__finalize__(df_or_series)
+        return cls(frame_or_series.values, *axes).__finalize__(frame_or_series)
 
-    if isinstance(df_or_series, DataFrame):
+    if isinstance(frame_or_series, DataFrame):
         if axis == 0:
             data = np.where(
-                left_idx[:, np.newaxis] != -1, df_or_series.values[left_idx, :], np.nan
+                left_idx[:, np.newaxis] != -1,
+                frame_or_series.values[left_idx, :],
+                np.nan,
             )
         elif axis == 1:
-            data = np.where(left_idx != -1, df_or_series.values[:, left_idx], np.nan)
-    elif isinstance(df_or_series, Series):
-        data = np.where(left_idx != -1, df_or_series.values[left_idx], np.nan)
+            data = np.where(left_idx != -1, frame_or_series.values[:, left_idx], np.nan)
+    elif isinstance(frame_or_series, Series):
+        data = np.where(left_idx != -1, frame_or_series.values[left_idx], np.nan)
     else:
         raise TypeError(
-            f"df_or_series must derive from DataFrame or Series, but is {type(df_or_series)}"
+            f"frame_or_series must derive from DataFrame or Series, but is {type(frame_or_series)}"
         )
 
-    return cls(data, *axes).__finalize__(df_or_series)
+    return cls(data, *axes).__finalize__(frame_or_series)
