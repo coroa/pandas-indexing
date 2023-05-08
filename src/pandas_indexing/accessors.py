@@ -20,10 +20,10 @@ from . import arithmetics
 from .core import (
     Data,
     assignlevel,
+    describelevel,
     dropnalevel,
     projectlevel,
     semijoin,
-    summarylevel,
     uniquelevel,
 )
 from .utils import Axis
@@ -38,7 +38,7 @@ class _IdxAccessor:
         self._obj = pandas_obj
 
     def __repr__(self):
-        return summarylevel(self._obj)
+        return describelevel(self._obj, as_str=True)
 
     def assign(
         self,

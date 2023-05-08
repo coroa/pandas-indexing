@@ -7,6 +7,7 @@ from operator import and_, or_
 from typing import Any, Literal, Optional, Sequence, TypeVar, Union
 
 import numpy as np
+from deprecated import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
@@ -230,7 +231,7 @@ def uniquelevel(
     return projectlevel(index, levels).unique()
 
 
-def _summarylevel(index: Index, n: int = 80) -> str:
+def _describelevel(index: Index, n: int = 80) -> str:
     def name(l):
         return "<unnamed>" if l is None else l
 
@@ -241,34 +242,48 @@ def _summarylevel(index: Index, n: int = 80) -> str:
     )
 
 
-def summarylevel(index_or_data: Union[DataFrame, Series, Index], n: int = 80):
+def describelevel(
+    index_or_data: Union[DataFrame, Series, Index], n: int = 80, as_str: bool = False
+) -> Optional[str]:
     """
-    Summarize index levels.
+    Describe index levels.
 
     Parameters
     ----------
     index_or_data : Index|Series|DataFrame
-        Index, Series or DataFrame of which to summarize index levels
+        Index, Series or DataFrame of which to describe index levels
     n : int, default 80
         The maximum line length
+    as_str : bool, default False
+        Whether to return as string or print, instead
 
     Returns
     -------
-    summary : str
+    description : str, optional
+        if print is False
 
     See also
     --------
     pandas.DataFrame.describe
     """
     if isinstance(index_or_data, DataFrame):
-        index_desc = _summarylevel(index_or_data.index, n=n)
-        columns_desc = _summarylevel(index_or_data.columns, n=n)
-        return f"Index:\n{index_desc}\n\nColumns:\n{columns_desc}"
+        index_desc = _describelevel(index_or_data.index, n=n)
+        columns_desc = _describelevel(index_or_data.columns, n=n)
+        description = f"Index:\n{index_desc}\n\nColumns:\n{columns_desc}"
+    else:
+        if isinstance(index_or_data, Series):
+            index_or_data = index_or_data.index
+        description = f"Index:\n{_describelevel(index_or_data, n=n)}"
 
-    if isinstance(index_or_data, Series):
-        index_or_data = index_or_data.index
+    if as_str:
+        return description
 
-    return f"Index:\n{_summarylevel(index_or_data, n=n)}"
+    print(description)
+
+
+summarylevel = deprecated(
+    describelevel, reason="Use describelevel instead", version="v0.2.5"
+)
 
 
 def index_names(s, raise_on_index=False):
