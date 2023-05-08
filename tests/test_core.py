@@ -10,9 +10,9 @@ from pandas.testing import assert_frame_equal, assert_index_equal
 
 from pandas_indexing.core import (
     assignlevel,
+    describelevel,
     dropnalevel,
     projectlevel,
-    summarylevel,
     uniquelevel,
 )
 
@@ -139,9 +139,9 @@ def test_uniquelevel(mdf, midx):
     assert_index_equal(uniquelevel(midx, ["str", "num"]), midx)
 
 
-def test_summarylevel(mdf, midx):
+def test_describelevel(mdf, midx):
     assert (
-        summarylevel(mdf)
+        describelevel(mdf, as_str=True)
         == dedent(
             """
             Index:
@@ -155,7 +155,7 @@ def test_summarylevel(mdf, midx):
     )
 
     assert (
-        summarylevel(midx)
+        describelevel(midx, as_str=True)
         == dedent(
             """
             Index:
