@@ -3,6 +3,9 @@
 Changelog
 =========
 
+* :py:func:`~core.describelevel` superseedes the as-of-now deprecated
+  :py:func:`~core.summarylevel` :pull:`11`
+
 v0.2.4 (2023-05-03)
 ------------------------------------------------------------
 
