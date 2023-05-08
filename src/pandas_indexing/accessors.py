@@ -22,11 +22,15 @@ from .core import (
     assignlevel,
     describelevel,
     dropnalevel,
+    extractlevel,
+    formatlevel,
+    isna,
+    notna,
     projectlevel,
     semijoin,
     uniquelevel,
 )
-from .utils import Axis
+from .utils import Axis, doc
 
 
 class _IdxAccessor:
@@ -40,6 +44,7 @@ class _IdxAccessor:
     def __repr__(self):
         return describelevel(self._obj, as_str=True)
 
+    @doc(assignlevel, df="")
     def assign(
         self,
         frame: Optional[Data] = None,
@@ -47,117 +52,66 @@ class _IdxAccessor:
         axis: Axis = 0,
         **labels: Any,
     ) -> Union[DataFrame, Series, MultiIndex]:
-        """
-        Add or overwrite levels on a multiindex.
-
-        Parameters
-        ----------
-        frame : Series|DataFrame, optional
-            Additional labels
-        order : list of str, optional
-            Level names in desired order or False, by default False
-        axis : {0, 1, "index", "columns"}, default 0
-            Axis where to update multiindex
-        **labels
-            Labels for each new index level
-
-        Returns
-        -------
-        df
-            Series or DataFrame with changed index or new MultiIndex
-        """
         return assignlevel(self._obj, frame=frame, order=order, axis=axis, **labels)
 
+    @doc(extractlevel, index_or_data="")
+    def extract(
+        self, axis: Axis = 0, **templates: str
+    ) -> Union[DataFrame, Series, Index]:
+        return extractlevel(self._obj, axis=axis, **templates)
+
+    @doc(formatlevel, index_or_data="")
+    def format(
+        self, axis: Axis = 0, **templates: str
+    ) -> Union[DataFrame, Series, Index]:
+        return formatlevel(self._obj, axis=axis, **templates)
+
+    @doc(uniquelevel, index_or_data="")
     def unique(
         self,
         levels: Union[str, Sequence[str], None],
         axis: Axis = 0,
     ) -> Index:
-        """
-        Return unique index levels.
-
-        Parameters
-        ----------
-        levels : str or Sequence[str], optional
-            Names of levels to get unique values of
-        axis : {0, 1, "index", "columns"}, default 0
-            Axis of DataFrame to check on
-
-        Returns
-        -------
-        unique_index : Index
-
-        See also
-        --------
-        pandas.Index.unique
-        """
         return uniquelevel(self._obj, levels=levels, axis=axis)
 
+    @doc(projectlevel, index_or_data="")
     def project(
         self,
         levels: Sequence[str],
         axis: Axis = 0,
     ) -> Union[DataFrame, Series, Index]:
-        """
-        Project multiindex to given `levels`
-
-        Drops all levels except the ones explicitly mentioned from a given multiindex
-        or an axis of a series or a dataframe.
-
-        Parameters
-        ----------
-        levels : Sequence[str]
-            Names of levels to project on (to keep)
-        axis : {0, 1, "index", "columns"}, default 0
-            Axis of DataFrame to project
-
-        Returns
-        -------
-        index_or_series : Index|MultiIndex|Series|DataFrame
-
-        See also
-        --------
-        pandas.MultiIndex.droplevel
-        pandas.Series.droplevel
-        pandas.DataFrame.droplevel
-        """
         return projectlevel(self._obj, levels=levels, axis=axis)
 
+    @doc(notna, index_or_data="")
+    def notna(
+        self,
+        subset: Optional[Sequence[str]] = None,
+        how: Literal["any", "all"] = "any",
+        axis: Axis = 0,
+    ):
+        return notna(self._obj, subset=subset, how=how, axis=axis)
+
+    @doc(isna, index_or_data="")
+    def isna(
+        self,
+        subset: Optional[Sequence[str]] = None,
+        how: Literal["any", "all"] = "any",
+        axis: Axis = 0,
+    ):
+        return ~isna(self._obj, subset=subset, how=how, axis=axis)
+
+    @doc(dropnalevel, index_or_data="")
     def dropna(
         self,
         subset: Optional[Sequence[str]] = None,
         how: Literal["any", "all"] = "any",
         axis: Axis = 0,
     ) -> Union[DataFrame, Series, Index]:
-        """
-        Remove missing index values.
-
-        Drops all index entries for which any or all (`how`) levels are
-        undefined.
-
-        Parameters
-        ----------
-        subset : Sequence[str], optional
-            Names of levels on which to check for NA values
-        how : "any" (default) or "all"
-            Whether to remove an entry if all levels are NA only a single one
-        axis : {0, 1, "index", "columns"}, default 0
-            Axis of DataFrame to check on
-
-        Returns
-        -------
-        index_or_series : Index|MultiIndex|Series|DataFrame
-
-        See also
-        --------
-        pandas.DataFrame.dropna
-        pandas.Series.dropna
-        pandas.Index.dropna
-        """
         return dropnalevel(self._obj, subset=subset, how=how, axis=axis)
 
 
 class _DataIdxAccessor(_IdxAccessor):
+    @doc(semijoin, frame_or_series="")
     def semijoin(
         self,
         other: Index,
@@ -167,36 +121,6 @@ class _DataIdxAccessor(_IdxAccessor):
         sort: bool = False,
         axis: Axis = 0,
     ) -> Union[DataFrame, Series]:
-        """
-        Semijoin `df_or_series` by index `other`
-
-        Parameters
-        ----------
-        other : Index
-            other index to join with
-        how : {'left', 'right', 'inner', 'outer'}
-            Join method to use
-        level : None or str or int or
-            single level on which to join, if not given join on all
-        sort : bool, optional
-            whether to sort the index
-        axis : {0, 1, "index", "columns"}, default 0
-            Axis on which to join
-
-        Returns
-        -------
-        DataFrame or Series
-
-        Raises
-        ------
-        TypeError
-            If axis is not 0 or 1, or
-            if df_or_series does not derive from DataFrame or Series
-
-        See also
-        --------
-        pandas.Index.join
-        """
         return semijoin(self._obj, other, how=how, level=level, sort=sort, axis=axis)
 
     def multiply(self, other, **align_kwds):
