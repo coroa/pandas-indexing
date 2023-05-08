@@ -10,7 +10,7 @@ import numpy as np
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
-from .utils import print_list
+from .utils import Axis, get_axis, print_list
 
 
 Data = Union[Series, DataFrame]
@@ -65,7 +65,7 @@ def assignlevel(
     df: T,
     frame: Optional[Data] = None,
     order: bool = False,
-    axis: int = 0,
+    axis: Axis = 0,
     **labels: Any,
 ) -> T:
     """
@@ -79,8 +79,8 @@ def assignlevel(
         Additional labels
     order : list of str, optional
         Level names in desired order or False, by default False
-    axis : int, optional
-        Axis where to update multiindex, by default 0
+    axis : {0, 1, "index", "columns"}, default 0
+        Axis where to update multiindex
     **labels
         Labels for each new index level
 
@@ -92,17 +92,8 @@ def assignlevel(
     if isinstance(df, Index):
         return _assignlevel(df, frame=frame, order=order, **labels)
 
-    if isinstance(df, Series):
-        index = df.index
-    elif isinstance(df, DataFrame):
-        index = df.index if axis == 0 else df.columns
-    else:
-        raise TypeError(
-            f"assignlevel expects an Index, Series or DataFrame ({type(df)=})"
-        )
-
+    index = get_axis(df, axis)
     new_index = _assignlevel(index, frame=frame, order=order, **labels)
-
     return df.set_axis(new_index, axis=axis)
 
 
@@ -114,9 +105,7 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     return index.droplevel(index.names.difference(levels)).reorder_levels(levels)
 
 
-def projectlevel(
-    index_or_series: T, levels: Sequence[str], axis: Union[int, str] = 0
-) -> T:
+def projectlevel(index_or_series: T, levels: Sequence[str], axis: Axis = 0) -> T:
     """
     Project multiindex to given `levels`
 
@@ -129,8 +118,8 @@ def projectlevel(
         MultiIndex, Series or DataFrame to project
     levels : Sequence[str]
         Names of levels to project on (to keep)
-    axis : int, optional
-        Axis of DataFrame to project, by default 0
+    axis : {0, 1, "index", "columns"}, default 0
+        Axis of DataFrame to project
 
     Returns
     -------
@@ -145,7 +134,7 @@ def projectlevel(
     if isinstance(index_or_series, Index):
         return _projectlevel(index_or_series, levels)
 
-    index = index_or_series.index if axis in (0, "index") else index_or_series.columns
+    index = get_axis(index_or_series.index, axis)
     return index_or_series.set_axis(_projectlevel(index, levels), axis=axis)
 
 
@@ -166,7 +155,7 @@ def dropnalevel(
     index_or_series: T,
     subset: Optional[Sequence[str]] = None,
     how: Literal["any", "all"] = "any",
-    axis: Union[int, str] = 0,
+    axis: Axis = 0,
 ) -> T:
     """
     Remove missing index values.
@@ -182,8 +171,8 @@ def dropnalevel(
         Names of levels on which to check for NA values
     how : "any" (default) or "all"
         Whether to remove an entry if all levels are NA only a single one
-    axis : int, optional
-        Axis of DataFrame to check on, by default 0
+    axis : {0, 1, "index", "columns"}, default 0
+        Axis of DataFrame to check on
 
     Returns
     -------
@@ -207,7 +196,7 @@ def dropnalevel(
 def uniquelevel(
     index_or_data: Union[DataFrame, Series, Index],
     levels: Union[str, Sequence[str], None],
-    axis: Union[int, Literal["index", "columns"]] = 0,
+    axis: Axis = 0,
 ) -> Index:
     """
     Return unique index levels.
@@ -218,8 +207,8 @@ def uniquelevel(
         Index, Series or DataFrame from which to get unique values
     levels : str or Sequence[str], optional
         Names of levels to get unique values of
-    axis : int, optional
-        Axis of DataFrame to check on, by default 0
+    axis : {0, 1, "index", "columns"}, default 0
+        Axis of DataFrame to check on
 
     Returns
     -------
@@ -229,19 +218,16 @@ def uniquelevel(
     --------
     pandas.Index.unique
     """
-    if isinstance(index_or_data, (DataFrame, Series)):
-        index_or_data = (
-            index_or_data.index if axis in (0, "index") else index_or_data.columns
-        )
+    index = get_axis(index_or_data, axis)
 
     if levels is None or isinstance(levels, str):
-        return index_or_data.unique(level=levels)
+        return index.unique(level=levels)
 
     levels = list(levels)
     if len(levels) == 1:
-        return index_or_data.unique(level=levels[0])
+        return index.unique(level=levels[0])
 
-    return projectlevel(index_or_data, levels).unique()
+    return projectlevel(index, levels).unique()
 
 
 def _summarylevel(index: Index, n: int = 80) -> str:
@@ -354,7 +340,7 @@ def semijoin(
     how: Literal["left", "right", "inner", "outer"] = "left",
     level: Union[str, int, None] = None,
     sort: bool = False,
-    axis: Literal[0, 1] = 0,
+    axis: Axis = 0,
 ) -> S:
     """
     Semijoin `df_or_series` by index `other`
@@ -371,7 +357,7 @@ def semijoin(
         single level on which to join, if not given join on all
     sort : bool, optional
         whether to sort the index
-    axis : {0, 1}
+    axis : {0, 1, "index", "columns"}
         Axis on which to join
 
     Returns
@@ -388,6 +374,16 @@ def semijoin(
     --------
     pandas.Index.join
     """
+
+    if isinstance(axis, str):
+        if axis == "index":
+            axis = 0
+        elif axis == "columns":
+            axis = 1
+        else:
+            raise ValueError(
+                f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
+            )
 
     axes = df_or_series.axes
     index = axes[axis]

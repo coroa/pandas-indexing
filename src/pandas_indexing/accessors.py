@@ -26,6 +26,7 @@ from .core import (
     summarylevel,
     uniquelevel,
 )
+from .utils import Axis
 
 
 class _IdxAccessor:
@@ -43,7 +44,7 @@ class _IdxAccessor:
         self,
         frame: Optional[Data] = None,
         order: bool = False,
-        axis: int = 0,
+        axis: Axis = 0,
         **labels: Any,
     ) -> Union[DataFrame, Series, MultiIndex]:
         """
@@ -55,8 +56,8 @@ class _IdxAccessor:
             Additional labels
         order : list of str, optional
             Level names in desired order or False, by default False
-        axis : int, optional
-            Axis where to update multiindex, by default 0
+        axis : {0, 1, "index", "columns"}, default 0
+            Axis where to update multiindex
         **labels
             Labels for each new index level
 
@@ -70,7 +71,7 @@ class _IdxAccessor:
     def unique(
         self,
         levels: Union[str, Sequence[str], None],
-        axis: Union[int, Literal["index", "columns"]] = 0,
+        axis: Axis = 0,
     ) -> Index:
         """
         Return unique index levels.
@@ -79,8 +80,8 @@ class _IdxAccessor:
         ----------
         levels : str or Sequence[str], optional
             Names of levels to get unique values of
-        axis : int, optional
-            Axis of DataFrame to check on, by default 0
+        axis : {0, 1, "index", "columns"}, default 0
+            Axis of DataFrame to check on
 
         Returns
         -------
@@ -95,7 +96,7 @@ class _IdxAccessor:
     def project(
         self,
         levels: Sequence[str],
-        axis: Union[int, str] = 0,
+        axis: Axis = 0,
     ) -> Union[DataFrame, Series, Index]:
         """
         Project multiindex to given `levels`
@@ -107,8 +108,8 @@ class _IdxAccessor:
         ----------
         levels : Sequence[str]
             Names of levels to project on (to keep)
-        axis : int, optional
-            Axis of DataFrame to project, by default 0
+        axis : {0, 1, "index", "columns"}, default 0
+            Axis of DataFrame to project
 
         Returns
         -------
@@ -126,7 +127,7 @@ class _IdxAccessor:
         self,
         subset: Optional[Sequence[str]] = None,
         how: Literal["any", "all"] = "any",
-        axis: Union[int, str] = 0,
+        axis: Axis = 0,
     ) -> Union[DataFrame, Series, Index]:
         """
         Remove missing index values.
@@ -140,8 +141,8 @@ class _IdxAccessor:
             Names of levels on which to check for NA values
         how : "any" (default) or "all"
             Whether to remove an entry if all levels are NA only a single one
-        axis : int, optional
-            Axis of DataFrame to check on, by default 0
+        axis : {0, 1, "index", "columns"}, default 0
+            Axis of DataFrame to check on
 
         Returns
         -------
@@ -164,7 +165,7 @@ class _DataIdxAccessor(_IdxAccessor):
         how: Literal["left", "right", "inner", "outer"] = "left",
         level: Union[str, int, None] = None,
         sort: bool = False,
-        axis: Literal[0, 1] = 0,
+        axis: Axis = 0,
     ) -> Union[DataFrame, Series]:
         """
         Semijoin `df_or_series` by index `other`
@@ -179,7 +180,7 @@ class _DataIdxAccessor(_IdxAccessor):
             single level on which to join, if not given join on all
         sort : bool, optional
             whether to sort the index
-        axis : {0, 1}
+        axis : {0, 1, "index", "columns"}, default 0
             Axis on which to join
 
         Returns

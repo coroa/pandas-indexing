@@ -3,6 +3,12 @@ Utils module.
 
 Simple utility functions not of greater interest
 """
+from typing import Literal, Union
+
+from pandas import DataFrame, Index, Series
+
+
+Axis = Literal[0, 1, "index", "columns"]
 
 
 def shell_pattern_to_regex(s):
@@ -69,3 +75,26 @@ def print_list(x, n):
             break
 
     return lst + count
+
+
+def get_axis(data: Union[Index, Series, DataFrame], axis: Axis = 0):
+    """
+    Get axis `axis` from `data`
+    """
+    if isinstance(data, Index):
+        return data
+    elif isinstance(data, Series):
+        return data.index
+    elif isinstance(data, DataFrame):
+        if axis in (0, "index"):
+            return data.index
+        elif axis in (1, "columns"):
+            return data.columns
+        else:
+            raise ValueError(
+                f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
+            )
+    else:
+        raise ValueError(
+            f"data needs to be a pandas Series or DataFrame, not: {type(data)}"
+        )
