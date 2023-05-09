@@ -1,5 +1,4 @@
-"""
-Registers convenience accessors into the ``idx`` namespace of each pandas
+"""Registers convenience accessors into the ``idx`` namespace of each pandas
 object.
 
 Usage

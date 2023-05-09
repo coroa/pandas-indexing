@@ -1,10 +1,11 @@
 """
 Core module.
 """
+import re
 from functools import reduce
 from itertools import chain
 from operator import and_, or_
-from typing import Any, Literal, Optional, Sequence, TypeVar, Union
+from typing import Any, Literal, Optional, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
 from deprecated import deprecated
@@ -75,13 +76,12 @@ def assignlevel(
     axis: Axis = 0,
     **labels: Any,
 ) -> T:
-    """
-    Add or overwrite levels on a multiindex.
+    """Add or overwrite levels on a multiindex.
 
     Parameters
     ----------\
     {df}
-    frame : Series|DataFrame, optional
+    frame : Series or DataFrame, optional
         Additional labels
     order : list of str, optional
         Level names in desired order or False, by default False
@@ -118,8 +118,7 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     """
 )
 def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
-    """
-    Project multiindex to given `levels`
+    """Project multiindex to given ``levels``.
 
     Drops all levels except the ones explicitly mentioned from a given multiindex
     or an axis of a series or a dataframe.
@@ -127,7 +126,7 @@ def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
     Parameters
     ----------\
     {index_or_data}
-    levels : Sequence[str]
+    levels : sequence of str
         Names of levels to project on (to keep)
     axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to project
@@ -154,12 +153,31 @@ def _notna(
     subset: Optional[Sequence[str]] = None,
     how: Literal["any", "all"] = "any",
 ) -> np.ndarray:
-    index = ensure_multiindex(index)
+    if not isinstance(index, MultiIndex):
+        return index.notna()
 
     subset = index.names if subset is None else np.atleast_1d(subset)
     codes = [index.codes[index.names.index(n)] for n in subset]
     op = and_ if how == "any" else or_
     return reduce(op, [c != -1 for c in codes])
+
+
+def notna(
+    index_or_data: Union[Index, Series, DataFrame],
+    subset: Optional[Sequence[str]] = None,
+    how: Literal["any", "all"] = "any",
+    axis: Axis = 0,
+):
+    return _notna(get_axis(index_or_data, axis), subset, how)
+
+
+def isna(
+    index_or_data: Union[Index, Series, DataFrame],
+    subset: Optional[Sequence[str]] = None,
+    how: Literal["any", "all"] = "any",
+    axis: Axis = 0,
+):
+    return ~_notna(get_axis(index_or_data, axis), subset, how)
 
 
 @doc(
@@ -174,10 +192,9 @@ def dropnalevel(
     how: Literal["any", "all"] = "any",
     axis: Axis = 0,
 ) -> T:
-    """
-    Remove missing index values.
+    """Remove missing index values.
 
-    Drops all index entries for which any or all (`how`) levels are
+    Drops all index entries for which any or all (``how``) levels are
     undefined.
 
     Parameters
@@ -185,8 +202,8 @@ def dropnalevel(
     {index_or_data}
     subset : Sequence[str], optional
         Names of levels on which to check for NA values
-    how : "any" (default) or "all"
-        Whether to remove an entry if all levels are NA only a single one
+    how : {{"any", "all"}}
+        Whether to remove an entry if all levels are NA or only a single one
     axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to check on
 
@@ -220,8 +237,7 @@ def uniquelevel(
     levels: Union[str, Sequence[str], None],
     axis: Axis = 0,
 ) -> Index:
-    """
-    Return unique index levels.
+    """Return unique index levels.
 
     Parameters
     ----------\
@@ -271,8 +287,7 @@ def _describelevel(index: Index, n: int = 80) -> str:
 def describelevel(
     index_or_data: Union[DataFrame, Series, Index], n: int = 80, as_str: bool = False
 ) -> Optional[str]:
-    """
-    Describe index levels.
+    """Describe index levels.
 
     Parameters
     ----------\
@@ -285,7 +300,7 @@ def describelevel(
     Returns
     -------
     description : str, optional
-        if print is False
+        if as_str is True
 
     See also
     --------
@@ -376,7 +391,7 @@ def alignlevels(l, r):
 @doc(
     frame_or_series="""
     frame_or_series : DataFrame or Series
-        data to be filtered\
+        Data to be filtered\
     """
 )
 def semijoin(
@@ -388,20 +403,19 @@ def semijoin(
     sort: bool = False,
     axis: Axis = 0,
 ) -> S:
-    """
-    Semijoin ``data`` by index ``other``
+    """Semijoin ``data`` by index ``other``.
 
     Parameters
     ----------\
     {frame_or_series}
     other : Index
-        other index to join with
+        Other index to join with
     how : {{'left', 'right', 'inner', 'outer'}}
         Join method to use
     level : None or str or int or
-        single level on which to join, if not given join on all
+        Single level on which to join, if not given join on all
     sort : bool, optional
-        whether to sort the index
+        Whether to sort the index
     axis : {{0, 1, "index", "columns"}}
         Axis on which to join
 
@@ -463,3 +477,153 @@ def semijoin(
         )
 
     return cls(data, *axes).__finalize__(frame_or_series)
+
+
+def _extractlevel(
+    index: Index, drop: bool = False, **templates: str
+) -> Tuple[Index, list[str]]:
+    index = ensure_multiindex(index)
+    all_identifiers = set()
+
+    for dim, template in templates.items():
+        identifiers = re.findall(r"\{([a-zA-Z_]+)\}", template)
+        all_identifiers.update(identifiers)
+        if dim not in index.names:
+            raise ValueError(f"{dim} not a dimension of index: {index.names}")
+
+        levelnum = index.names.index(dim)
+        labels = index.levels[levelnum]
+        codes = index.codes[levelnum]
+
+        regex_pattern = reduce(
+            lambda s, ident: s.replace(rf"\{{{ident}\}}", rf"(?P<{ident}>.*?)"),
+            identifiers,
+            re.escape(template),
+        )
+        components = labels.str.extract(f"^{regex_pattern}$", expand=True)
+
+        index = assignlevel(
+            index, **{ident: components[ident].values[codes] for ident in identifiers}
+        )
+
+    if drop:
+        index = index.droplevel(list(set(templates) - all_identifiers))
+
+    return index, list(all_identifiers)
+
+
+@doc(
+    index_or_data="""
+    index_or_data : DataFrame, Series or Index
+        Data to modify\
+    """
+)
+def extractlevel(
+    index_or_data: T,
+    drop: bool = False,
+    dropna: bool = True,
+    axis: Axis = 0,
+    **templates: str,
+) -> T:
+    """Split an index ``dim`` ension into multiple ones based on a
+    ``template``.
+
+    Parameters
+    ----------\
+    {index_or_data}
+    drop : bool, default False
+        Whether to keep the split dimension
+    dropna : bool, default True
+        Whether to drop the non-matching levels
+    axis : {{0, 1, "index", "columns"}}, default 0
+        Axis of DataFrame to extract from
+    **templates : str
+        Templates for splitting one or multiple levels
+
+    Returns
+    -------
+    Index, Series or DataFrame
+
+    Raises
+    ------
+    ValueError
+        If ``dim`` is not a dimension of ``index_or_series``
+    """
+    if isinstance(index_or_data, Index):
+        index_or_data, identifiers = _extractlevel(index_or_data, drop, **templates)
+    else:
+        index, identifiers = _extractlevel(
+            get_axis(index_or_data, axis), drop, **templates
+        )
+        index_or_data = index_or_data.set_axis(index, axis=axis)
+
+    if dropna:
+        index_or_data = dropnalevel(index_or_data, subset=identifiers, axis=axis)
+
+    return index_or_data
+
+
+def _formatlevel(index: Index, drop: bool = False, **templates: str) -> Index:
+    levels = {}
+    used_levels = set()
+    for dim, template in templates.items():
+        # Build string
+        string = ""
+        prev_end = 0
+        for m in re.finditer(r"\{([a-zA-Z_]+)\}", template):
+            level = m.group(1)
+            start, end = m.span()
+            string += template[prev_end:start] + projectlevel(index, level).astype(str)
+            prev_end = end
+            used_levels.add(level)
+        string += template[prev_end:]
+
+        levels[dim] = string
+
+    if drop:
+        used_levels.difference_update(templates)
+        if used_levels:
+            index = index.droplevel(list(used_levels))
+
+    return assignlevel(index, **levels)
+
+
+@doc(
+    index_or_data="""
+    index_or_data : DataFrame, Series or Index
+        Data to modify\
+    """
+)
+def formatlevel(
+    index_or_data: T,
+    drop: bool = False,
+    axis: Axis = 0,
+    **templates: str,
+) -> T:
+    """Format index levels based on a ``template`` which can refer to other
+    levels.
+
+    Parameters
+    ----------\
+    {index_or_data}
+    drop : bool, default False
+        Whether to drop the used index levels
+    axis : {{0, 1, "index", "columns"}}, default 0
+        Axis of DataFrame to modify
+    **templates : str
+        Format templates for one or multiple levels
+
+    Returns
+    -------
+    Index, Series or DataFrame
+
+    Raises
+    ------
+    ValueError
+        If ``templates`` refer to non-existant levels
+    """
+    if isinstance(index_or_data, Index):
+        return _formatlevel(index_or_data, drop, **templates)
+
+    index = get_axis(index_or_data, axis)
+    return index_or_data.set_axis(_formatlevel(index, drop, **templates), axis=axis)

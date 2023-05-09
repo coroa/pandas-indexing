@@ -1,5 +1,4 @@
-"""
-Provide aligned basic arithmetic ops.
+"""Provide aligned basic arithmetic ops.
 
 Simple arithmetic operations :py:func:`add`, :py:func:`divide`, :py:func:`multiply` and
 :py:func:`subtract` which allow setting the standard how="outer" alignment that pandas

@@ -3,7 +3,14 @@
 Changelog
 =========
 
-* :py:func:`~core.describelevel` superseedes the as-of-now deprecated
+v0.2.5 (2023-05-04)
+------------------------------------------------------------
+* :func:`~core.formatlevel` and :func:`~core.extractlevel` (or their equivalents
+  :meth:`~accessors.DataFrameIdxAccessor.format` and
+  :meth:`~accessors.DataFrameIdxAccessor.extract`) make it easy to combine or split
+  index levels using format-string like templates; check examples in the guide
+  (:ref:`Selecting data`) :pull:`13`
+* :py:func:`~core.describelevel` superseeds the as-of-now deprecated
   :py:func:`~core.summarylevel` :pull:`11`
 
 v0.2.4 (2023-05-03)
