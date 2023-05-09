@@ -1,5 +1,4 @@
-"""
-Utils module.
+"""Utils module.
 
 Simple utility functions not of greater interest
 """
@@ -31,8 +30,7 @@ def shell_pattern_to_regex(s):
 
 
 def print_list(x, n):
-    """
-    Return a printable string of a list shortened to n characters.
+    """Return a printable string of a list shortened to n characters.
 
     Copied from pyam.utils.print_list by Daniel Huppmann, licensed under Apache 2.0.
 

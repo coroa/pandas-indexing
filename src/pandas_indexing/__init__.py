@@ -13,6 +13,8 @@ from .core import (
     assignlevel,
     describelevel,
     dropnalevel,
+    extractlevel,
+    formatlevel,
     index_names,
     projectlevel,
     semijoin,

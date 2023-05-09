@@ -1,5 +1,5 @@
 """
-Selectors improve .loc[] indexing for multi-index pandas data.
+Selectors improve ``.loc[]`` indexing for multi-index pandas data.
 """
 
 from functools import reduce
@@ -91,24 +91,23 @@ class Isin(Selector):
 def isin(
     df: Optional[Data] = None, ignore_missing_levels: bool = False, **filters: Any
 ) -> Union[Isin, Series]:
-    """
-    Constructs a MultiIndex selector.
+    """Constructs a MultiIndex selector.
 
     Arguments
     ---------
     df : Data, optional
-        Data on which to match, if missing an Isin object is returned
+        Data on which to match, if missing an ``Isin`` object is returned
     ignore_missing_levels : bool, default False
         If set, levels missing in data index will be ignored
     **filters
-        Filter to apply on given levels (lists are `or`ed, levels are `and`ed)
+        Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
 
     Returns
     -------
     Isin or Series
 
-    Usage
-    -----
+    Example
+    -------
     >>> df.loc[isin(region="World", gas=["CO2", "N2O"])]
 
     or with explicit df to get a boolean mask
@@ -176,15 +175,14 @@ def ismatch(
     ignore_missing_levels: bool = False,
     **filters,
 ) -> Union[Ismatch, Series]:
-    """
-    Constructs an Index or MultiIndex selector based on pattern matching.
+    """Constructs an Index or MultiIndex selector based on pattern matching.
 
     Arguments
     ---------
     df : Data, optional
-        Data on which to match, if missing an Isin object is returned.
+        Data on which to match, if missing an ``Isin`` object is returned.
     singlefilter : str, optional
-        Filter to apply on a non-multiindex index (can also be handed into the `df`
+        Filter to apply on a non-multiindex index (can also be handed into the ``df``
         argument)
     regex : bool, default False
         If set, filters are interpreted as plain regex strings, otherwise (by default) a
@@ -192,14 +190,14 @@ def ismatch(
     ignore_missing_levels : bool, default False
         If set, levels missing in data index will be ignored
     **filters
-        Filter to apply on given levels (lists are `or`ed, levels are `and`ed)
+        Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
 
     Returns
     -------
     Isin or Series
 
-    Usage
-    -----
+    Example
+    -------
     for a multiindex:
 
     >>> df.loc[ismatch(variable="Emissions|*|Fossil Fuel and Industry")]

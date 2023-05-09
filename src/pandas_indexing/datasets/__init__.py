@@ -8,8 +8,7 @@ import pandas as pd
 
 
 def remindhighre_power():
-    """
-    Reads IAMC power sector data from REMIND's HighRE IMP scenario for AR6.
+    """Read IAMC power sector data from REMIND's HighRE IMP scenario for AR6.
 
     Returns
     -------

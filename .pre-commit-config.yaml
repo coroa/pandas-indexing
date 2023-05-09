@@ -30,16 +30,17 @@ repos:
   rev: v1.5.1
   hooks:
   - id: docformatter
-    args: ["--in-place", "--make-summary-multi-line", "--pre-summary-newline"]
+    args: ["--in-place", "--make-summary-multi-line"]
 
 - repo: https://github.com/keewis/blackdoc
   rev: v0.3.8
   hooks:
   - id: blackdoc
+    additional_dependencies: ["black==23.3.0"]
 
 # Formatting with "black" coding style
 - repo: https://github.com/psf/black
-  rev: 23.1.0
+  rev: 23.3.0
   hooks:
       # Format Python files
   - id: black
