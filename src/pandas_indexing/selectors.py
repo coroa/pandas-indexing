@@ -10,7 +10,7 @@ import numpy as np
 from attrs import define, field
 from pandas import DataFrame, Index, Series
 
-from .core import Data
+from .types import Data
 from .utils import shell_pattern_to_regex
 
 

@@ -18,7 +18,7 @@ from typing import Any, Mapping, Tuple
 
 from pandas import DataFrame, Series
 
-from .core import Data
+from .types import Data
 
 
 def _needs_axis(df: Data, other: Data) -> bool:

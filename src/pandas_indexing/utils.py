@@ -2,13 +2,12 @@
 
 Simple utility functions not of greater interest
 """
-from typing import Literal, Union
+from typing import Union
 
 from pandas import DataFrame, Index, Series
 from pandas.util._decorators import doc  # noqa: F401
 
-
-Axis = Literal[0, 1, "index", "columns"]
+from .types import Axis
 
 
 def shell_pattern_to_regex(s):

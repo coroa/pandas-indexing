@@ -17,7 +17,6 @@ from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
 from .core import (
-    Data,
     assignlevel,
     describelevel,
     dropnalevel,
@@ -29,7 +28,8 @@ from .core import (
     semijoin,
     uniquelevel,
 )
-from .utils import Axis, doc
+from .types import Axis, Data
+from .utils import doc
 
 
 class _IdxAccessor:
@@ -97,7 +97,7 @@ class _IdxAccessor:
         how: Literal["any", "all"] = "any",
         axis: Axis = 0,
     ):
-        return ~isna(self._obj, subset=subset, how=how, axis=axis)
+        return isna(self._obj, subset=subset, how=how, axis=axis)
 
     @doc(dropnalevel, index_or_data="")
     def dropna(

@@ -5,19 +5,15 @@ import re
 from functools import reduce
 from itertools import chain
 from operator import and_, or_
-from typing import Any, Literal, Optional, Sequence, Tuple, TypeVar, Union
+from typing import Any, Literal, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from deprecated import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
 
-from .utils import Axis, doc, get_axis, print_list
-
-
-Data = Union[Series, DataFrame]
-T = TypeVar("T", bound=Union[Index, DataFrame, Series])
-S = TypeVar("S", bound=Union[DataFrame, Series])
+from .types import Axis, Data, S, T
+from .utils import doc, get_axis, print_list
 
 
 def _assignlevel(
