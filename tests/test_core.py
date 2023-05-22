@@ -7,13 +7,15 @@ from textwrap import dedent
 import pytest
 from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
-from pandas.testing import assert_frame_equal, assert_index_equal
+from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 from pandas_indexing.core import (
     assignlevel,
     concat,
     describelevel,
     dropnalevel,
+    extractlevel,
+    formatlevel,
     projectlevel,
     uniquelevel,
 )
@@ -74,7 +76,7 @@ def test_assignlevel_index(sidx: Index, midx: MultiIndex):
     )
 
 
-def test_assignlevel_dataframe(mdf: DataFrame):
+def test_assignlevel_data(mdf: DataFrame):
     """
     Checks setting dataframes on both axes.
     """
@@ -106,6 +108,126 @@ def test_assignlevel_dataframe(mdf: DataFrame):
     )
 
 
+def test_formatlevel_options(mdf: DataFrame):
+    idx_str = mdf.index.get_level_values(0)
+    idx_num = mdf.index.get_level_values(1)
+
+    # drop
+    assert_frame_equal(
+        formatlevel(mdf, new="{str}|{num}", drop=True),
+        mdf.set_axis(
+            MultiIndex.from_arrays([idx_str + "|" + idx_num.astype(str)], names=["new"])
+        ),
+    )
+
+    # axis=1
+    mdf_t = mdf.T
+    assert_frame_equal(
+        formatlevel(mdf_t, new="{str}|{num}", axis=1),
+        mdf_t.set_axis(
+            MultiIndex.from_arrays(
+                [idx_str, idx_num, idx_str + "|" + idx_num.astype(str)],
+                names=["str", "num", "new"],
+            ),
+            axis=1,
+        ),
+    )
+
+
+def test_formatlevel_data(mdf, mseries, midx):
+    idx_str = midx.get_level_values(0)
+    idx_num = midx.get_level_values(1)
+    expected_idx = MultiIndex.from_arrays(
+        [
+            idx_str,
+            idx_num,
+            idx_str + "|" + idx_num.astype(str),
+            idx_num.astype(str) + " 2",
+        ],
+        names=["str", "num", "new", "new2"],
+    )
+    assert_frame_equal(
+        formatlevel(mdf, new="{str}|{num}", new2="{num} 2"), mdf.set_axis(expected_idx)
+    )
+    assert_series_equal(
+        formatlevel(mseries, new="{str}|{num}", new2="{num} 2"),
+        mseries.set_axis(expected_idx),
+    )
+    assert_index_equal(
+        formatlevel(midx, new="{str}|{num}", new2="{num} 2"), expected_idx
+    )
+
+
+def test_extractlevel(mdf, mseries, midx):
+    midx = MultiIndex.from_arrays(
+        [["e|foo", "e|bar", "bar"], [1, 2, 3]], names=["var", "num"]
+    )
+    mdf = mdf.set_axis(midx)
+    mseries = mseries.set_axis(midx)
+
+    expected_idx = MultiIndex.from_arrays(
+        [["e|foo", "e|bar"], [1, 2], ["e", "e"], ["foo", "bar"]],
+        names=["var", "num", "e", "typ"],
+    )
+
+    assert_index_equal(extractlevel(midx, var="{e}|{typ}"), expected_idx)
+
+    assert_series_equal(
+        extractlevel(mseries, var="{e}|{typ}"),
+        mseries.iloc[[0, 1]].set_axis(expected_idx),
+    )
+
+    assert_frame_equal(
+        extractlevel(mdf, var="{e}|{typ}"), mdf.iloc[[0, 1]].set_axis(expected_idx)
+    )
+
+
+def test_extractlevel_options(mdf):
+    midx = MultiIndex.from_arrays(
+        [["e|foo", "e|bar", "bar"], [1, 2, 3]], names=["var", "num"]
+    )
+    mdf_t = mdf.T.set_axis(midx, axis=1)
+
+    # drop=True
+    assert_index_equal(
+        extractlevel(midx, var="{e}|{typ}", drop=True),
+        MultiIndex.from_arrays(
+            [[1, 2], ["e", "e"], ["foo", "bar"]],
+            names=["num", "e", "typ"],
+        ),
+    )
+
+    # dropna=False
+    assert_index_equal(
+        extractlevel(midx, var="{e}|{typ}", dropna=False),
+        MultiIndex.from_arrays(
+            [
+                ["e|foo", "e|bar", "bar"],
+                [1, 2, 3],
+                ["e", "e", nan],
+                ["foo", "bar", nan],
+            ],
+            names=["var", "num", "e", "typ"],
+        ),
+    )
+
+    # axis=1
+    assert_frame_equal(
+        extractlevel(mdf_t, var="{e}|{typ}", drop=True, axis=1),
+        mdf_t.iloc[:, [0, 1]].set_axis(
+            MultiIndex.from_arrays(
+                [[1, 2], ["e", "e"], ["foo", "bar"]],
+                names=["num", "e", "typ"],
+            ),
+            axis=1,
+        ),
+    )
+
+    with pytest.raises(ValueError):
+        # mdf does not have the var level
+        extractlevel(mdf, var="{e}|{typ}")
+
+
 def test_concat(mdf):
     assert_frame_equal(concat([mdf.iloc[:1], mdf.iloc[1:]]), mdf)
 
@@ -130,6 +252,9 @@ def test_concat(mdf):
 
     with pytest.raises(ValueError):
         concat([mdf.iloc[:1], mdf.iloc[1:].droplevel("num")])
+
+    with pytest.raises(ValueError):
+        concat([])
 
 
 def test_dropnalevel(mdf):

@@ -654,10 +654,21 @@ def _formatlevel(index: Index, drop: bool = False, **templates: str) -> Index:
 
         levels[dim] = string
 
-    if drop:
-        used_levels.difference_update(templates)
-        if used_levels:
-            index = index.droplevel(list(used_levels))
+    used_levels.difference_update(templates)
+
+    if drop and used_levels:
+        if len(used_levels) == len(index.levels):
+            # none remain
+            def expand_to_array(val):
+                return (
+                    val if not np.isscalar(val) else np.full(len(index), fill_value=val)
+                )
+
+            return MultiIndex.from_arrays(
+                map(expand_to_array, levels.values()), names=levels.keys()
+            )
+
+        index = index.droplevel(list(used_levels))
 
     return assignlevel(index, **levels)
 
