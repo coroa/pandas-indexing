@@ -17,6 +17,9 @@ def test_isin_mseries(mseries: Series):
     sel = isin(num=[2, 3], str="foo")
     assert_series_equal(mseries.loc[sel], mseries.iloc[[1]])
 
+    sel = isin(num=lambda s: s > 1)
+    assert_series_equal(mseries.loc[sel], mseries.iloc[[1, 2]])
+
 
 def test_isin_ignore_missing_levels(mseries: Series):
     sel = isin(str="foo", bla=False)
