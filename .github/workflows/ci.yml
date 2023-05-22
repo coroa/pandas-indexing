@@ -20,7 +20,7 @@ jobs:
         # below the list of tox envs that you wish to include in the matrix
         include:
           # on all platforms and versions do everything
-          - tox-envs: [docs, lint, build, test]
+          - tox-envs: [lint, test, docs, build]
 
     runs-on: ${{ matrix.platform }}
 

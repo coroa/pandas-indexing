@@ -11,6 +11,7 @@ from .core import (
     alignlevel,
     alignlevels,
     assignlevel,
+    concat,
     describelevel,
     dropnalevel,
     extractlevel,

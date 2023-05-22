@@ -4,12 +4,14 @@ Performs general tests.
 
 from textwrap import dedent
 
+import pytest
 from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal
 
 from pandas_indexing.core import (
     assignlevel,
+    concat,
     describelevel,
     dropnalevel,
     projectlevel,
@@ -102,6 +104,32 @@ def test_assignlevel_dataframe(mdf: DataFrame):
             ),
         ),
     )
+
+
+def test_concat(mdf):
+    assert_frame_equal(concat([mdf.iloc[:1], mdf.iloc[1:]]), mdf)
+
+    assert_frame_equal(concat([mdf.iloc[:1], None, mdf.iloc[1:].swaplevel()]), mdf)
+
+    assert_frame_equal(
+        concat(
+            {"part1": mdf.iloc[:1], "part2": mdf.iloc[1:].swaplevel(), "skip": None},
+            keys="new",
+        ),
+        mdf.set_axis(
+            MultiIndex.from_arrays(
+                [
+                    ["part1", "part2", "part2"],
+                    mdf.index.get_level_values(0),
+                    mdf.index.get_level_values(1),
+                ],
+                names=["new", "str", "num"],
+            )
+        ),
+    )
+
+    with pytest.raises(ValueError):
+        concat([mdf.iloc[:1], mdf.iloc[1:].droplevel("num")])
 
 
 def test_dropnalevel(mdf):

@@ -5,9 +5,10 @@ import re
 from functools import reduce
 from itertools import chain
 from operator import and_, or_
-from typing import Any, Literal, Optional, Sequence, Tuple, Union
+from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
+import pandas as pd
 from deprecated import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.core.indexes.frozen import FrozenList
@@ -142,6 +143,83 @@ def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
 
     index = get_axis(index_or_data.index, axis)
     return index_or_data.set_axis(_projectlevel(index, levels), axis=axis)
+
+
+def concat(
+    objs: Union[Iterable[S], Mapping[str, S]],
+    order: Optional[Sequence[str]] = None,
+    axis: Axis = 0,
+    keys: Union[None, str, Index, Sequence] = None,
+    copy: bool = False,
+    **concat_kwds,
+) -> S:
+    """Concatenate pandas objects along a particular axis.
+
+    In addition to the functionality provided by pd.concat, if the concat axis has a multiindex
+    then the level order is reordered consistently.
+
+    Parameters
+    ----------
+    objs : a sequence or mapping of Series or DataFrame objects
+        If a mapping is passed the keys will be used as a new index level
+        (with the name of the `keys` argument).
+    order : a sequence of str, default None
+        The order of level names in which to concatenate
+    axis : Axis
+        Axis along which to concatenate
+    keys : str or list-like of str
+        If `objs` is a mapping, a string-like value will be used as name of the new level,
+        otherwise it is passed on to pd.concat.
+    copy : bool, default False
+        Whether to copy the underlying data
+    **concat_kwds
+        Other arguments accepted by pd.concat
+
+    Returns
+    -------
+    Concatenated data
+
+    Raises
+    ------
+    ValueError
+        If the level names of `objs` do not match
+
+    See also
+    --------
+    pandas.concat
+    """
+
+    if isinstance(objs, dict):
+        objs = {k: v for k, v in objs.items() if v is not None}
+        keys = Index(objs.keys(), name=keys)
+        objs = list(objs.values())
+    else:
+        objs = [obj for obj in objs if obj is not None]
+
+    if not objs:
+        raise ValueError("Need at least one element to concatenate")
+
+    if order is None:
+        order = get_axis(objs[0], axis=axis).names
+    elif isinstance(keys, Index):
+        # make sure the order list does not include the new axis name
+        order = [o for o in order if o != keys.name]
+
+    orderset = frozenset(order)
+
+    def reorder(df_or_ser):
+        ax = get_axis(df_or_ser, axis=axis)
+        if ax.names == order:
+            return df_or_ser
+        elif not set(ax.names) == orderset:
+            raise ValueError(
+                "All objects need to have the same index levels, but "
+                f"{set(orderset)} != {set(ax.names)}"
+            )
+
+        return df_or_ser.set_axis(ax.reorder_levels(order), axis=axis, copy=False)
+
+    return pd.concat([reorder(o) for o in objs], keys=keys, copy=copy, **concat_kwds)
 
 
 def _notna(

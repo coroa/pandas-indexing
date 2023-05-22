@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* New function :func:`~core.concat` makes concatenation level aware :pull:`14`
+
 v0.2.5 (2023-05-04)
 ------------------------------------------------------------
 * :func:`~core.formatlevel` and :func:`~core.extractlevel` (or their equivalents
