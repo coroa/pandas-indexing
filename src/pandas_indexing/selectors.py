@@ -84,8 +84,12 @@ class Isin(Selector):
         if self.ignore_missing_levels:
             filters = {k: v for k, v in filters.items() if k in index.names}
 
-        tests = (index.isin(np.atleast_1d(v), level=k) for k, v in filters.items())
-        return reduce(and_, tests)
+        def apply_filter(value, level):
+            if callable(value):
+                return value(index.get_level_values(level))
+            return index.isin(np.atleast_1d(value), level=level)
+
+        return reduce(and_, (apply_filter(v, k) for k, v in filters.items()))
 
 
 def isin(
@@ -101,6 +105,7 @@ def isin(
         If set, levels missing in data index will be ignored
     **filters
         Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
+        Callables are evaluated on the index level values.
 
     Returns
     -------

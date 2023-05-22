@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* :func:`~selectors.isin` accepts callable filters :pull:`16`, f.ex.
+  ``df.loc[isin(year=lambda s: s>2000)]``
 * New function :func:`~core.concat` makes concatenation level aware :pull:`14`
 
 v0.2.5 (2023-05-04)
