@@ -129,7 +129,11 @@ def convert_unit(
         return assignlevel(factor * df, axis=axis, **{level: new_unit})
 
     try:
-        return data.groupby(level, axis=axis, group_keys=False).apply(_convert_unit)
+        return (
+            data.groupby(level, axis=axis, group_keys=False)
+            .apply(_convert_unit)
+            .__finalize__(data, "convert_unit")
+        )
     except pint.errors.DimensionalityError as exc:
         raise exc from None  # remove exception chaining
 
