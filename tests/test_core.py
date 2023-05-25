@@ -228,6 +228,24 @@ def test_extractlevel_options(mdf):
         extractlevel(mdf, var="{e}|{typ}")
 
 
+def test_extractlevel_single(midx):
+    sidx = Index(["e|foo", "e|bar", "bar"])
+    assert_index_equal(
+        extractlevel(sidx, "{e}|{typ}", drop=True),
+        MultiIndex.from_arrays([["e", "e"], ["foo", "bar"]], names=["e", "typ"]),
+    )
+
+    sidx = Index(["e|foo", "e|bar", "bar"], name="named")
+    assert_index_equal(
+        extractlevel(sidx, "{e}|{typ}", drop=True),
+        MultiIndex.from_arrays([["e", "e"], ["foo", "bar"]], names=["e", "typ"]),
+    )
+
+    with pytest.raises(ValueError):
+        # MultiIndex input with single level template
+        extractlevel(midx, "{e}|{typ}")
+
+
 def test_concat(mdf):
     assert_frame_equal(concat([mdf.iloc[:1], mdf.iloc[1:]]), mdf)
 

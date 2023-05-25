@@ -3,6 +3,10 @@
 Changelog
 =========
 
+v0.2.6 (2023-05-25)
+------------------------------------------------------------
+* :func:`~core.extractlevel` can be used on non-multiindex, like
+  f.ex. ``extractlevel(df, "{sector}|{gas}")`` :pull:`17`
 * :func:`~selectors.isin` accepts callable filters :pull:`16`, f.ex.
   ``df.loc[isin(year=lambda s: s>2000)]``
 * New function :func:`~core.concat` makes concatenation level aware :pull:`14`

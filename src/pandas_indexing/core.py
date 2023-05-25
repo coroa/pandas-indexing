@@ -554,10 +554,15 @@ def semijoin(
 
 
 def _extractlevel(
-    index: Index, drop: bool = False, **templates: str
+    index: Index, template: Optional[str] = None, drop: bool = False, **templates: str
 ) -> Tuple[Index, list[str]]:
     index = ensure_multiindex(index)
     all_identifiers = set()
+
+    if template is not None:
+        if len(index.names) > 1:
+            raise ValueError("``template`` may only be non-null for single index level")
+        templates[index.names[0]] = template
 
     for dim, template in templates.items():
         identifiers = re.findall(r"\{([a-zA-Z_]+)\}", template)
@@ -594,6 +599,8 @@ def _extractlevel(
 )
 def extractlevel(
     index_or_data: T,
+    template: Optional[str] = None,
+    *,
     drop: bool = False,
     dropna: bool = True,
     axis: Axis = 0,
@@ -605,6 +612,8 @@ def extractlevel(
     Parameters
     ----------\
     {index_or_data}
+    template : str, optional
+        Extraction template for a single level
     drop : bool, default False
         Whether to keep the split dimension
     dropna : bool, default True
@@ -622,12 +631,16 @@ def extractlevel(
     ------
     ValueError
         If ``dim`` is not a dimension of ``index_or_series``
+    ValueError
+        If ``template`` is given, while index has more than one level
     """
     if isinstance(index_or_data, Index):
-        index_or_data, identifiers = _extractlevel(index_or_data, drop, **templates)
+        index_or_data, identifiers = _extractlevel(
+            index_or_data, template, drop, **templates
+        )
     else:
         index, identifiers = _extractlevel(
-            get_axis(index_or_data, axis), drop, **templates
+            get_axis(index_or_data, axis), template, drop, **templates
         )
         index_or_data = index_or_data.set_axis(index, axis=axis)
 
