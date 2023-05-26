@@ -5,7 +5,17 @@ import re
 from functools import reduce
 from itertools import chain
 from operator import and_, or_
-from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 import pandas as pd
@@ -499,8 +509,9 @@ def semijoin(
 
     Raises
     ------
+    ValueError
+        If axis is not 0, "index" or 1, "columns"
     TypeError
-        If axis is not 0 or 1, or
         if frame_or_series does not derive from DataFrame or Series
 
     See also
@@ -550,12 +561,12 @@ def semijoin(
             f"frame_or_series must derive from DataFrame or Series, but is {type(frame_or_series)}"
         )
 
-    return cls(data, *axes).__finalize__(frame_or_series)
+    return cls(data, *axes).__finalize__(frame_or_series, method="semijoin")
 
 
 def _extractlevel(
     index: Index, template: Optional[str] = None, drop: bool = False, **templates: str
-) -> Tuple[Index, list[str]]:
+) -> Tuple[Index, List[str]]:
     index = ensure_multiindex(index)
     all_identifiers = set()
 
