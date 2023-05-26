@@ -444,34 +444,6 @@ def ensure_multiindex(s: T) -> T:
     return s.set_axis(_ensure_multiindex(s.index))
 
 
-def alignlevel(s, other):
-    names = index_names(
-        other,
-        raise_on_index=RuntimeError(
-            "For alignment, both indices must be of type MultiIndex"
-            "; use alignlevels instead."
-        ),
-    )
-    s_names = index_names(s)
-    if names.difference(s_names):
-        raise RuntimeError("Both indices need to be aligned; use alignlevels instead.")
-    return ensure_multiindex(s).reorder_levels(names.union(s_names.difference(names)))
-
-
-def alignlevels(l, r):
-    l_names = index_names(l)
-    r_names = index_names(r)
-
-    l_and_r = FrozenList([l for l in l_names if l in r_names])
-    l_but_not_r = l_names.difference(r_names)
-    r_but_not_l = r_names.difference(l_names)
-
-    return (
-        ensure_multiindex(l).reorder_levels(l_and_r.union(l_but_not_r)),
-        ensure_multiindex(r).reorder_levels(l_and_r.union(r_but_not_l)),
-    )
-
-
 @doc(
     frame_or_series="""
     frame_or_series : DataFrame or Series
