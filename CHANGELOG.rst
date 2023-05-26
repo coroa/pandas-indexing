@@ -3,6 +3,12 @@
 Changelog
 =========
 
+v0.2.7 (2023-06-26)
+------------------------------------------------------------
+* Compatibility release to re-include Python 3.8 support and fix CI testing
+* :func:`~accessors.IndexIdxAccessor.extract` gains single-level index support
+* Minimal doc improvements
+
 v0.2.6 (2023-05-25)
 ------------------------------------------------------------
 * :func:`~core.extractlevel` can be used on non-multiindex, like

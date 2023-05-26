@@ -5,7 +5,17 @@ import re
 from functools import reduce
 from itertools import chain
 from operator import and_, or_
-from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 import pandas as pd
@@ -434,34 +444,6 @@ def ensure_multiindex(s: T) -> T:
     return s.set_axis(_ensure_multiindex(s.index))
 
 
-def alignlevel(s, other):
-    names = index_names(
-        other,
-        raise_on_index=RuntimeError(
-            "For alignment, both indices must be of type MultiIndex"
-            "; use alignlevels instead."
-        ),
-    )
-    s_names = index_names(s)
-    if names.difference(s_names):
-        raise RuntimeError("Both indices need to be aligned; use alignlevels instead.")
-    return ensure_multiindex(s).reorder_levels(names.union(s_names.difference(names)))
-
-
-def alignlevels(l, r):
-    l_names = index_names(l)
-    r_names = index_names(r)
-
-    l_and_r = FrozenList([l for l in l_names if l in r_names])
-    l_but_not_r = l_names.difference(r_names)
-    r_but_not_l = r_names.difference(l_names)
-
-    return (
-        ensure_multiindex(l).reorder_levels(l_and_r.union(l_but_not_r)),
-        ensure_multiindex(r).reorder_levels(l_and_r.union(r_but_not_l)),
-    )
-
-
 @doc(
     frame_or_series="""
     frame_or_series : DataFrame or Series
@@ -499,8 +481,9 @@ def semijoin(
 
     Raises
     ------
+    ValueError
+        If axis is not 0, "index" or 1, "columns"
     TypeError
-        If axis is not 0 or 1, or
         if frame_or_series does not derive from DataFrame or Series
 
     See also
@@ -550,12 +533,12 @@ def semijoin(
             f"frame_or_series must derive from DataFrame or Series, but is {type(frame_or_series)}"
         )
 
-    return cls(data, *axes).__finalize__(frame_or_series)
+    return cls(data, *axes).__finalize__(frame_or_series, method="semijoin")
 
 
 def _extractlevel(
     index: Index, template: Optional[str] = None, drop: bool = False, **templates: str
-) -> Tuple[Index, list[str]]:
+) -> Tuple[Index, List[str]]:
     index = ensure_multiindex(index)
     all_identifiers = set()
 
