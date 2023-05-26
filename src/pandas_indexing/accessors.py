@@ -55,9 +55,9 @@ class _IdxAccessor:
 
     @doc(extractlevel, index_or_data="")
     def extract(
-        self, axis: Axis = 0, **templates: str
+        self, template: Optional[str] = None, *, axis: Axis = 0, **templates: str
     ) -> Union[DataFrame, Series, Index]:
-        return extractlevel(self._obj, axis=axis, **templates)
+        return extractlevel(self._obj, template, axis=axis, **templates)
 
     @doc(formatlevel, index_or_data="")
     def format(
