@@ -42,7 +42,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     # "sphinx.ext.todo",
     # "sphinx.ext.viewcode",
-    "nbsphinx",
+    "myst_nb",
 ]
 
 if os.getenv("SPELLCHECK"):
@@ -75,7 +75,7 @@ linkcheck_ignore = [
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["html"]
+exclude_patterns = ["html", "jupyter_execute"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -92,6 +92,9 @@ html_context = {
     "github_version": "main",
     "conf_py_path": "/docs/source",
 }
+
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 
 # -- Extension configuration -------------------------------------------------

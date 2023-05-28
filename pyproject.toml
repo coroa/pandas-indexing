@@ -54,7 +54,7 @@ docs = [
     "sphinx>=2.2",
     "sphinx-argparse",
     "sphinx-rtd-theme",
-    "nbsphinx",
+    "myst_nb",
     "ipython",
 ]
 
