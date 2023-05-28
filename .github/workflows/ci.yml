@@ -27,12 +27,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # pandoc is required by nbsphinx for building the notebook-based docs
-    - name: Setup pandoc for building docs
-      uses: r-lib/actions/setup-pandoc@v2
-      with:
-        pandoc-version: '2.19.2'
-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:

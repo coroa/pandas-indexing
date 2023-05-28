@@ -73,6 +73,7 @@ instance/
 docs/_build/
 docs/html
 docs/latex
+docs/jupyter_execute
 
 # PyBuilder
 target/
