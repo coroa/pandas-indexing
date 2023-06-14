@@ -10,7 +10,7 @@ Examples
 >>> df.idx.multiply(other, how="left")
 """
 
-from typing import Any, Callable, Literal, Optional, Sequence, Union
+from typing import Any, Callable, Literal, Mapping, Optional, Sequence, Union
 
 import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
@@ -156,7 +156,7 @@ class _DataIdxAccessor(_IdxAccessor):
     )
     def convert_unit(
         self,
-        unit: Union[str, dict[str, str], Callable[[str], str]],
+        unit: Union[str, Mapping[str, str], Callable[[str], str]],
         level: Optional[str] = "unit",
         axis: Axis = 0,
     ):

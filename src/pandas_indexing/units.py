@@ -52,7 +52,7 @@ See also
 pint.set_application_registry
 """
 
-from typing import Callable, Optional, Union
+from typing import Callable, Mapping, Optional, Union
 
 from pandas import DataFrame, Series
 
@@ -211,7 +211,7 @@ def dequantify(data: Data, level: str = "unit", axis: Axis = 0, copy: bool = Fal
 )
 def convert_unit(
     data: Data,
-    unit: Union[str, dict[str, str], Callable[[str], str]],
+    unit: Union[str, Mapping[str, str], Callable[[str], str]],
     level: Optional[str] = "unit",
     axis: Axis = 0,
 ):
