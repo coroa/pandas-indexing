@@ -49,3 +49,11 @@ def test_ismatch_single(sdf: DataFrame):
     sel = ismatch("b*")
     assert isinstance(sel, Ismatch)
     assert_frame_equal(sdf.loc[sel], sdf.iloc[[1, 2]])
+
+
+def test_ismatch_explicitly_given(sdf):
+    assert_series_equal(ismatch(sdf, "b*"), Series([False, True, True], sdf.index))
+
+    assert_series_equal(
+        ismatch(sdf.columns, ["o*"]), Series([True, False], sdf.columns)
+    )
