@@ -219,7 +219,7 @@ def ismatch(
         return Ismatch(
             filters, regex=regex, ignore_missing_levels=ignore_missing_levels
         )
-    elif not isinstance(df, (DataFrame, Series)):
+    elif not isinstance(df, (DataFrame, Series, Index)):
         # Special case: a pattern was passed in through `df` which wants to be applied to
         # hopefully a non-MultiIndex based Series or dataframe that we get afterwards
         filters = {None: df}
