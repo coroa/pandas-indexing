@@ -20,6 +20,7 @@ from .core import (
     uniquelevel,
 )
 from .selectors import isin, ismatch
+from .units import convert_unit, dequantify, quantify, set_openscm_registry_as_default
 
 
 try:

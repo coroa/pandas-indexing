@@ -34,3 +34,10 @@ selectors
 
 .. automodule:: pandas_indexing.selectors
     :members:
+
+
+units
+=====
+
+.. automodule:: pandas_indexing.units
+    :members:

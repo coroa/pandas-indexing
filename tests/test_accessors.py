@@ -105,5 +105,5 @@ def test_repr(mdf):
     )
 
 
-def test_unique(mdf, midx):
+def test_unique(mdf):
     assert_index_equal(mdf.idx.unique("str"), Index(["foo", "bar"], name="str"))
