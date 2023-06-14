@@ -589,8 +589,13 @@ def extractlevel(
     axis: Axis = 0,
     **templates: str,
 ) -> T:
-    """Split an index ``dim`` ension into multiple ones based on a
-    ``template``.
+    """Extract new index levels with ``templates`` matched against any index
+    level.
+
+    The ``**templates`` argument defines pairs of level names and templates.
+    Given level names are matched against the template, f.ex. ``"Emi|{{gas}}|{{sector}}"``.
+    Patterns (``{{gas}}`` or ``{{sector}}``) appearing in the template are extracted
+    from the successful matches and added as new levels.
 
     Parameters
     ----------\
@@ -616,6 +621,45 @@ def extractlevel(
         If ``dim`` is not a dimension of ``index_or_series``
     ValueError
         If ``template`` is given, while index has more than one level
+
+    Examples
+    --------
+    >>> s = Series(
+    ...     range(3),
+    ...     MultiIndex.from_arrays(
+    ...         [["SE|Elec|Bio", "SE|Elec|Coal", "PE|Coal"], ["GWh", "GWh", "EJ"]],
+    ...         names=["variable", "unit"],
+    ...     ),
+    ... )
+    >>> s
+    variable      unit
+    SE|Elec|Bio   GWh     0
+    SE|Elec|Coal  GWh     1
+    PE|Coal       EJ      2
+    dtype: int64
+    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}")
+    variable      unit  type  fuel
+    SE|Elec|Bio   GWh   Elec  Bio     0
+    SE|Elec|Coal  GWh   Elec  Coal    1
+    dtype: int64
+
+    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}", dropna=False)
+    variable      unit  type  fuel
+    SE|Elec|Bio   GWh   Elec  Bio     0
+    SE|Elec|Coal  GWh   Elec  Coal    1
+    PE|Coal       EJ    NaN   NaN     2
+    dtype: int64
+
+    >>> s = Series(range(3), ["SE|Elec|Bio", "SE|Elec|Coal", "PE|Coal"])
+    >>> extractlevel(s, "SE|{{type}}|{{fuel}}", drop=True)
+    type  fuel
+    Elec  Bio     0
+          Coal    1
+    dtype: int64
+
+    See also
+    --------
+    formatlevel
     """
     if isinstance(index_or_data, Index):
         index_or_data, identifiers = _extractlevel(
