@@ -1,7 +1,6 @@
 import pytest
 from pandas import DataFrame, Series
 from pandas.testing import assert_frame_equal, assert_series_equal
-from pint import UnitRegistry
 
 from pandas_indexing import assignlevel, convert_unit, set_openscm_registry_as_default
 from pandas_indexing.units import has_openscm_units, has_pint, has_pint_pandas, is_unit
@@ -54,8 +53,10 @@ def test_convert_unit(mdfu: DataFrame, mseru: Series):
 
 @needs_openscm_units
 def test_set_openscm_registry_as_default():
+    import pint
+
     ur = set_openscm_registry_as_default()
-    assert isinstance(ur, UnitRegistry)
+    assert isinstance(ur, pint.UnitRegistry)
     assert hasattr(ur, "CO2e")
 
     ur2 = set_openscm_registry_as_default()
