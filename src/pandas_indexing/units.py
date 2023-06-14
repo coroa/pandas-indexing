@@ -29,7 +29,7 @@ Examples
 ...     [7, 8],
 ...     MultiIndex.from_tuples([("foo", "mm"), ("bar", "m")], names=["var", "unit"]),
 ... )
->>> s = pi.convert_unit(df, "km")
+>>> s = pi.convert_unit(s, "km")
 >>> s
 var  unit
 bar  km      0.008000
@@ -283,7 +283,10 @@ def convert_unit(
             return df
 
         factor = ur.Quantity(1, old_unit).to(new_unit).m
-        return assignlevel(factor * df, axis=axis, **{level: new_unit})
+        df = factor * df
+        if level is None:
+            return df
+        return assignlevel(df, axis=axis, **{level: new_unit})
 
     try:
         if level is None:
@@ -340,5 +343,5 @@ def is_unit(unit: str) -> bool:
     try:
         ur.Unit(unit)
         return True
-    except TypeError:
+    except pint.errors.UndefinedUnitError:
         return False
