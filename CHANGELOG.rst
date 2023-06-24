@@ -3,7 +3,31 @@
 Changelog
 =========
 
-v0.2.7 (2023-06-26)
+v0.2.8 (2023-06-24)
+------------------------------------------------------------
+* Units can be converted with :func:`~units.convert_unit`, like f.ex.
+  ``convert_unit(df, "km / h")`` or with ``convert_unit(df, {"m / s": "km / h"})``
+  to convert only data with the ``m / s`` unit
+* If the openscm-units registry is registered as pint application registry then emission conversion between gas species are possible under the correct contexts:
+
+.. code-block:: python
+
+    from pandas_indexing import set_openscm_registry_as_default, convert_unit
+
+    ur = set_openscm_registry_as_default()
+    with ur.context("AR6GWP100"):
+        df = convert_unit(df, "Mt CO2e/yr")  # or df = df.idx.convert_unit("Mt CO2e/yr")
+
+* To use unit conversion, you should install with ``pip install "pandas-indexing[units]"``
+  to pull in the optional ``pint`` and ``openscm-units`` dependencies
+* For more information about unit handling, refer to :py:mod:`~pandas_indexing.units` or check the code
+  added in :pull:`17`
+* Documentation fixes: MyST notebook rendering from :pull:`20` and new docs for
+  :func:`~core.extractlevel` in :pull:`21`.
+* Bug fixes: :func:`~core.semijoin`, :func:`~core.concat` and :func:`~selectors.ismatch`
+  are working again as advertised :pull:`21` and :pull:`24`.
+
+v0.2.7 (2023-05-26)
 ------------------------------------------------------------
 * Compatibility release to re-include Python 3.8 support and fix CI testing
 * :func:`~accessors.IndexIdxAccessor.extract` gains single-level index support
