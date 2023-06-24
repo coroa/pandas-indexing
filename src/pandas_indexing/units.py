@@ -60,18 +60,18 @@ from pandas import DataFrame, Series
 INSTALL_PACKAGE_WARNING = "Please install {package} via conda or pip, or use the pandas-indexing[units] variant."
 
 try:
-    import pint
-
-    has_pint = True
-except ImportError:
-    has_pint = False
-
-try:
     from pint_pandas import PintType
 
     has_pint_pandas = True
 except ImportError:
     has_pint_pandas = False
+
+try:
+    import pint
+
+    has_pint = True
+except ImportError:
+    has_pint = False
 
 try:
     import openscm_units
