@@ -65,6 +65,11 @@ test = [
     "hypothesis",
 ]
 
+units = [
+    "pint>=0.21",
+    "openscm-units",
+]
+
 lint = [
     "black",
     "ruff",

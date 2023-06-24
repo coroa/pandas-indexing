@@ -1,8 +1,8 @@
 """Registers convenience accessors into the ``idx`` namespace of each pandas
 object.
 
-Usage
------
+Examples
+--------
 >>> df.idx.project(["model", "scenario"])
 
 >>> df.index.idx.assign(unit="Mt CO2")
@@ -10,7 +10,7 @@ Usage
 >>> df.idx.multiply(other, how="left")
 """
 
-from typing import Any, Literal, Optional, Sequence, Union
+from typing import Any, Callable, Literal, Mapping, Optional, Sequence, Union
 
 import pandas as pd
 from pandas import DataFrame, Index, MultiIndex, Series
@@ -29,6 +29,7 @@ from .core import (
     uniquelevel,
 )
 from .types import Axis, Data
+from .units import convert_unit, dequantify, quantify
 from .utils import doc
 
 
@@ -133,6 +134,33 @@ class _DataIdxAccessor(_IdxAccessor):
 
     def subtract(self, other, **align_kwds):
         return arithmetics.subtract(self._obj, other, **align_kwds)
+
+    @doc(quantify, data="", example_call="s.idx.quantify()")
+    def quantify(
+        self,
+        level: str = "unit",
+        unit: Optional[str] = None,
+        axis: Axis = 0,
+        copy: bool = False,
+    ):
+        return quantify(self._obj, level=level, unit=unit, axis=axis, copy=copy)
+
+    def dequantify(self, level: str = "unit", axis: Axis = 0, copy: bool = False):
+        return dequantify(self._obj, level=level, axis=axis, copy=copy)
+
+    @doc(
+        convert_unit,
+        data="",
+        convert_unit_s_km='s.idx.convert_unit("km")',
+        convert_unit_s_m_to_km='s.idx.convert_unit({"m": "km"})',
+    )
+    def convert_unit(
+        self,
+        unit: Union[str, Mapping[str, str], Callable[[str], str]],
+        level: Optional[str] = "unit",
+        axis: Axis = 0,
+    ):
+        return convert_unit(self._obj, unit=unit, level=level, axis=axis)
 
 
 @pd.api.extensions.register_dataframe_accessor("idx")

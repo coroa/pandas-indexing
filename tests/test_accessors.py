@@ -6,7 +6,7 @@ from textwrap import dedent
 
 from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
-from pandas.testing import assert_frame_equal, assert_index_equal
+from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 import pandas_indexing.accessors  # noqa: F401
 
@@ -105,5 +105,12 @@ def test_repr(mdf):
     )
 
 
-def test_unique(mdf, midx):
+def test_unique(mdf):
     assert_index_equal(mdf.idx.unique("str"), Index(["foo", "bar"], name="str"))
+
+
+def test_convert_unit(mseries):
+    assert_series_equal(
+        mseries.idx.convert_unit({"m": "km"}, level=None),
+        mseries * 1e-3,
+    )
