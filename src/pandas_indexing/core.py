@@ -229,7 +229,9 @@ def concat(
 
         return df_or_ser.set_axis(ax.reorder_levels(order), axis=axis, copy=False)
 
-    return pd.concat([reorder(o) for o in objs], keys=keys, copy=copy, **concat_kwds)
+    return pd.concat(
+        [reorder(o) for o in objs], keys=keys, copy=copy, axis=axis, **concat_kwds
+    )
 
 
 def _notna(

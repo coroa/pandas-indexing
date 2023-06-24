@@ -269,6 +269,8 @@ def test_concat(mdf):
         ),
     )
 
+    assert_frame_equal(concat([mdf.iloc[:, :1], mdf.iloc[:, 1:]], axis=1), mdf)
+
     with pytest.raises(ValueError):
         concat([mdf.iloc[:1], mdf.iloc[1:].droplevel("num")])
 
