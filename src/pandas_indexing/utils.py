@@ -31,9 +31,11 @@ def shell_pattern_to_regex(s):
 def print_list(x, n):
     """Return a printable string of a list shortened to n characters.
 
-    Copied from pyam.utils.print_list by Daniel Huppmann, licensed under Apache 2.0.
+    Copied from pyam.utils.print_list by Daniel Huppmann, licensed under
+    Apache 2.0.
 
-    https://github.com/IAMconsortium/pyam/blob/449b77cb1c625b455e3675801477f19e99b30e64/pyam/utils.py#L599-L638 .
+    https://github.com/IAMconsortium/pyam/blob/449b77cb1c625b455e3675801477f19e99b30e64/pyam/utils.py#L599-L638
+    .
     """
     # if list is empty, only write count
     if len(x) == 0:
