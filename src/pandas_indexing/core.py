@@ -491,18 +491,8 @@ def semijoin(
     pandas.Index.join
     """
 
-    if isinstance(axis, str):
-        if axis == "index":
-            axis = 0
-        elif axis == "columns":
-            axis = 1
-        else:
-            raise ValueError(
-                f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
-            )
+    index = get_axis(frame_or_series, axis)
 
-    axes = frame_or_series.axes
-    index = axes[axis]
     if level is None:
         index = ensure_multiindex(index)
         other = ensure_multiindex(other)
@@ -511,29 +501,29 @@ def semijoin(
         other, how=how, level=level, return_indexers=True, sort=sort
     )
 
-    cls = frame_or_series.__class__
-    axes[axis] = new_index
-
     if left_idx is None:
-        return cls(frame_or_series.values, *axes).__finalize__(frame_or_series)
+        return frame_or_series.set_axis(new_index, axis=axis)
 
+    any_missing = not (left_idx != -1).all()
     if isinstance(frame_or_series, DataFrame):
-        if axis == 0:
-            data = np.where(
-                left_idx[:, np.newaxis] != -1,
-                frame_or_series.values[left_idx, :],
-                np.nan,
-            )
-        elif axis == 1:
-            data = np.where(left_idx != -1, frame_or_series.values[:, left_idx], np.nan)
+        if axis in (0, "index"):
+            data = frame_or_series.iloc[left_idx]
+            index = data.index
+        elif axis in (1, "columns"):
+            data = frame_or_series.iloc[:, left_idx]
+            index = data.columns
+        if any_missing:
+            data = data.where(pd.Series(left_idx != -1, index), axis=axis)
     elif isinstance(frame_or_series, Series):
-        data = np.where(left_idx != -1, frame_or_series.values[left_idx], np.nan)
+        data = frame_or_series.iloc[left_idx]
+        if any_missing:
+            data = data.where(left_idx != -1)
     else:
         raise TypeError(
             f"frame_or_series must derive from DataFrame or Series, but is {type(frame_or_series)}"
         )
 
-    return cls(data, *axes).__finalize__(frame_or_series, method="semijoin")
+    return data.set_axis(new_index, axis=axis)
 
 
 def _extractlevel(

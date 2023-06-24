@@ -5,8 +5,8 @@ Performs general tests.
 from textwrap import dedent
 
 import pytest
-from numpy import nan
-from pandas import DataFrame, Index, MultiIndex
+from numpy import nan, r_
+from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 from pandas_indexing.core import (
@@ -17,6 +17,7 @@ from pandas_indexing.core import (
     extractlevel,
     formatlevel,
     projectlevel,
+    semijoin,
     uniquelevel,
 )
 
@@ -334,4 +335,46 @@ def test_describelevel(mdf, midx):
              * num : 1, 2, 3 (3)
             """
         ).strip()
+    )
+
+
+def test_semijoin(mdf, mseries):
+    index = MultiIndex.from_tuples(
+        [(2.5, "foo", 2), (3.5, "bar", 3), (5.5, "bar", 5)], names=["new", "str", "num"]
+    )
+
+    # Left-join
+    assert_frame_equal(
+        semijoin(mdf, index, how="left"),
+        DataFrame(
+            {col: mdf[col].values for col in mdf},
+            index=assignlevel(mdf.index, new=[nan, 2.5, 3.5]),
+        ),
+    )
+
+    # Inner-join
+    assert_frame_equal(
+        semijoin(mdf, index, how="inner"),
+        DataFrame(
+            {col: mdf[col].values[1:3] for col in mdf},
+            index=assignlevel(mdf.index[1:3], new=[2.5, 3.5]),
+        ),
+    )
+
+    # Right-join
+    assert_frame_equal(
+        semijoin(mdf, index, how="right"),
+        DataFrame(
+            {col: r_[mdf[col].values[1:3], nan] for col in mdf},
+            index=index.reorder_levels(["str", "num", "new"]),
+        ),
+    )
+
+    # Right-join on series
+    assert_series_equal(
+        semijoin(mseries, index, how="right"),
+        Series(
+            r_[mseries.values[1:3], nan],
+            index=index.reorder_levels(["str", "num", "new"]),
+        ),
     )
