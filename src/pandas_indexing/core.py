@@ -744,3 +744,35 @@ def formatlevel(
 
     index = get_axis(index_or_data, axis)
     return index_or_data.set_axis(_formatlevel(index, drop, **templates), axis=axis)
+
+
+def _fixindexna(index: Index):
+    return index.set_codes(index.codes)
+
+
+@doc(
+    index_or_data="""
+    index_or_data : Index, Series or DataFrame
+        Datdropnalevel(self._obj, subset=subset, how=how, axis=axis)a
+    """
+)
+def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
+    """Fix broken MultiIndex NA representation from .groupby(..., dropna=False)
+
+    Refer to https://github.com/coroa/pandas-indexing/issues/25 for details
+
+    Parameters
+    ----------\
+    {index_or_data}
+    axis : Axis, optional
+        Axis to fix, by default 0
+
+    Returns
+    -------
+    index_or_data
+    """
+    if isinstance(index_or_data, Index):
+        return _fixindexna(index_or_data)
+
+    new_index = _fixindexna(get_axis(index_or_data, axis))
+    return index_or_data.set_axis(new_index, axis=axis)

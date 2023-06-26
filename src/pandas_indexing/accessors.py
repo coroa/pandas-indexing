@@ -21,6 +21,7 @@ from .core import (
     describelevel,
     dropnalevel,
     extractlevel,
+    fixindexna,
     formatlevel,
     isna,
     notna,
@@ -108,6 +109,13 @@ class _IdxAccessor:
         axis: Axis = 0,
     ) -> Union[DataFrame, Series, Index]:
         return dropnalevel(self._obj, subset=subset, how=how, axis=axis)
+
+    @doc(fixindexna, index_or_data="")
+    def fixna(
+        self,
+        axis: Axis = 0,
+    ) -> Union[DataFrame, Series, Index]:
+        return fixindexna(self._obj, axis=axis)
 
 
 class _DataIdxAccessor(_IdxAccessor):
