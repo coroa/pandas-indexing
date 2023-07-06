@@ -1,18 +1,19 @@
-"""Registers convenience accessors into the ``idx`` namespace of each pandas
+"""Registers convenience accessors into the ``pix`` namespace of each pandas
 object.
 
 Examples
 --------
->>> df.idx.project(["model", "scenario"])
+>>> df.pix.project(["model", "scenario"])
 
->>> df.index.idx.assign(unit="Mt CO2")
+>>> df.index.pix.assign(unit="Mt CO2")
 
->>> df.idx.multiply(other, how="left")
+>>> df.pix.multiply(other, how="left")
 """
 
 from typing import Any, Callable, Literal, Mapping, Optional, Sequence, Union
 
 import pandas as pd
+from deprecated.sphinx import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
@@ -34,7 +35,7 @@ from .units import convert_unit, dequantify, quantify
 from .utils import doc
 
 
-class _IdxAccessor:
+class _PixAccessor:
     """
     Convenience accessor for accessing `pandas-indexing` functions.
     """
@@ -118,7 +119,7 @@ class _IdxAccessor:
         return fixindexna(self._obj, axis=axis)
 
 
-class _DataIdxAccessor(_IdxAccessor):
+class _DataPixAccessor(_PixAccessor):
     @doc(semijoin, frame_or_series="")
     def semijoin(
         self,
@@ -143,7 +144,7 @@ class _DataIdxAccessor(_IdxAccessor):
     def subtract(self, other, **align_kwds):
         return arithmetics.subtract(self._obj, other, **align_kwds)
 
-    @doc(quantify, data="", example_call="s.idx.quantify()")
+    @doc(quantify, data="", example_call="s.pix.quantify()")
     def quantify(
         self,
         level: str = "unit",
@@ -159,8 +160,8 @@ class _DataIdxAccessor(_IdxAccessor):
     @doc(
         convert_unit,
         data="",
-        convert_unit_s_km='s.idx.convert_unit("km")',
-        convert_unit_s_m_to_km='s.idx.convert_unit({"m": "km"})',
+        convert_unit_s_km='s.pix.convert_unit("km")',
+        convert_unit_s_m_to_km='s.pix.convert_unit({"m": "km"})',
     )
     def convert_unit(
         self,
@@ -171,16 +172,39 @@ class _DataIdxAccessor(_IdxAccessor):
         return convert_unit(self._obj, unit=unit, level=level, axis=axis)
 
 
+@pd.api.extensions.register_dataframe_accessor("pix")
+class DataFramePixAccessor(_DataPixAccessor):
+    pass
+
+
+@pd.api.extensions.register_series_accessor("pix")
+class SeriesPixAccessor(_DataPixAccessor):
+    pass
+
+
+@pd.api.extensions.register_index_accessor("pix")
+class IndexPixAccessor(_PixAccessor):
+    pass
+
+
+use_pix_instead = deprecated(
+    reason="Use the new name ``df.pix`` of the accessor", version="0.2.9"
+)
+
+
 @pd.api.extensions.register_dataframe_accessor("idx")
-class DataFrameIdxAccessor(_DataIdxAccessor):
+@use_pix_instead
+class DataFrameIdxAccessor(_DataPixAccessor):
     pass
 
 
 @pd.api.extensions.register_series_accessor("idx")
-class SeriesIdxAccessor(_DataIdxAccessor):
+@use_pix_instead
+class SeriesIdxAccessor(_DataPixAccessor):
     pass
 
 
 @pd.api.extensions.register_index_accessor("idx")
-class IndexIdxAccessor(_IdxAccessor):
+@use_pix_instead
+class IndexIdxAccessor(_PixAccessor):
     pass

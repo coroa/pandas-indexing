@@ -4,6 +4,7 @@ Performs general tests.
 
 from textwrap import dedent
 
+import pytest
 from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
@@ -18,7 +19,7 @@ def test_assign_index(midx: MultiIndex):
 
     # Check for adding to multilevel
     assert_index_equal(
-        midx.idx.assign(new=[1, 2, 3]),
+        midx.pix.assign(new=[1, 2, 3]),
         MultiIndex.from_arrays(
             [midx.get_level_values(0), midx.get_level_values(1), [1, 2, 3]],
             names=["str", "num", "new"],
@@ -27,7 +28,7 @@ def test_assign_index(midx: MultiIndex):
 
     # Check adding from dataframe
     assert_index_equal(
-        midx.idx.assign(DataFrame({"new": [1, 2, 3], "new2": 2})),
+        midx.pix.assign(DataFrame({"new": [1, 2, 3], "new2": 2})),
         MultiIndex.from_arrays(
             [midx.get_level_values(0), midx.get_level_values(1), [1, 2, 3], [2, 2, 2]],
             names=["str", "num", "new", "new2"],
@@ -40,7 +41,7 @@ def test_assign_dataframe(mdf: DataFrame):
     Checks setting dataframes on both axes.
     """
     assert_frame_equal(
-        mdf.idx.assign(new=2),
+        mdf.pix.assign(new=2),
         DataFrame(
             mdf.values,
             index=MultiIndex.from_arrays(
@@ -56,7 +57,7 @@ def test_assign_dataframe(mdf: DataFrame):
     )
 
     assert_frame_equal(
-        mdf.idx.assign(new=2, axis=1),
+        mdf.pix.assign(new=2, axis=1),
         DataFrame(
             mdf.values,
             index=mdf.index,
@@ -74,15 +75,15 @@ def test_dropna(mdf):
     )
     mdf = mdf.set_axis(midx)
 
-    assert_index_equal(midx.idx.dropna(subset=["num", "num2"], how="all"), midx[[1, 2]])
+    assert_index_equal(midx.pix.dropna(subset=["num", "num2"], how="all"), midx[[1, 2]])
 
 
 def test_project(midx, mdf):
     assert_frame_equal(
-        mdf.idx.project("str"), mdf.set_axis(mdf.index.get_level_values("str"))
+        mdf.pix.project("str"), mdf.set_axis(mdf.index.get_level_values("str"))
     )
     assert_index_equal(
-        midx.idx.project(["num", "str"]),
+        midx.pix.project(["num", "str"]),
         MultiIndex.from_arrays(
             [mdf.index.get_level_values("num"), mdf.index.get_level_values("str")]
         ),
@@ -106,11 +107,17 @@ def test_repr(mdf):
 
 
 def test_unique(mdf):
-    assert_index_equal(mdf.idx.unique("str"), Index(["foo", "bar"], name="str"))
+    assert_index_equal(mdf.pix.unique("str"), Index(["foo", "bar"], name="str"))
 
 
 def test_convert_unit(mseries):
     assert_series_equal(
-        mseries.idx.convert_unit({"m": "km"}, level=None),
+        mseries.pix.convert_unit({"m": "km"}, level=None),
         mseries * 1e-3,
     )
+
+
+def test_idx_deprecation(mdf, mseries, midx):
+    for obj in [mdf, mseries, midx]:
+        with pytest.deprecated_call():
+            obj.idx
