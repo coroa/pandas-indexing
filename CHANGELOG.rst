@@ -3,12 +3,16 @@
 Changelog
 =========
 
+* Rename pandas accessor to ``.pix`` (``.idx`` is as of now deprecated, but available
+  for the time being) in :pull:`27`.
+
 v0.2.8 (2023-06-24)
 ------------------------------------------------------------
 * Units can be converted with :func:`~units.convert_unit`, like f.ex.
   ``convert_unit(df, "km / h")`` or with ``convert_unit(df, {"m / s": "km / h"})``
   to convert only data with the ``m / s`` unit
-* If the openscm-units registry is registered as pint application registry then emission conversion between gas species are possible under the correct contexts:
+* If the openscm-units registry is registered as pint application registry then emission
+  conversion between gas species are possible under the correct contexts:
 
 .. code-block:: python
 
@@ -20,8 +24,8 @@ v0.2.8 (2023-06-24)
 
 * To use unit conversion, you should install with ``pip install "pandas-indexing[units]"``
   to pull in the optional ``pint`` and ``openscm-units`` dependencies
-* For more information about unit handling, refer to :py:mod:`~pandas_indexing.units` or check the code
-  added in :pull:`17`
+* For more information about unit handling, refer to
+  :py:mod:`~pandas_indexing.units` or check the code added in :pull:`17`
 * Documentation fixes: MyST notebook rendering from :pull:`20` and new docs for
   :func:`~core.extractlevel` in :pull:`21`.
 * Bug fixes: :func:`~core.semijoin`, :func:`~core.concat` and :func:`~selectors.ismatch`
