@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Fix :func:`~core.projectlevel` on columns of a ``DataFrame`` :pull:`28`
+
 v0.2.8 (2023-06-24)
 ------------------------------------------------------------
 * Units can be converted with :func:`~units.convert_unit`, like f.ex.
