@@ -151,7 +151,7 @@ def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
     if isinstance(index_or_data, Index):
         return _projectlevel(index_or_data, levels)
 
-    index = get_axis(index_or_data.index, axis)
+    index = get_axis(index_or_data, axis)
     return index_or_data.set_axis(_projectlevel(index, levels), axis=axis)
 
 

@@ -5,6 +5,7 @@ Changelog
 
 * Rename pandas accessor to ``.pix`` (``.idx`` is as of now deprecated, but available
   for the time being) in :pull:`27`.
+* Fix :func:`~core.projectlevel` on columns of a ``DataFrame`` :pull:`28`
 
 v0.2.8 (2023-06-24)
 ------------------------------------------------------------
