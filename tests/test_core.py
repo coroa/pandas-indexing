@@ -120,6 +120,16 @@ def test_formatlevel_options(mdf: DataFrame):
         mdf.set_axis(Index(idx_str + "|" + idx_num.astype(str), name="new")),
     )
 
+    assert_frame_equal(
+        formatlevel(mdf, new="{str}|{num}", str="{str}|other", drop=True),
+        mdf.set_axis(
+            MultiIndex.from_arrays(
+                [idx_str + "|other", idx_str + "|" + idx_num.astype(str)],
+                names=["str", "new"],
+            )
+        ),
+    )
+
     # axis=1
     mdf_t = mdf.T
     assert_frame_equal(
