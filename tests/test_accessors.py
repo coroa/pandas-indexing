@@ -121,3 +121,10 @@ def test_idx_deprecation(mdf, mseries, midx):
     for obj in [mdf, mseries, midx]:
         with pytest.deprecated_call():
             obj.idx
+
+
+def test_to_tidy(mseries):
+    assert_frame_equal(
+        mseries.pix.to_tidy(),
+        DataFrame(dict(str=["foo", "foo", "bar"], num=[1, 2, 3], value=[1, 2, 3])),
+    )

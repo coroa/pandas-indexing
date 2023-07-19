@@ -753,7 +753,7 @@ def _fixindexna(index: Index):
 @doc(
     index_or_data="""
     index_or_data : Index, Series or DataFrame
-        Datdropnalevel(self._obj, subset=subset, how=how, axis=axis)a
+        Data\
     """
 )
 def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
@@ -776,3 +776,51 @@ def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
 
     new_index = _fixindexna(get_axis(index_or_data, axis))
     return index_or_data.set_axis(new_index, axis=axis)
+
+
+@doc(
+    data="""
+    data : Data
+        Data in time-series representation with years on columns\
+    """
+)
+def to_tidy(
+    data: Data,
+    meta: Optional[DataFrame] = None,
+    value_name: Optional[str] = "value",
+    columns: Optional[str] = "year",
+):
+    """Convert multi-indexed time-series dataframe to tidy dataframe.
+
+    Parameters
+    ----------\
+    {data}
+    meta : DataFrame, optional
+        Meta data that is joined before tidying up
+    value_name : str, optional
+        Column name for the values; default "value"
+        Use ``None`` to not change the name.
+    columns : str, optional
+        Name for the level on the columns axis; default "year"
+        Use ``None`` to not change the name.
+
+    Returns
+    -------
+    DataFrame
+        Tidy dataframe without index
+    """
+    if isinstance(data, DataFrame):
+        if columns is not None:
+            data = data.rename_axis(columns=columns)
+        data = data.stack()
+    elif isinstance(data, Series):
+        pass
+    else:
+        raise TypeError(
+            f"data should be either a DataFrame or a Series, but found: {type(data)}"
+        )
+    if value_name is not None:
+        data = data.rename(value_name)
+    if meta is not None:
+        data = data.to_frame().join(meta, on=meta.index.names)
+    return data.reset_index()

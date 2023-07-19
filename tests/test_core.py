@@ -18,6 +18,7 @@ from pandas_indexing.core import (
     formatlevel,
     projectlevel,
     semijoin,
+    to_tidy,
     uniquelevel,
 )
 
@@ -378,5 +379,46 @@ def test_semijoin(mdf, mseries):
         Series(
             r_[mseries.values[1:3], nan],
             index=index.reorder_levels(["str", "num", "new"]),
+        ),
+    )
+
+
+def test_to_tidy(mdf, mseries, midx):
+    assert_frame_equal(
+        to_tidy(mdf),
+        DataFrame(
+            dict(
+                str=["foo", "foo", "foo", "foo", "bar", "bar"],
+                num=[1, 1, 2, 2, 3, 3],
+                year=["one", "two"] * 3,
+                value=[1, 1, 1, 2, 1, 3],
+            )
+        ),
+    )
+
+    assert_frame_equal(
+        to_tidy(mseries),
+        DataFrame(dict(str=["foo", "foo", "bar"], num=[1, 2, 3], value=[1, 2, 3])),
+    )
+
+    with pytest.raises(TypeError):
+        to_tidy(midx)
+
+
+@pytest.mark.parametrize(
+    "value_name, columns", [[None, None], ["value_name", "year_name"]]
+)
+def test_to_tidy_names(mdf, value_name, columns):
+    mdf = mdf.rename_axis(columns="columns")
+
+    assert_frame_equal(
+        to_tidy(mdf, value_name=value_name, columns=columns),
+        DataFrame(
+            {
+                "str": ["foo", "foo", "foo", "foo", "bar", "bar"],
+                "num": [1, 1, 2, 2, 3, 3],
+                columns or "columns": ["one", "two"] * 3,
+                value_name or 0: [1, 1, 1, 2, 1, 3],
+            }
         ),
     )

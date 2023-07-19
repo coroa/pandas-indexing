@@ -28,6 +28,7 @@ from .core import (
     notna,
     projectlevel,
     semijoin,
+    to_tidy,
     uniquelevel,
 )
 from .types import Axis, Data
@@ -170,6 +171,15 @@ class _DataPixAccessor(_PixAccessor):
         axis: Axis = 0,
     ):
         return convert_unit(self._obj, unit=unit, level=level, axis=axis)
+
+    @doc(to_tidy, data="")
+    def to_tidy(
+        self,
+        meta: Optional[DataFrame] = None,
+        value_name: Optional[str] = "value",
+        columns: Optional[str] = "year",
+    ):
+        return to_tidy(self._obj, meta=meta, value_name=value_name, columns=columns)
 
 
 @pd.api.extensions.register_dataframe_accessor("pix")
