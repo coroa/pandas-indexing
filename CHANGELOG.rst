@@ -3,10 +3,14 @@
 Changelog
 =========
 
+* Add :func:`~core.to_tidy` for converting a time-series data-frame to tidy
+  format, as expected by plotting libraries like seaborn or plotly express; in
+  :pull:`31`.
+
 v0.2.9 (2023-07-11)
 ------------------------------------------------------------
-* Rename pandas accessor to ``.pix`` (``.idx`` is as of now deprecated, but available
-  for the time being) in :pull:`27`.
+* Rename pandas accessor to ``.pix`` (``.idx`` is as of now deprecated, but
+  available for the time being) in :pull:`27`.
 * Fix :func:`~core.projectlevel` on columns of a ``DataFrame`` :pull:`28`
 
 v0.2.8 (2023-06-24)
@@ -14,8 +18,9 @@ v0.2.8 (2023-06-24)
 * Units can be converted with :func:`~units.convert_unit`, like f.ex.
   ``convert_unit(df, "km / h")`` or with ``convert_unit(df, {"m / s": "km / h"})``
   to convert only data with the ``m / s`` unit
-* If the openscm-units registry is registered as pint application registry then emission
-  conversion between gas species are possible under the correct contexts:
+* If the openscm-units registry is registered as pint application registry then
+  emission conversion between gas species are possible under the correct
+  contexts:
 
 .. code-block:: python
 

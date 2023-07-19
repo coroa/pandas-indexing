@@ -17,6 +17,7 @@ from .core import (
     index_names,
     projectlevel,
     semijoin,
+    to_tidy,
     uniquelevel,
 )
 from .selectors import isin, ismatch
