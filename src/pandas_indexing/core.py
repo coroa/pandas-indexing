@@ -696,6 +696,10 @@ def _formatlevel(index: Index, drop: bool = False, **templates: str) -> Index:
                     val if not np.isscalar(val) else np.full(len(index), fill_value=val)
                 )
 
+            if len(levels) == 1:
+                name, val = levels.popitem()
+                return Index(expand_to_array(val), name=name)
+
             return MultiIndex.from_arrays(
                 map(expand_to_array, levels.values()), names=levels.keys()
             )
