@@ -7,6 +7,7 @@ from itertools import chain
 from operator import and_, or_
 from typing import (
     Any,
+    Dict,
     Iterable,
     List,
     Literal,
@@ -828,3 +829,62 @@ def to_tidy(
     if meta is not None:
         data = data.to_frame().join(meta, on=meta.index.names)
     return data.reset_index()
+
+
+@doc(
+    data="""
+    data : Data
+        Series or DataFrame to aggregate\
+    """
+)
+def aggregatelevel(
+    data: T,
+    agg_func: str = "sum",
+    axis: Axis = 0,
+    dropna: bool = True,
+    **levels: Dict[str, Sequence[Any]],
+) -> T:
+    """Aggregate labels on one or multiple levels together.
+
+    Parameters
+    ----------\
+    {data}
+    agg_func : str, optional
+        Function for aggregating values, default "sum"
+        Other sensible options are "mean" or "first"
+    axis : Axis, optional
+        Axis on which to aggregate, default 0
+    dropna : bool, optional
+        Whether to drop or preserve NANs in the index, default True
+    **levels
+        Mapping for one or multiple levels, which labels to aggregate under a
+        common name f.ex. ``region={{"sdn_ssd": ["sdn", "ssd"]}}`` aggregates
+        the "sdn" and "ssd" regions to a new "sdn_ssd" region.
+
+    Returns
+    -------
+    Data
+        Aggregated data
+
+    Notes
+    -----
+    If you already have a complete mapping from country to region, then prefer
+    to use groupby directly instead of relying on this relatively slow method.
+
+    See also
+    --------
+    pandas.DataFrame.groupby
+    """
+
+    for level, mapping in levels.items():
+        data = data.rename(
+            {
+                old_lbl: new_lbl
+                for new_lbl, old_lbls in mapping.items()
+                for old_lbl in old_lbls
+            },
+            axis=axis,
+            level=level,
+        )
+
+    return data.groupby(data.index.names, axis=axis, dropna=dropna).agg(agg_func)
