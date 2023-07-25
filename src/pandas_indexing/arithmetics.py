@@ -14,11 +14,21 @@ See also
 pandas.DataFrame.align
 """
 
-from typing import Any, Mapping, Tuple
+import operator
+from typing import Any, Dict, Optional
 
 from pandas import DataFrame, Series
+from pandas.core.ops import ARITHMETIC_BINOPS
 
-from .types import Data
+from .core import assignlevel, uniquelevel
+from .types import Axis, Data
+
+
+ALTERNATIVE_NAMES = {
+    "truediv": ["div", "divide"],
+    "mul": ["multiply"],
+    "sub": ["subtract"],
+}
 
 
 def _needs_axis(df: Data, other: Data) -> bool:
@@ -27,31 +37,64 @@ def _needs_axis(df: Data, other: Data) -> bool:
     )
 
 
-def _prepare_op(
-    df: Data, other: Data, kwargs: Mapping[str, Any]
-) -> Tuple[Data, Data, Mapping[str, Any]]:
-    kwargs.setdefault("copy", True)
-    if _needs_axis(df, other):
-        kwargs.setdefault("axis", 0)
-    df, other = df.align(other, **kwargs)
-    return df, other, kwargs
+def _create_binop(op: str):
+    def binop(
+        df: Data,
+        other: Data,
+        assign: Optional[Dict[str, Any]] = None,
+        axis: Optional[Axis] = None,
+        **align_kwargs: Any,
+    ):
+        if assign is not None:
+            df = assignlevel(df, **assign)
+            other = assignlevel(other, **assign)
+
+        align_kwargs.setdefault("copy", False)
+        if _needs_axis(df, other):
+            axis = 0
+        if isinstance(df, Series) and isinstance(other, DataFrame):
+            if align_kwargs.get("join") in ("left", "right"):
+                align_kwargs["join"] = {"left": "right", "right": "left"}[
+                    align_kwargs["join"]
+                ]
+            other, df = other.align(df, axis=axis, **align_kwargs)
+        else:
+            df, other = df.align(other, axis=axis, **align_kwargs)
+
+        return getattr(df, op)(other, axis=axis)
+
+    return binop
 
 
-def add(df: Data, other: Data, **align_kwargs: Any) -> Data:
-    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
-    return df.add(other, axis=align_kwargs.get("axis", 0))
+def _create_unitbinop(op, binop):
+    def unitbinop(
+        df: Data,
+        other: Data,
+        level: str = "unit",
+        assign: Optional[Dict[str, Any]] = None,
+        axis: Optional[Axis] = None,
+        **align_kwargs: Any,
+    ):
+        df_unit = uniquelevel(df, level, axis=axis).item()
+        other_unit = uniquelevel(other, level, axis=axis).item()
+
+        import pint
+
+        ur = pint.get_application_registry()
+        quantity = getattr(operator, op)(ur(df_unit), ur(other_unit)).to_reduced_units()
+
+        if assign is None:
+            assign = dict()
+        assign = {level: f"{quantity.units:~}"} | assign
+
+        return binop(df, other, assign=assign, axis=axis, **align_kwargs) * quantity.m
+
+    return unitbinop
 
 
-def divide(df: Data, other: Data, **align_kwargs: Any) -> Data:
-    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
-    return df.div(other, axis=align_kwargs.get("axis", 0))
-
-
-def multiply(df: Data, other: Data, **align_kwargs: Any) -> Data:
-    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
-    return df.mul(other, axis=align_kwargs.get("axis", 0))
-
-
-def subtract(df: Data, other: Data, **align_kwargs: Any) -> Data:
-    df, other, align_kwargs = _prepare_op(df, other, align_kwargs)
-    return df.sub(other, axis=align_kwargs.get("axis", 0))
+for op in ARITHMETIC_BINOPS:
+    binop = _create_binop(op)
+    unitbinop = _create_unitbinop(op, binop)
+    globals().update({op: binop, f"unit{op}": unitbinop})
+    for alt in ALTERNATIVE_NAMES.get(op, []):
+        globals().update({alt: binop, f"unit{alt}": unitbinop})
