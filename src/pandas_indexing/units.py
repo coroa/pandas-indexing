@@ -51,7 +51,6 @@ See also
 --------
 pint.set_application_registry
 """
-
 from typing import Callable, Mapping, Optional, Union
 
 from pandas import DataFrame, Series
@@ -73,12 +72,6 @@ try:
 except ImportError:
     has_pint = False
 
-try:
-    import openscm_units
-
-    has_openscm_units = True
-except ImportError:
-    has_openscm_units = False
 
 from .core import assignlevel, uniquelevel
 from .types import Axis, Data
@@ -306,12 +299,12 @@ def convert_unit(
 _openscm_registry = None
 
 
-def get_openscm_registry(add_co2e: bool = True) -> "openscm_units.ScmUnitRegistry":
+def get_openscm_registry(add_co2e: bool = True):
     global _openscm_registry
     if _openscm_registry is not None:
         return _openscm_registry
 
-    assert has_openscm_units, INSTALL_PACKAGE_WARNING.format(package="openscm-units")
+    import openscm_units
 
     if add_co2e:
         _openscm_registry = openscm_units.ScmUnitRegistry()
@@ -324,9 +317,7 @@ def get_openscm_registry(add_co2e: bool = True) -> "openscm_units.ScmUnitRegistr
     return _openscm_registry
 
 
-def set_openscm_registry_as_default(
-    add_co2e: bool = True,
-) -> "openscm_units.ScmUnitRegistry":
+def set_openscm_registry_as_default(add_co2e: bool = True):
     unit_registry = get_openscm_registry(add_co2e=add_co2e)
 
     assert has_pint, INSTALL_PACKAGE_WARNING.format(package="pint")
