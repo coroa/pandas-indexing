@@ -10,6 +10,7 @@ from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 from pandas_indexing.core import (
+    aggregatelevel,
     assignlevel,
     concat,
     describelevel,
@@ -428,5 +429,15 @@ def test_to_tidy_names(mdf, value_name, columns):
                 columns or "columns": ["one", "two"] * 3,
                 value_name or 0: [1, 1, 1, 2, 1, 3],
             }
+        ),
+    )
+
+
+def test_aggregatelevel(mdf):
+    assert_frame_equal(
+        aggregatelevel(mdf, num=dict(new=[1, 2])),
+        DataFrame(
+            dict(one=[1, 2], two=[3, 3]),
+            MultiIndex.from_tuples([("bar", 3), ("foo", "new")], names=["str", "num"]),
         ),
     )

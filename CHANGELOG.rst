@@ -3,6 +3,10 @@
 Changelog
 =========
 
+* Add :func:`~core.aggregatelevel` for aggregating individual level labels; in
+  :pull:`32`
+* Fix :func:`~core.formatlevel` to create a simple single-level index, if only
+  a single index remains :pull:`29`
 * Add :func:`~core.to_tidy` for converting a time-series data-frame to tidy
   format, as expected by plotting libraries like seaborn or plotly express; in
   :pull:`31`.

@@ -128,3 +128,13 @@ def test_to_tidy(mseries):
         mseries.pix.to_tidy(),
         DataFrame(dict(str=["foo", "foo", "bar"], num=[1, 2, 3], value=[1, 2, 3])),
     )
+
+
+def test_aggregate(mdf):
+    assert_frame_equal(
+        mdf.pix.aggregate(num=dict(new=[1, 2])),
+        DataFrame(
+            dict(one=[1, 2], two=[3, 3]),
+            MultiIndex.from_tuples([("bar", 3), ("foo", "new")], names=["str", "num"]),
+        ),
+    )

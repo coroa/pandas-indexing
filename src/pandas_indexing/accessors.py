@@ -10,7 +10,7 @@ Examples
 >>> df.pix.multiply(other, how="left")
 """
 
-from typing import Any, Callable, Literal, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Literal, Mapping, Optional, Sequence, Union
 
 import pandas as pd
 from deprecated.sphinx import deprecated
@@ -18,6 +18,7 @@ from pandas import DataFrame, Index, MultiIndex, Series
 
 from . import arithmetics
 from .core import (
+    aggregatelevel,
     assignlevel,
     describelevel,
     dropnalevel,
@@ -180,6 +181,18 @@ class _DataPixAccessor(_PixAccessor):
         columns: Optional[str] = "year",
     ):
         return to_tidy(self._obj, meta=meta, value_name=value_name, columns=columns)
+
+    @doc(aggregatelevel, data="")
+    def aggregate(
+        self,
+        agg_func: str = "sum",
+        axis: Axis = 0,
+        dropna: bool = True,
+        **levels: Dict[str, Sequence[Any]],
+    ):
+        return aggregatelevel(
+            self._obj, agg_func=agg_func, axis=axis, dropna=dropna, **levels
+        )
 
 
 @pd.api.extensions.register_dataframe_accessor("pix")
