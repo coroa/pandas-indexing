@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 from deprecated import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
+from pandas.api.extensions import no_default
 from pandas.core.indexes.frozen import FrozenList
 
 from .types import Axis, Data, S, T
@@ -461,6 +462,7 @@ def semijoin(
     level: Union[str, int, None] = None,
     sort: bool = False,
     axis: Axis = 0,
+    fill_value: Any = no_default,
 ) -> S:
     """Semijoin ``data`` by index ``other``.
 
@@ -477,6 +479,8 @@ def semijoin(
         Whether to sort the index
     axis : {{0, 1, "index", "columns"}}
         Axis on which to join
+    fill_value
+        Value for filling gaps introduced by right or outer joins
 
     Returns
     -------
@@ -516,11 +520,13 @@ def semijoin(
             data = frame_or_series.iloc[:, left_idx]
             index = data.columns
         if any_missing:
-            data = data.where(pd.Series(left_idx != -1, index), axis=axis)
+            data = data.where(
+                pd.Series(left_idx != -1, index), other=fill_value, axis=axis
+            )
     elif isinstance(frame_or_series, Series):
         data = frame_or_series.iloc[left_idx]
         if any_missing:
-            data = data.where(left_idx != -1)
+            data = data.where(left_idx != -1, other=fill_value)
     else:
         raise TypeError(
             f"frame_or_series must derive from DataFrame or Series, but is {type(frame_or_series)}"

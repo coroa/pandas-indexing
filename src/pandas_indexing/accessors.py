@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, Literal, Mapping, Optional, Sequence, Un
 import pandas as pd
 from deprecated.sphinx import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
+from pandas.api.extensions import no_default
 
 from . import arithmetics
 from .core import (
@@ -131,8 +132,17 @@ class _DataPixAccessor(_PixAccessor):
         level: Union[str, int, None] = None,
         sort: bool = False,
         axis: Axis = 0,
+        fill_value: Any = no_default,
     ) -> Union[DataFrame, Series]:
-        return semijoin(self._obj, other, how=how, level=level, sort=sort, axis=axis)
+        return semijoin(
+            self._obj,
+            other,
+            how=how,
+            level=level,
+            sort=sort,
+            axis=axis,
+            fill_value=fill_value,
+        )
 
     def multiply(self, other, **align_kwds):
         return arithmetics.multiply(self._obj, other, **align_kwds)
