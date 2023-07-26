@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, Literal, Mapping, Optional, Sequence, Un
 import pandas as pd
 from deprecated.sphinx import deprecated
 from pandas import DataFrame, Index, MultiIndex, Series
+from pandas.api.extensions import no_default
 
 from . import arithmetics
 from .core import (
@@ -131,20 +132,17 @@ class _DataPixAccessor(_PixAccessor):
         level: Union[str, int, None] = None,
         sort: bool = False,
         axis: Axis = 0,
+        fill_value: Any = no_default,
     ) -> Union[DataFrame, Series]:
-        return semijoin(self._obj, other, how=how, level=level, sort=sort, axis=axis)
-
-    def multiply(self, other, **align_kwds):
-        return arithmetics.multiply(self._obj, other, **align_kwds)
-
-    def divide(self, other, **align_kwds):
-        return arithmetics.divide(self._obj, other, **align_kwds)
-
-    def add(self, other, **align_kwds):
-        return arithmetics.add(self._obj, other, **align_kwds)
-
-    def subtract(self, other, **align_kwds):
-        return arithmetics.subtract(self._obj, other, **align_kwds)
+        return semijoin(
+            self._obj,
+            other,
+            how=how,
+            level=level,
+            sort=sort,
+            axis=axis,
+            fill_value=fill_value,
+        )
 
     @doc(quantify, data="", example_call="s.pix.quantify()")
     def quantify(
@@ -193,6 +191,47 @@ class _DataPixAccessor(_PixAccessor):
         return aggregatelevel(
             self._obj, agg_func=agg_func, axis=axis, dropna=dropna, **levels
         )
+
+
+def _create_forward_binop(op):
+    def forward_binop(
+        self,
+        other: Data,
+        assign: Optional[Dict[str, Any]] = None,
+        axis: Optional[Axis] = None,
+        **align_kwargs: Any,
+    ):
+        return getattr(arithmetics, op)(
+            self._obj, other, assign=assign, axis=axis, **align_kwargs
+        )
+
+    return forward_binop
+
+
+def _create_forward_unitbinop(op):
+    def forward_unitbinop(
+        self,
+        other: Data,
+        level: str = "unit",
+        assign: Optional[Dict[str, Any]] = None,
+        axis: Optional[Axis] = None,
+        **align_kwargs: Any,
+    ):
+        return getattr(arithmetics, f"unit{op}")(
+            self._obj, other, level=level, assign=assign, axis=axis, **align_kwargs
+        )
+
+    return forward_unitbinop
+
+
+for op in arithmetics.ARITHMETIC_BINOPS:
+    forward_binop = _create_forward_binop(op)
+    forward_unitbinop = _create_forward_unitbinop(op)
+    setattr(_DataPixAccessor, op, forward_binop)
+    setattr(_DataPixAccessor, f"unit{op}", forward_unitbinop)
+    for alt in arithmetics.ALTERNATIVE_NAMES.get(op, []):
+        setattr(_DataPixAccessor, alt, forward_binop)
+        setattr(_DataPixAccessor, f"unit{alt}", forward_unitbinop)
 
 
 @pd.api.extensions.register_dataframe_accessor("pix")
