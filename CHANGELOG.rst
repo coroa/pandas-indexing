@@ -3,6 +3,20 @@
 Changelog
 =========
 
+v0.2.10-b1 (2023-07-26)
+------------------------------------------------------------
+* Revise :mod:`arithmetics` module:
+
+  * Add all standard binary ops: ``add``, ``sub``, ``mul``, ``pow``, ``mod``,
+    ``floordiv``, ``truediv``, ``divmod``, ``radd``, ``rsub``, ``rmul``,
+    ``rpow``, ``rmod``, ``rfloordiv``, ``rtruediv``, ``rdivmod``
+  * Support in-call assignment of individual levels using ``assign`` argument,
+    like ``div(generation, capacity, assign=dict(variable="capacity_factor"))``
+  * Add a unit-aware variant for each binary op, like
+    :func:`~arithmetics.unitadd`, or :func:`~arithmetics.unitmul`, which
+    updates homogeneous units automatically with the calculation
+
+* Add ``fill_value`` argument to :func:`~core.semijoin` for filling joining gaps
 * Add :func:`~core.aggregatelevel` for aggregating individual level labels; in
   :pull:`32`
 * Fix :func:`~core.formatlevel` to create a simple single-level index, if only
