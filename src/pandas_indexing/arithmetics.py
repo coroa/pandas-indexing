@@ -75,8 +75,9 @@ def _create_unitbinop(op, binop):
         axis: Optional[Axis] = None,
         **align_kwargs: Any,
     ):
-        df_unit = uniquelevel(df, level, axis=axis).item()
-        other_unit = uniquelevel(other, level, axis=axis).item()
+        unitaxis = 0 if axis is None else axis
+        df_unit = uniquelevel(df, level, axis=unitaxis).item()
+        other_unit = uniquelevel(other, level, axis=unitaxis).item()
 
         import pint
 
