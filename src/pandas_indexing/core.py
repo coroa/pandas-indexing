@@ -463,6 +463,7 @@ def semijoin(
     sort: bool = False,
     axis: Axis = 0,
     fill_value: Any = no_default,
+    fail_on_reorder: bool = False,
 ) -> S:
     """Semijoin ``data`` by index ``other``.
 
@@ -481,6 +482,8 @@ def semijoin(
         Axis on which to join
     fill_value
         Value for filling gaps introduced by right or outer joins
+    fail_on_reorder : bool, default False
+        Raise ValueError if index order cannot be guaranteed
 
     Returns
     -------
@@ -488,6 +491,9 @@ def semijoin(
 
     Raises
     ------
+    ValueError
+        If fail_on_reorder is True and the new index order does not correspond
+        to the order of other
     ValueError
         If axis is not 0, "index" or 1, "columns"
     TypeError
@@ -504,9 +510,16 @@ def semijoin(
         index = ensure_multiindex(index)
         other = ensure_multiindex(other)
 
-    new_index, left_idx, _ = index.join(
+    new_index, left_idx, right_idx = index.join(
         other, how=how, level=level, return_indexers=True, sort=sort
     )
+
+    if fail_on_reorder and not (
+        right_idx is None or (right_idx == np.arange(len(right_idx), dtype=int)).all()
+    ):
+        raise ValueError(
+            "Given index was re-sorted. To avoid this, sort the index before."
+        )
 
     if left_idx is None:
         return frame_or_series.set_axis(new_index, axis=axis)

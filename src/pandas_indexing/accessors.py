@@ -133,6 +133,7 @@ class _DataPixAccessor(_PixAccessor):
         sort: bool = False,
         axis: Axis = 0,
         fill_value: Any = no_default,
+        fail_on_reorder: bool = False,
     ) -> Union[DataFrame, Series]:
         return semijoin(
             self._obj,
@@ -142,6 +143,7 @@ class _DataPixAccessor(_PixAccessor):
             sort=sort,
             axis=axis,
             fill_value=fill_value,
+            fail_on_reorder=fail_on_reorder,
         )
 
     @doc(quantify, data="", example_call="s.pix.quantify()")
