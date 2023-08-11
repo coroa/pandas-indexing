@@ -3,6 +3,12 @@
 Changelog
 =========
 
+* Add ``fail_on_reorder`` argument to :func:`~core.semijoin` to raise a
+  ``ValueError`` if the resulting data is not in the order of the provided
+  index (helpful in conjunction with :func:`~core.assignlevel`) :pull:`37`
+* Enhance :func:`~core.concat` to also concatenate :class:`pandas.Index` and
+  :class:`pandas.MultiIndex` objects :pull:`37`
+
 v0.2.10-b1 (2023-07-26)
 ------------------------------------------------------------
 * Revise :mod:`arithmetics` module:

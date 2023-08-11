@@ -158,13 +158,13 @@ def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
 
 
 def concat(
-    objs: Union[Iterable[S], Mapping[str, S]],
+    objs: Union[Iterable[T], Mapping[str, T]],
     order: Optional[Sequence[str]] = None,
     axis: Axis = 0,
     keys: Union[None, str, Index, Sequence] = None,
     copy: bool = False,
     **concat_kwds,
-) -> S:
+) -> T:
     """Concatenate pandas objects along a particular axis.
 
     In addition to the functionality provided by pd.concat, if the concat axis has a multiindex
@@ -172,7 +172,7 @@ def concat(
 
     Parameters
     ----------
-    objs : a sequence or mapping of Series or DataFrame objects
+    objs : a sequence or mapping of Series, DataFrame or Index objects
         If a mapping is passed the keys will be used as a new index level
         (with the name of the `keys` argument).
     order : a sequence of str, default None
@@ -189,7 +189,7 @@ def concat(
 
     Returns
     -------
-    Concatenated data
+    Concatenated data or index
 
     Raises
     ------
@@ -219,21 +219,30 @@ def concat(
 
     orderset = frozenset(order)
 
-    def reorder(df_or_ser):
-        ax = get_axis(df_or_ser, axis=axis)
+    def reorder(df_ser_or_idx):
+        ax = get_axis(df_ser_or_idx, axis=axis)
         if ax.names == order:
-            return df_or_ser
+            return df_ser_or_idx
         elif not set(ax.names) == orderset:
             raise ValueError(
                 "All objects need to have the same index levels, but "
                 f"{set(orderset)} != {set(ax.names)}"
             )
+        idx = ax.reorder_levels(order)
+        if isinstance(df_ser_or_idx, Index):
+            return idx
 
-        return df_or_ser.set_axis(ax.reorder_levels(order), axis=axis, copy=False)
+        return df_ser_or_idx.set_axis(idx, axis=axis, copy=False)
 
-    return pd.concat(
-        [reorder(o) for o in objs], keys=keys, copy=copy, axis=axis, **concat_kwds
-    )
+    objs = [reorder(o) for o in objs]
+    if not isinstance(objs[0], Index):
+        return pd.concat(objs, keys=keys, copy=copy, axis=axis, **concat_kwds)
+
+    if keys is not None:
+        keys = Index(keys)
+        objs = [assignlevel(o, **{keys.name: k}) for o, k in zip(objs, keys)]
+
+    return reduce(lambda x, y: x.append(y), objs)
 
 
 def _notna(
@@ -463,6 +472,7 @@ def semijoin(
     sort: bool = False,
     axis: Axis = 0,
     fill_value: Any = no_default,
+    fail_on_reorder: bool = False,
 ) -> S:
     """Semijoin ``data`` by index ``other``.
 
@@ -481,6 +491,8 @@ def semijoin(
         Axis on which to join
     fill_value
         Value for filling gaps introduced by right or outer joins
+    fail_on_reorder : bool, default False
+        Raise ValueError if index order cannot be guaranteed
 
     Returns
     -------
@@ -488,6 +500,9 @@ def semijoin(
 
     Raises
     ------
+    ValueError
+        If fail_on_reorder is True and the new index order does not correspond
+        to the order of other
     ValueError
         If axis is not 0, "index" or 1, "columns"
     TypeError
@@ -504,9 +519,16 @@ def semijoin(
         index = ensure_multiindex(index)
         other = ensure_multiindex(other)
 
-    new_index, left_idx, _ = index.join(
+    new_index, left_idx, right_idx = index.join(
         other, how=how, level=level, return_indexers=True, sort=sort
     )
+
+    if fail_on_reorder and not (
+        right_idx is None or (right_idx == np.arange(len(right_idx), dtype=int)).all()
+    ):
+        raise ValueError(
+            "Given index was re-sorted. To avoid this, sort the index before."
+        )
 
     if left_idx is None:
         return frame_or_series.set_axis(new_index, axis=axis)

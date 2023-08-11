@@ -257,7 +257,7 @@ def test_extractlevel_single(midx):
         extractlevel(midx, "{e}|{typ}")
 
 
-def test_concat(mdf):
+def test_concat(mdf, midx, sidx):
     assert_frame_equal(concat([mdf.iloc[:1], mdf.iloc[1:]]), mdf)
 
     assert_frame_equal(concat([mdf.iloc[:1], None, mdf.iloc[1:].swaplevel()]), mdf)
@@ -280,6 +280,22 @@ def test_concat(mdf):
     )
 
     assert_frame_equal(concat([mdf.iloc[:, :1], mdf.iloc[:, 1:]], axis=1), mdf)
+
+    def maybe_swap(idx):
+        return idx.swaplevel() if isinstance(idx, MultiIndex) else idx
+
+    for idx in (midx, sidx):
+        assert_index_equal(concat([idx[:1], idx[1:]]), idx)
+
+        assert_index_equal(concat([idx[:1], None, maybe_swap(idx[1:])]), idx)
+
+        assert_index_equal(
+            concat(
+                {"part1": idx[:1], "part2": maybe_swap(idx[1:]), "skip": None},
+                keys="new",
+            ),
+            assignlevel(idx, new=["part1", "part2", "part2"]),
+        )
 
     with pytest.raises(ValueError):
         concat([mdf.iloc[:1], mdf.iloc[1:].droplevel("num")])
