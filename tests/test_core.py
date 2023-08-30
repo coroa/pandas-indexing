@@ -491,3 +491,6 @@ def test_aggregatelevel(mdf):
             MultiIndex.from_tuples([("foo", "new")], names=["str", "num"]),
         ),
     )
+
+    with pytest.raises(ValueError):
+        aggregatelevel(mdf, num=dict(new=[1, 2]), mode="bla")
