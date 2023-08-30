@@ -3,7 +3,7 @@ Core module.
 """
 import re
 from functools import reduce
-from itertools import chain
+from itertools import chain, product
 from operator import and_, or_
 from typing import (
     Any,
@@ -25,6 +25,7 @@ from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.api.extensions import no_default
 from pandas.core.indexes.frozen import FrozenList
 
+from .selectors import isin
 from .types import Axis, Data, S, T
 from .utils import doc, get_axis, print_list
 
@@ -870,6 +871,7 @@ def aggregatelevel(
     agg_func: str = "sum",
     axis: Axis = 0,
     dropna: bool = True,
+    mode: Literal["replace", "add"] = "replace",
     **levels: Dict[str, Sequence[Any]],
 ) -> T:
     """Aggregate labels on one or multiple levels together.
@@ -884,6 +886,9 @@ def aggregatelevel(
         Axis on which to aggregate, default 0
     dropna : bool, optional
         Whether to drop or preserve NANs in the index, default True
+    mode : {{"replace", "append", "return"}}
+        Whether to replace or to append to the individual labels or return
+        the aggregated data
     **levels
         Mapping for one or multiple levels, which labels to aggregate under a
         common name f.ex. ``region={{"sdn_ssd": ["sdn", "ssd"]}}`` aggregates
@@ -904,15 +909,55 @@ def aggregatelevel(
     pandas.DataFrame.groupby
     """
 
-    for level, mapping in levels.items():
-        data = data.rename(
-            {
-                old_lbl: new_lbl
-                for new_lbl, old_lbls in mapping.items()
-                for old_lbl in old_lbls
-            },
-            axis=axis,
-            level=level,
+    if mode == "replace":
+        for level, mapping in levels.items():
+            data = data.rename(
+                {
+                    old_lbl: new_lbl
+                    for new_lbl, old_lbls in mapping.items()
+                    for old_lbl in old_lbls
+                },
+                axis=axis,
+                level=level,
+            )
+
+        return data.groupby(data.index.names, axis=axis, dropna=dropna, sort=True).agg(
+            agg_func
+        )
+    elif mode in ("append", "return"):
+        new_data = [data]
+        for level, mapping in levels.items():
+            new_data.extend(
+                assignlevel(
+                    df.loc(axis=axis)[isin(**{level: old_lbls})],
+                    **{level: new_lbl},
+                    axis=axis,
+                )
+                for df, (new_lbl, old_lbls) in product(new_data, mapping.items())
+            )
+
+        new_data = (
+            concat(new_data[1:], axis=axis)
+            .groupby(data.index.names, axis=axis, dropna=dropna)
+            .agg(agg_func)
         )
 
-    return data.groupby(data.index.names, axis=axis, dropna=dropna).agg(agg_func)
+        if mode == "return":
+            return new_data
+
+        # if any new label already exists, we combine otherwise we just concat
+        def has_any_label(index: MultiIndex, level: str, labels: Sequence[Any]):
+            levels = index.levels[index.names.index(level)]
+            return not levels.intersection(labels).empty
+
+        if any(
+            has_any_label(get_axis(data, axis=axis), level, mapping.keys())
+            for level, mapping in levels.items()
+        ):
+            return data.combine_first(new_data)
+        else:
+            return concat([data, new_data], axis=axis, sort=True)
+    else:
+        raise ValueError(
+            f'mode must be "replace", "append" or "return", but is "{mode}"'
+        )

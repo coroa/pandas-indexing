@@ -3,6 +3,9 @@
 Changelog
 =========
 
+* Add ``mode="append"`` and ``mode="return"`` arguments to
+  :func:`~core.aggregatelevel`, which extend the dataframe with the aggregated
+  data or return it.
 * Add ``fail_on_reorder`` argument to :func:`~core.semijoin` to raise a
   ``ValueError`` if the resulting data is not in the order of the provided
   index (helpful in conjunction with :func:`~core.assignlevel`) :pull:`37`
