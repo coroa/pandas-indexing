@@ -3,6 +3,8 @@
 Changelog
 =========
 
+v0.2.10 (2023-08-31)
+------------------------------------------------------------
 * Add ``mode="append"`` and ``mode="return"`` arguments to
   :func:`~core.aggregatelevel`, which extend the dataframe with the aggregated
   data or return it :pull:`39`
