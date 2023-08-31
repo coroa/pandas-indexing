@@ -26,9 +26,22 @@ from .types import Axis, Data
 
 ALTERNATIVE_NAMES = {
     "truediv": ["div", "divide"],
+    "rtruediv": ["rdiv"],
     "mul": ["multiply"],
     "sub": ["subtract"],
 }
+
+ARITHMETIC_UNITBINOPS = [
+    "add",
+    "radd",
+    "sub",
+    "rsub",
+    "mod",
+    "mul",
+    "rmul",
+    "truediv",
+    "rtruediv",
+]
 
 
 def _needs_axis(df: Data, other: Data) -> bool:
@@ -82,7 +95,19 @@ def _create_unitbinop(op, binop):
         import pint
 
         ur = pint.get_application_registry()
-        quantity = getattr(operator, op)(ur(df_unit), ur(other_unit)).to_reduced_units()
+        if op in ("add", "radd", "sub", "rsub", "mod"):
+            quantity = ur(df_unit)
+            other = other * ur(other_unit).to(quantity.units).m
+        elif op in ("mul", "truediv"):
+            quantity = getattr(operator, op)(
+                ur(df_unit), ur(other_unit)
+            ).to_reduced_units()
+        elif op in ("rmul", "rtruediv"):
+            quantity = getattr(operator, op[1:])(
+                ur(other_unit), ur(df_unit)
+            ).to_reduced_units()
+        else:
+            raise NotImplementedError()
 
         if assign is None:
             assign = dict()
@@ -94,8 +119,9 @@ def _create_unitbinop(op, binop):
 
 
 for op in ARITHMETIC_BINOPS:
+    names = [op] + ALTERNATIVE_NAMES.get(op, [])
     binop = _create_binop(op)
-    unitbinop = _create_unitbinop(op, binop)
-    globals().update({op: binop, f"unit{op}": unitbinop})
-    for alt in ALTERNATIVE_NAMES.get(op, []):
-        globals().update({alt: binop, f"unit{alt}": unitbinop})
+    globals().update({name: binop for name in names})
+    if op in ARITHMETIC_UNITBINOPS:
+        unitbinop = _create_unitbinop(op, binop)
+        globals().update({f"unit{name}": unitbinop for name in names})

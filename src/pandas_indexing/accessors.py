@@ -229,11 +229,14 @@ def _create_forward_unitbinop(op):
 
 for op in arithmetics.ARITHMETIC_BINOPS:
     forward_binop = _create_forward_binop(op)
-    forward_unitbinop = _create_forward_unitbinop(op)
     setattr(_DataPixAccessor, op, forward_binop)
-    setattr(_DataPixAccessor, f"unit{op}", forward_unitbinop)
     for alt in arithmetics.ALTERNATIVE_NAMES.get(op, []):
         setattr(_DataPixAccessor, alt, forward_binop)
+
+for op in arithmetics.ARITHMETIC_UNITBINOPS:
+    forward_unitbinop = _create_forward_unitbinop(op)
+    setattr(_DataPixAccessor, f"unit{op}", forward_unitbinop)
+    for alt in arithmetics.ALTERNATIVE_NAMES.get(op, []):
         setattr(_DataPixAccessor, f"unit{alt}", forward_unitbinop)
 
 
