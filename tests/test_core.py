@@ -450,6 +450,7 @@ def test_to_tidy_names(mdf, value_name, columns):
 
 
 def test_aggregatelevel(mdf):
+    # replace
     assert_frame_equal(
         aggregatelevel(mdf, num=dict(new=[1, 2])),
         DataFrame(
@@ -457,3 +458,39 @@ def test_aggregatelevel(mdf):
             MultiIndex.from_tuples([("bar", 3), ("foo", "new")], names=["str", "num"]),
         ),
     )
+
+    # append w/o conflicts
+    assert_frame_equal(
+        aggregatelevel(mdf, num=dict(new=[1, 2]), mode="append"),
+        DataFrame(
+            dict(one=[1, 1, 1, 2], two=[1, 2, 3, 3]),
+            MultiIndex.from_tuples(
+                [("foo", 1), ("foo", 2), ("bar", 3), ("foo", "new")],
+                names=["str", "num"],
+            ),
+        ),
+    )
+
+    # append w/ conflicts
+    assert_frame_equal(
+        aggregatelevel(mdf, num={1: [1, 2]}, mode="append"),
+        DataFrame(
+            dict(one=[1, 1, 1], two=[3, 1, 2]),
+            MultiIndex.from_tuples(
+                [("bar", 3), ("foo", 1), ("foo", 2)],
+                names=["str", "num"],
+            ),
+        ),
+    )
+
+    # return
+    assert_frame_equal(
+        aggregatelevel(mdf, num=dict(new=[1, 2]), mode="return"),
+        DataFrame(
+            dict(one=[2], two=[3]),
+            MultiIndex.from_tuples([("foo", "new")], names=["str", "num"]),
+        ),
+    )
+
+    with pytest.raises(ValueError):
+        aggregatelevel(mdf, num=dict(new=[1, 2]), mode="bla")

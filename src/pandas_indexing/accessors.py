@@ -188,10 +188,11 @@ class _DataPixAccessor(_PixAccessor):
         agg_func: str = "sum",
         axis: Axis = 0,
         dropna: bool = True,
+        mode: Literal["replace", "append", "return"] = "replace",
         **levels: Dict[str, Sequence[Any]],
     ):
         return aggregatelevel(
-            self._obj, agg_func=agg_func, axis=axis, dropna=dropna, **levels
+            self._obj, agg_func=agg_func, axis=axis, dropna=dropna, mode=mode, **levels
         )
 
 
