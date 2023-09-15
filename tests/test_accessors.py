@@ -92,7 +92,7 @@ def test_project(midx, mdf):
 
 def test_repr(mdf):
     assert (
-        str(mdf.idx)
+        str(mdf.pix)
         == dedent(
             """
             Index:
