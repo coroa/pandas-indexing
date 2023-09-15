@@ -289,8 +289,15 @@ def convert_unit(
                 )
             (old_unit,) = unit.keys()
             data = _convert_unit(data, old_unit=old_unit)
+        elif axis in (0, "index"):
+            data = data.groupby(level=level, group_keys=False).apply(_convert_unit)
+        elif axis in (1, "columns"):
+            data = data.T.groupby(level=level, group_keys=False).apply(_convert_unit).T
         else:
-            data = data.groupby(level, axis=axis, group_keys=False).apply(_convert_unit)
+            raise ValueError(
+                f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
+            )
+
         return data.__finalize__(data, "convert_unit")
     except pint.errors.DimensionalityError as exc:
         raise exc from None  # remove exception chaining

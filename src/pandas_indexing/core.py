@@ -27,7 +27,7 @@ from pandas.core.indexes.frozen import FrozenList
 
 from .selectors import isin
 from .types import Axis, Data, S, T
-from .utils import doc, get_axis, print_list
+from .utils import doc, get_axis, print_list, transpose_if_columns
 
 
 def _assignlevel(
@@ -921,9 +921,12 @@ def aggregatelevel(
                 level=level,
             )
 
-        return data.groupby(data.index.names, axis=axis, dropna=dropna, sort=True).agg(
-            agg_func
+        return (
+            transpose_if_columns(data, axis)
+            .groupby(data.index.names, dropna=dropna, sort=True)
+            .agg(agg_func)
         )
+
     elif mode in ("append", "return"):
         new_data = [data]
         for level, mapping in levels.items():
@@ -938,7 +941,8 @@ def aggregatelevel(
 
         new_data = (
             concat(new_data[1:], axis=axis)
-            .groupby(data.index.names, axis=axis, dropna=dropna)
+            .pipe(transpose_if_columns, axis)
+            .groupby(data.index.names, dropna=dropna)
             .agg(agg_func)
         )
 
