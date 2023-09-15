@@ -43,10 +43,15 @@ def _assignlevel(
         new_codes = [level.get_indexer(index)]
         new_names = [index.name]
 
-    if isinstance(frame, Series):
-        frame = frame.to_frame()
-    if isinstance(frame, DataFrame):
-        labels = dict(chain(frame.items(), labels.items()))
+    if frame is not None:
+        if isinstance(frame, Series):
+            frame = frame.to_frame()
+        if isinstance(frame, DataFrame):
+            labels = dict(chain(frame.items(), labels.items()))
+        else:
+            raise ValueError(
+                f"frame must be a DataFrame or Series, but is: {type(frame)}"
+            )
 
     for level, lbls in labels.items():
         if np.isscalar(lbls):
