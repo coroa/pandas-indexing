@@ -127,6 +127,12 @@ def test_assignlevel_data(mdf: DataFrame):
         ),
     )
 
+    with pytest.raises(ValueError):
+        assignlevel(mdf, new=2, axis="no-axis")
+
+    with pytest.raises(ValueError):
+        assignlevel("no-data", new=2)
+
 
 def test_formatlevel_options(mdf: DataFrame):
     idx_str = mdf.index.get_level_values(0)
@@ -278,8 +284,14 @@ def test_concat(mdf, midx, sidx):
     assert_frame_equal(concat([mdf.iloc[:1], mdf.iloc[1:]]), mdf)
 
     assert_frame_equal(
-        concat([mdf.iloc[:1], mdf.iloc[1:]], keys=Index([1, 2], name="new")),
-        pd_concat([mdf.iloc[:1], mdf.iloc[1:]], keys=Index([1, 2], name="new")),
+        concat(
+            [mdf.iloc[:1], mdf.iloc[1:]],
+            keys=Index([1, 2], name="new"),
+            order=["num", "str", "new"],
+        ),
+        pd_concat(
+            [mdf.iloc[:1], mdf.iloc[1:]], keys=Index([1, 2], name="new")
+        ).reorder_levels(["new", "num", "str"]),
     )
 
     assert_frame_equal(concat([mdf.iloc[:1], None, mdf.iloc[1:].swaplevel()]), mdf)
@@ -379,7 +391,7 @@ def test_uniquelevel(mdf, midx):
     assert_index_equal(uniquelevel(midx, ["str", "num"]), midx)
 
 
-def test_describelevel(mdf, midx):
+def test_describelevel(mdf, mseries, midx):
     assert (
         describelevel(mdf, as_str=True)
         == dedent(
@@ -390,6 +402,17 @@ def test_describelevel(mdf, midx):
 
             Columns:
              * <unnamed> : one, two (2)
+            """
+        ).strip()
+    )
+
+    assert (
+        describelevel(mseries, as_str=True)
+        == dedent(
+            """
+            Index:
+             * str : foo, bar (2)
+             * num : 1, 2, 3 (3)
             """
         ).strip()
     )
