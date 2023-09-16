@@ -279,7 +279,7 @@ def convert_unit(
         df = factor * df
         if level is None:
             return df
-        return assignlevel(df, axis=axis, **{level: new_unit})
+        return assignlevel(df, **{level: new_unit})
 
     try:
         if level is None:
