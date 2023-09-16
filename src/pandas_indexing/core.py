@@ -43,10 +43,15 @@ def _assignlevel(
         new_codes = [level.get_indexer(index)]
         new_names = [index.name]
 
-    if isinstance(frame, Series):
-        frame = frame.to_frame()
-    if isinstance(frame, DataFrame):
-        labels = dict(chain(frame.items(), labels.items()))
+    if frame is not None:
+        if isinstance(frame, Series):
+            frame = frame.to_frame()
+        if isinstance(frame, DataFrame):
+            labels = dict(chain(frame.items(), labels.items()))
+        else:
+            raise ValueError(
+                f"frame must be a DataFrame or Series, but is: {type(frame)}"
+            )
 
     for level, lbls in labels.items():
         if np.isscalar(lbls):
@@ -860,6 +865,19 @@ def to_tidy(
     return data.reset_index()
 
 
+def _aggregatelevel(
+    data: T, agg_func: str = "sum", axis: Axis = 0, dropna: bool = True
+):
+    if axis in (0, "index"):
+        return data.groupby(data.index.names, dropna=dropna).agg(agg_func)
+    elif axis in (1, "columns"):
+        return data.T.groupby(data.columns.names, dropna=dropna).agg(agg_func).T
+    else:
+        raise ValueError(
+            f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
+        )
+
+
 @doc(
     data="""
     data : Data
@@ -921,9 +939,8 @@ def aggregatelevel(
                 level=level,
             )
 
-        return data.groupby(data.index.names, axis=axis, dropna=dropna, sort=True).agg(
-            agg_func
-        )
+        return _aggregatelevel(data, agg_func=agg_func, axis=axis, dropna=dropna)
+
     elif mode in ("append", "return"):
         new_data = [data]
         for level, mapping in levels.items():
@@ -936,10 +953,8 @@ def aggregatelevel(
                 for df, (new_lbl, old_lbls) in product(new_data, mapping.items())
             )
 
-        new_data = (
-            concat(new_data[1:], axis=axis)
-            .groupby(data.index.names, axis=axis, dropna=dropna)
-            .agg(agg_func)
+        new_data = _aggregatelevel(
+            concat(new_data[1:], axis=axis), agg_func=agg_func, axis=axis, dropna=dropna
         )
 
         if mode == "return":

@@ -31,6 +31,8 @@ def mdfu(mdf):
 
 @needs_pint
 def test_convert_unit(mdfu: DataFrame, mseru: Series):
+    from pint.errors import UndefinedUnitError
+
     assert_frame_equal(
         convert_unit(mdfu, "km"),
         assignlevel(mdfu.multiply([1e-3, 1e-6, 1e-3], axis=0), unit="km"),
@@ -42,6 +44,18 @@ def test_convert_unit(mdfu: DataFrame, mseru: Series):
         assignlevel(mdfu * 1e-3, unit=["km", "m", "km"]),
         check_like=True,
     )
+
+    assert_frame_equal(
+        convert_unit(mdfu.T, "km", axis=1),
+        assignlevel(mdfu.multiply([1e-3, 1e-6, 1e-3], axis=0), unit="km").T,
+        check_like=True,
+    )
+
+    with pytest.raises(ValueError):
+        convert_unit(mdfu, "km", axis="no-axis")
+
+    with pytest.raises(UndefinedUnitError):
+        convert_unit(mdfu, "nounit")
 
     assert_series_equal(convert_unit(mseru, {"m": "km"}, level=None), mseru * 1e-3)
 
