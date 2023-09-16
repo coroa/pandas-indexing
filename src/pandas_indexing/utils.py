@@ -98,37 +98,3 @@ def get_axis(data: Union[Index, Series, DataFrame], axis: Axis = 0):
         raise ValueError(
             f"data needs to be a pandas Series or DataFrame, not: {type(data)}"
         )
-
-
-def transpose_if_columns(
-    data: Union[Series, DataFrame], axis: Axis
-) -> Union[Series, DataFrame]:
-    """Transpose dataframe if axis is 1 or columns.
-
-    Parameters
-    ----------
-    data : Series or DataFrame
-        Data to transpose
-    axis : Axis
-
-    Returns
-    -------
-    data : Series or DataFrame
-        Transposed or identical dataframe
-
-    Raises
-    ------
-    ValueError
-        If axis is not 0, 1, 'index' or 'columns'
-    """
-    if isinstance(data, Series):
-        return data
-
-    if axis in (0, "index"):
-        return data
-    elif axis in (1, "columns"):
-        return data.T
-    else:
-        raise ValueError(
-            f"axis can only be one of 0, 1, 'index' or 'columns', not: {axis}"
-        )
