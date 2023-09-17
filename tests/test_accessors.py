@@ -26,11 +26,13 @@ def test_assign_index(midx: MultiIndex):
         ),
     )
 
-    # Check adding from dataframe
+    # Check adding from dataframe (auto-alignment will switch first and second line)
     assert_index_equal(
-        midx.pix.assign(DataFrame({"new": [1, 2, 3], "new2": 2})),
+        midx.pix.assign(
+            DataFrame({"new": [1, 2, 3], "new2": 2}, index=Index([2, 1, 3], name="num"))
+        ),
         MultiIndex.from_arrays(
-            [midx.get_level_values(0), midx.get_level_values(1), [1, 2, 3], [2, 2, 2]],
+            [midx.get_level_values(0), midx.get_level_values(1), [2, 1, 3], [2, 2, 2]],
             names=["str", "num", "new", "new2"],
         ),
     )

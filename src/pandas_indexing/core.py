@@ -43,11 +43,19 @@ def _assignlevel(
         new_codes = [level.get_indexer(index)]
         new_names = [index.name]
 
+    def maybe_align_with_index(df_or_ser):
+        if isinstance(df_or_ser, (DataFrame, Series)):
+            return semijoin(df_or_ser, index, how="right", fail_on_reorder=True)
+
+        return df_or_ser
+
+    labels = {level: maybe_align_with_index(lbls) for level, lbls in labels.items()}
+
     if frame is not None:
         if isinstance(frame, Series):
             frame = frame.to_frame()
         if isinstance(frame, DataFrame):
-            labels = dict(chain(frame.items(), labels.items()))
+            labels = dict(chain(maybe_align_with_index(frame).items(), labels.items()))
         else:
             raise ValueError(
                 f"frame must be a DataFrame or Series, but is: {type(frame)}"
@@ -828,7 +836,7 @@ def to_tidy(
     meta: Optional[DataFrame] = None,
     value_name: Optional[str] = "value",
     columns: Optional[str] = "year",
-):
+) -> DataFrame:
     """Convert multi-indexed time-series dataframe to tidy dataframe.
 
     Parameters

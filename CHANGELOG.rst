@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.3 (2023-09-17)
+------------------------------------------------------------
+* *BREAKING*: :func:`~core.assignlevel` is aligning :class:`~pandas.Series` and
+  :class:`~pandas.DataFrame` before adding to the index :pull:`38`
+
 v0.2.10 (2023-08-31)
 ------------------------------------------------------------
 * Add ``mode="append"`` and ``mode="return"`` arguments to
@@ -11,8 +16,8 @@ v0.2.10 (2023-08-31)
 * Add ``fail_on_reorder`` argument to :func:`~core.semijoin` to raise a
   ``ValueError`` if the resulting data is not in the order of the provided
   index (helpful in conjunction with :func:`~core.assignlevel`) :pull:`37`
-* Enhance :func:`~core.concat` to also concatenate :class:`pandas.Index` and
-  :class:`pandas.MultiIndex` objects :pull:`37`
+* Enhance :func:`~core.concat` to also concatenate :class:`~pandas.Index` and
+  :class:`~pandas.MultiIndex` objects :pull:`37`
 
 v0.2.10-b1 (2023-07-26)
 ------------------------------------------------------------
