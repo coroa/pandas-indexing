@@ -5,8 +5,9 @@ Changelog
 
 v0.3 (2023-09-17)
 ------------------------------------------------------------
-* *BREAKING*: :func:`~core.assignlevel` is aligning :class:`~pandas.Series` and
-  :class:`~pandas.DataFrame` before adding to the index :pull:`38`
+* **BREAKING** :func:`~core.assignlevel` aligns :class:`~pandas.Series` and
+  :class:`~pandas.DataFrame` before adding them to the index :pull:`38`
+* Address pandas 2.1's `FutureWarning`s and improve test coverage :pull:`40`
 
 v0.2.10 (2023-08-31)
 ------------------------------------------------------------
