@@ -5,15 +5,15 @@ Changelog
 
 v0.3.1 (2023-09-18)
 ------------------------------------------------------------
-* The new :func:`~core.assignlevel` argument `ignore_index=True` prevents the
+* The new :func:`~core.assignlevel` argument ``ignore_index=True`` prevents the
   dataframe and series alignment which became the default in v0.3 (yesterday),
-  since there are valid use cases of the old behaviour
+  since there are valid use cases of the old behaviour :pull:`41`
 
 v0.3 (2023-09-17)
 ------------------------------------------------------------
 * **BREAKING** :func:`~core.assignlevel` aligns :class:`~pandas.Series` and
   :class:`~pandas.DataFrame` before adding them to the index :pull:`38`
-* Address pandas 2.1's `FutureWarning`s and improve test coverage :pull:`40`
+* Address pandas 2.1's ``FutureWarning``s and improve test coverage :pull:`40`
 
 v0.2.10 (2023-08-31)
 ------------------------------------------------------------
