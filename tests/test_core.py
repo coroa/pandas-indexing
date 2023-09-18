@@ -81,6 +81,21 @@ def test_assignlevel_index(sidx: Index, midx: MultiIndex):
         ),
     )
 
+    # Check adding from dataframe w/o auto-alignment
+    assert_index_equal(
+        assignlevel(
+            midx,
+            DataFrame(
+                {"new": [1, 2, 3], "new2": 2}, index=Index([2, 1, 3], name="num")
+            ),
+            ignore_index=True,
+        ),
+        MultiIndex.from_arrays(
+            [midx.get_level_values(0), midx.get_level_values(1), [1, 2, 3], [2, 2, 2]],
+            names=["str", "num", "new", "new2"],
+        ),
+    )
+
     # Check wrong types
     with pytest.raises(ValueError):
         assignlevel(midx, "no-frame")

@@ -31,7 +31,11 @@ from .utils import doc, get_axis, print_list
 
 
 def _assignlevel(
-    index: Index, frame: Optional[Data] = None, order: bool = False, **labels: Any
+    index: Index,
+    frame: Optional[Data] = None,
+    order: bool = False,
+    ignore_index: bool = False,
+    **labels: Any,
 ) -> MultiIndex:
     if isinstance(index, MultiIndex):
         new_levels = list(index.levels)
@@ -43,11 +47,18 @@ def _assignlevel(
         new_codes = [level.get_indexer(index)]
         new_names = [index.name]
 
-    def maybe_align_with_index(df_or_ser):
-        if isinstance(df_or_ser, (DataFrame, Series)):
-            return semijoin(df_or_ser, index, how="right", fail_on_reorder=True)
+    if ignore_index:
 
-        return df_or_ser
+        def maybe_align_with_index(df_or_ser):
+            return df_or_ser
+
+    else:
+
+        def maybe_align_with_index(df_or_ser):
+            if isinstance(df_or_ser, (DataFrame, Series)):
+                return semijoin(df_or_ser, index, how="right", fail_on_reorder=True)
+
+            return df_or_ser
 
     labels = {level: maybe_align_with_index(lbls) for level, lbls in labels.items()}
 
@@ -97,6 +108,7 @@ def assignlevel(
     frame: Optional[Data] = None,
     order: bool = False,
     axis: Axis = 0,
+    ignore_index: bool = False,
     **labels: Any,
 ) -> T:
     """Add or overwrite levels on a multiindex.
@@ -110,6 +122,8 @@ def assignlevel(
         Level names in desired order or False, by default False
     axis : {{0, 1, "index", "columns"}}, default 0
         Axis where to update multiindex
+    ignore_index : bool, optional
+        If true, dataframes or series are not index aligned
     **labels
         Labels for each new index level
 
@@ -119,10 +133,14 @@ def assignlevel(
         Series or DataFrame with changed index or new MultiIndex
     """
     if isinstance(df, Index):
-        return _assignlevel(df, frame=frame, order=order, **labels)
+        return _assignlevel(
+            df, frame=frame, order=order, ignore_index=ignore_index, **labels
+        )
 
     index = get_axis(df, axis)
-    new_index = _assignlevel(index, frame=frame, order=order, **labels)
+    new_index = _assignlevel(
+        index, frame=frame, order=order, ignore_index=ignore_index, **labels
+    )
     return df.set_axis(new_index, axis=axis)
 
 
