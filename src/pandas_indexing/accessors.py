@@ -55,9 +55,17 @@ class _PixAccessor:
         frame: Optional[Data] = None,
         order: bool = False,
         axis: Axis = 0,
+        ignore_index: bool = False,
         **labels: Any,
     ) -> Union[DataFrame, Series, MultiIndex]:
-        return assignlevel(self._obj, frame=frame, order=order, axis=axis, **labels)
+        return assignlevel(
+            self._obj,
+            frame=frame,
+            order=order,
+            axis=axis,
+            ignore_index=ignore_index,
+            **labels,
+        )
 
     @doc(extractlevel, index_or_data="")
     def extract(

@@ -3,6 +3,12 @@
 Changelog
 =========
 
+v0.3.1 (2023-09-18)
+------------------------------------------------------------
+* The new :func:`~core.assignlevel` argument `ignore_index=True` prevents the
+  dataframe and series alignment which became the default in v0.3 (yesterday),
+  since there are valid use cases of the old behaviour
+
 v0.3 (2023-09-17)
 ------------------------------------------------------------
 * **BREAKING** :func:`~core.assignlevel` aligns :class:`~pandas.Series` and
