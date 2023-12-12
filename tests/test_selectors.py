@@ -5,7 +5,16 @@ from pandas import DataFrame, Series
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 from pandas_indexing import isin, ismatch
-from pandas_indexing.selectors import And, Const, Isin, Ismatch, Not, Or
+from pandas_indexing.selectors import (
+    AllSelector,
+    And,
+    Const,
+    Isin,
+    Ismatch,
+    NoneSelector,
+    Not,
+    Or,
+)
 
 
 def test_isin_mseries(mseries: Series):
@@ -57,3 +66,23 @@ def test_ismatch_explicitly_given(sdf):
     assert_series_equal(
         ismatch(sdf.columns, ["o*"]), Series([True, False], sdf.columns)
     )
+
+
+def test_all_none(sdf):
+    assert isinstance(~AllSelector(), NoneSelector)
+    assert isinstance(~NoneSelector(), AllSelector)
+
+    sel = isin(str="bar")
+
+    assert isinstance(sel | AllSelector(), AllSelector)
+    assert isinstance(AllSelector() | sel, AllSelector)
+    assert sel & AllSelector() == sel
+    assert AllSelector() & sel == sel
+
+    assert sel | NoneSelector() == sel
+    assert NoneSelector() | sel == sel
+    assert isinstance(sel & NoneSelector(), NoneSelector)
+    assert isinstance(NoneSelector() & sel, NoneSelector)
+
+    assert_frame_equal(sdf.loc[AllSelector()], sdf)
+    assert_frame_equal(sdf.loc[NoneSelector()], sdf.iloc[[]])
