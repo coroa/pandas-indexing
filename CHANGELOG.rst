@@ -3,6 +3,7 @@
 Changelog
 =========
 
+* Add :attr:`~selectors.All` and :attr:`~selectors.None_` completing selector group :pull:`46`
 * Fix type hints of function :func:`~core.aggregatelevel`
 * Switch from black to ruff for formatting and update pre-commit versions
 
