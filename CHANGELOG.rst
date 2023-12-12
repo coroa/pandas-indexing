@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Switch from black to ruff for formatting and update pre-commit versions
+
 v0.3.1 (2023-09-18)
 ------------------------------------------------------------
 * The new :func:`~core.assignlevel` argument ``ignore_index=True`` prevents the
