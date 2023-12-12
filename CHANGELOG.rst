@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Fix type hints of function :func:`~core.aggregatelevel`
+
 v0.3.1 (2023-09-18)
 ------------------------------------------------------------
 * The new :func:`~core.assignlevel` argument ``ignore_index=True`` prevents the
