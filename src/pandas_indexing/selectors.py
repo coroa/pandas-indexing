@@ -26,9 +26,13 @@ class Selector:
         return Not(self)
 
     def __and__(self, other):
+        if isinstance(other, Special):
+            return other & self
         return And(self, maybe_const(other))
 
     def __or__(self, other):
+        if isinstance(other, Special):
+            return other | self
         return Or(self, maybe_const(other))
 
     __rand__ = __and__
@@ -67,6 +71,48 @@ class Not(Selector):
 
     def __call__(self, df):
         return ~self.a.__call__(df)
+
+
+class Special(Selector):
+    pass
+
+
+@define
+class AllSelector(Special):
+    def __invert__(self):
+        return NoneSelector()
+
+    def __and__(self, other):
+        return other
+
+    def __or__(self, other):
+        return self
+
+    def __call__(self, df):
+        return Series(True, df.index)
+
+
+@define
+class NoneSelector(Special):
+    def __invert__(self):
+        return AllSelector()
+
+    def __and__(self, other):
+        return self
+
+    def __or__(self, other):
+        return other
+
+    __rand__ = __and__
+    __ror__ = __or__
+
+    def __call__(self, df):
+        return Series(False, df.index)
+
+
+# Singletons for easy access
+All = AllSelector()
+None_ = NoneSelector()
 
 
 @define
