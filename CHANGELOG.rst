@@ -4,6 +4,7 @@ Changelog
 =========
 
 * Fix type hints of function :func:`~core.aggregatelevel`
+* Switch from black to ruff for formatting and update pre-commit versions
 
 v0.3.1 (2023-09-18)
 ------------------------------------------------------------
