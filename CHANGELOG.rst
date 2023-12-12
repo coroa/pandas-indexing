@@ -7,6 +7,7 @@ v0.4.0 (2023-12-12)
 ------------------------------------------------------------
 * **BREAKING** :mod:`accessors` is imported implicitly. User code does not need to
   import it any longer :pull:`45`
+* Add continuous testing for python 3.12 :pull:`47`
 * Add :attr:`~selectors.All` and :attr:`~selectors.None_` completing selector group
   :pull:`46`
 * Fix type hints of function :func:`~core.aggregatelevel` :pull:`44`
