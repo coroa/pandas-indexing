@@ -915,7 +915,7 @@ def aggregatelevel(
     agg_func: str = "sum",
     axis: Axis = 0,
     dropna: bool = True,
-    mode: Literal["replace", "add"] = "replace",
+    mode: Literal["replace", "add", "return"] = "replace",
     **levels: Dict[str, Sequence[Any]],
 ) -> T:
     """Aggregate labels on one or multiple levels together.
