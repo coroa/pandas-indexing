@@ -3,8 +3,12 @@
 Changelog
 =========
 
-* Fix type hints of function :func:`~core.aggregatelevel`
-* Switch from black to ruff for formatting and update pre-commit versions
+v0.4.0 (2023-12-12)
+------------------------------------------------------------
+* **BREAKING** :mod:`accessors` is imported implicitly. User code does not need to
+  import it any longer :pull:`45`
+* Fix type hints of function :func:`~core.aggregatelevel` :pull:`44`
+* Switch from black to ruff for formatting and update pre-commit versions :pull:`43`
 
 v0.3.1 (2023-09-18)
 ------------------------------------------------------------

@@ -9,8 +9,6 @@ from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
-import pandas_indexing.accessors  # noqa: F401
-
 
 def test_assign_index(midx: MultiIndex):
     """

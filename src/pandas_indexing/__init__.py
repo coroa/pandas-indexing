@@ -5,7 +5,7 @@ Pandas indexing helper.
 
 from importlib.metadata import version as _version
 
-from . import core, datasets
+from . import accessors, core, datasets
 from .arithmetics import add, divide, multiply, subtract
 from .core import (
     aggregatelevel,
