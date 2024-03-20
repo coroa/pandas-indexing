@@ -20,6 +20,7 @@ from pandas.api.extensions import no_default
 from . import arithmetics
 from .core import (
     aggregatelevel,
+    antijoin,
     assignlevel,
     describelevel,
     dropnalevel,
@@ -128,6 +129,10 @@ class _PixAccessor:
         axis: Axis = 0,
     ) -> Union[DataFrame, Series, Index]:
         return fixindexna(self._obj, axis=axis)
+
+    @doc(antijoin, index_or_data="")
+    def antijoin(self, other: Index, *, axis: Axis = 0):
+        return antijoin(self._obj, other, axis=axis)
 
 
 class _DataPixAccessor(_PixAccessor):

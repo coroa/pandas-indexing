@@ -51,6 +51,7 @@ See also
 --------
 pint.set_application_registry
 """
+
 from typing import Callable, Mapping, Optional, Union
 
 from pandas import DataFrame, Series
