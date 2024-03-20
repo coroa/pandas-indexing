@@ -2,7 +2,6 @@
 Pandas indexing helper.
 """
 
-
 from importlib.metadata import version as _version
 
 from . import accessors, core, datasets

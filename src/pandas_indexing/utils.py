@@ -2,6 +2,7 @@
 
 Simple utility functions not of greater interest
 """
+
 from typing import Union
 
 from pandas import DataFrame, Index, Series
