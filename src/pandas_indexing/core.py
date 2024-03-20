@@ -1,6 +1,7 @@
 """
 Core module.
 """
+
 import re
 from functools import reduce
 from itertools import chain, product
@@ -587,6 +588,78 @@ def semijoin(
         )
 
     return data.set_axis(new_index, axis=axis)
+
+
+@doc(
+    index_or_data="""
+    index_or_data : Index or DataFrame or Series
+        Data to be filtered\
+    """
+)
+def antijoin(
+    index_or_data: S,
+    other: Index,
+    *,
+    level: Union[str, int, None] = None,
+    axis: Axis = 0,
+) -> S:
+    """Antijoin ``index_or_data`` with index ``other``.
+
+    ie remove all occurrences of other from data
+
+    Parameters
+    ----------\
+    {index_or_data}
+    other : Index
+        Other index to join with
+    level : None or str or int or
+        Single level on which to join, if not given join on all
+    axis : {{0, 1, "index", "columns"}}
+        Axis on which to join
+
+    Returns
+    -------
+    Index or DataFrame or Series
+
+    Raises
+    ------
+    ValueError
+        If axis is not 0, "index" or 1, "columns"
+    TypeError
+        if index_or_data does not derive from DataFrame or Series
+
+    See also
+    --------
+    pandas.Index.join
+    """
+
+    index = get_axis(index_or_data, axis)
+
+    _, left_idx, right_idx = index.join(
+        other, how="left", level=level, return_indexers=True
+    )
+
+    if isinstance(index_or_data, DataFrame):
+        if axis in (0, "index"):
+            getter = lambda s: index_or_data.iloc[s]
+        elif axis in (1, "columns"):
+            getter = lambda s: index_or_data.iloc[:, s]
+    elif isinstance(index_or_data, Series):
+        getter = lambda s: index_or_data.iloc[s]
+    elif isinstance(index_or_data, Index):
+        getter = lambda s: index_or_data[s]
+    else:
+        raise TypeError(
+            f"frame_or_series must derive from DataFrame or Series or Index, but is {type(index_or_data)}"
+        )
+
+    if right_idx is None:
+        return getter(slice(0, 0))
+
+    if left_idx is None:
+        return getter(right_idx == -1)
+
+    return getter(left_idx[right_idx == -1])
 
 
 def _extractlevel(

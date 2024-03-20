@@ -9,6 +9,7 @@ from . import accessors, core, datasets
 from .arithmetics import add, divide, multiply, subtract
 from .core import (
     aggregatelevel,
+    antijoin,
     assignlevel,
     concat,
     describelevel,

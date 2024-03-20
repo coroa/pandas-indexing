@@ -13,6 +13,7 @@ from pandas.testing import assert_frame_equal, assert_index_equal, assert_series
 
 from pandas_indexing.core import (
     aggregatelevel,
+    antijoin,
     assignlevel,
     concat,
     describelevel,
@@ -491,6 +492,21 @@ def test_semijoin(mdf, mseries):
             index=index.reorder_levels(["str", "num", "new"]),
         ),
     )
+
+
+def test_antijoin(mdf, mseries):
+    index = MultiIndex.from_tuples(
+        [(2.5, "foo", 2), (3.5, "bar", 3), (5.5, "bar", 5)], names=["new", "str", "num"]
+    )
+
+    # Frame
+    assert_frame_equal(antijoin(mdf, index), mdf.iloc[[0]])
+
+    # Series
+    assert_series_equal(antijoin(mseries, index), mseries.iloc[[0]])
+
+    # Index
+    assert_index_equal(antijoin(mseries.index, index), mseries.index[[0]])
 
 
 def test_to_tidy(mdf, mseries, midx):
