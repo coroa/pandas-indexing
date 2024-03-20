@@ -2,6 +2,7 @@
 Performs general tests.
 """
 
+import sys
 from textwrap import dedent
 
 import pytest
@@ -475,22 +476,26 @@ def test_semijoin(mdf, mseries):
         ),
     )
 
+    # Python 3.12 changes the level order
+    level_order = (
+        ["new", "str", "num"]
+        if sys.version_info >= (3, 12, 0)
+        else ["str", "num", "new"]
+    )
+
     # Right-join
     assert_frame_equal(
         semijoin(mdf, index, how="right"),
         DataFrame(
             {col: r_[mdf[col].values[1:3], nan] for col in mdf},
-            index=index.reorder_levels(["str", "num", "new"]),
+            index=index.reorder_levels(level_order),
         ),
     )
 
     # Right-join on series
     assert_series_equal(
         semijoin(mseries, index, how="right"),
-        Series(
-            r_[mseries.values[1:3], nan],
-            index=index.reorder_levels(["str", "num", "new"]),
-        ),
+        Series(r_[mseries.values[1:3], nan], index=index.reorder_levels(level_order)),
     )
 
 
