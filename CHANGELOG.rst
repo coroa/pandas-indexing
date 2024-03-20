@@ -6,6 +6,7 @@ Changelog
 v0.4.1 (2023-03-20)
 ------------------------------------------------------------
 * Add :func:`~core.antijoin` for performing anti-joins :pull:`48`
+* Update usage guide for ``antijoin``, but also with more focus on ``extractlevel``
 
 v0.4.0 (2023-12-12)
 ------------------------------------------------------------
