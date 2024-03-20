@@ -3,6 +3,10 @@
 Changelog
 =========
 
+v0.4.1 (2023-03-20)
+------------------------------------------------------------
+* Add :func:`~core.antijoin` for performing anti-joins :pull:`48`
+
 v0.4.0 (2023-12-12)
 ------------------------------------------------------------
 * **BREAKING** :mod:`accessors` is imported implicitly. User code does not need to
