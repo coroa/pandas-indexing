@@ -9,6 +9,8 @@ from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
+import pandas_indexing  # noqa: F401
+
 
 def test_assign_index(midx: MultiIndex):
     """
@@ -137,4 +139,15 @@ def test_aggregate(mdf):
             dict(one=[1, 2], two=[3, 3]),
             MultiIndex.from_tuples([("bar", 3), ("foo", "new")], names=["str", "num"]),
         ),
+    )
+
+
+def test_add_zeros_like(mdf):
+    reference = MultiIndex.from_arrays(
+        [["foo", "foo", "bar", "baz"], [1, 2, 3, 4], ["a", "b", "c", "d"]],
+        names=["str", "num", "new"],
+    )
+    assert_frame_equal(
+        mdf.pix.add_zeros_like(reference),
+        mdf.reindex(reference.droplevel("new"), fill_value=0),
     )
