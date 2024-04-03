@@ -19,6 +19,7 @@ from pandas.api.extensions import no_default
 
 from . import arithmetics
 from .core import (
+    add_zeros_like,
     aggregatelevel,
     antijoin,
     assignlevel,
@@ -207,6 +208,16 @@ class _DataPixAccessor(_PixAccessor):
         return aggregatelevel(
             self._obj, agg_func=agg_func, axis=axis, dropna=dropna, mode=mode, **levels
         )
+
+    @doc(add_zeros_like, data="")
+    def add_zeros_like(
+        self,
+        reference: Union[MultiIndex, DataFrame, Series],
+        /,
+        derive: Optional[Dict[str, MultiIndex]] = None,
+        **levels: Sequence[str],
+    ):
+        return add_zeros_like(self._obj, reference=reference, derive=derive, **levels)
 
 
 def _create_forward_binop(op):

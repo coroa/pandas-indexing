@@ -1075,3 +1075,64 @@ def aggregatelevel(
         raise ValueError(
             f'mode must be "replace", "append" or "return", but is "{mode}"'
         )
+
+
+@doc(
+    data="""
+    data : Data
+        Series or DataFrame to extend with zeros\
+    """
+)
+def add_zeros_like(
+    data: T,
+    reference: Union[MultiIndex, DataFrame, Series],
+    *,
+    derive: Optional[Dict[str, MultiIndex]] = None,
+    **levels: Sequence[str],
+) -> T:
+    """Add explicit `levels` to `data` as 0 values.
+
+    Remaining levels in `data` not found in `levels` or `derive` are taken from
+    `reference` (or its index).
+
+    Parameters
+    ----------\
+    {data}
+    reference : Index
+        expected level labels (like model, scenario combinations)
+    derive : dict
+        derive labels in a level from a multiindex with allowed combinations
+    **levels : [str]
+        which labels should be added to df
+
+    Returns
+    -------
+    DataFrame
+        unsorted data with additional zero data
+    """
+
+    if any(len(labels) == 0 for labels in levels.values()):
+        return data
+
+    if isinstance(reference, (Series, DataFrame)):
+        reference = reference.index
+
+    if derive is None:
+        derive = {}
+
+    target_levels = data.index.names
+    index = reference.pix.unique(
+        target_levels.difference(levels.keys()).difference(derive.keys())
+    )
+
+    zero_index = concat(
+        reduce(
+            lambda ind, d: ind.join(d, how="left"),
+            derive.values(),
+            index.pix.assign(**dict(zip(levels.keys(), labels))),
+        ).reorder_levels(target_levels)
+        for labels in product(*levels.values())
+    )
+    zero_index = antijoin(zero_index, data.index)
+
+    return concat([data, pd.DataFrame(0, index=zero_index, columns=data.columns)])

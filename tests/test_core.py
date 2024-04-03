@@ -13,6 +13,7 @@ from pandas import concat as pd_concat
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 from pandas_indexing.core import (
+    add_zeros_like,
     aggregatelevel,
     antijoin,
     assignlevel,
@@ -612,3 +613,44 @@ def test_aggregatelevel(mdf):
 
     with pytest.raises(ValueError):
         aggregatelevel(mdf, num=dict(new=[1, 2]), mode="bla")
+
+
+def test_add_zeros_like(mdf):
+    reference = MultiIndex.from_arrays(
+        [["foo", "foo", "bar", "baz"], [1, 2, 3, 4], ["a", "b", "c", "d"]],
+        names=["str", "num", "new"],
+    )
+    assert_frame_equal(
+        add_zeros_like(mdf, reference),
+        mdf.reindex(reference.droplevel("new"), fill_value=0),
+    )
+
+    assert_frame_equal(
+        add_zeros_like(mdf, Series(0, reference)),
+        mdf.reindex(reference.droplevel("new"), fill_value=0),
+    )
+
+    assert_frame_equal(add_zeros_like(mdf, reference, blub=[]), mdf)
+
+    missing = MultiIndex.from_arrays(
+        [["bar", "baz", "foo", "baz"], [2, 2, 3, 3]], names=["str", "num"]
+    )
+    assert_frame_equal(
+        add_zeros_like(mdf, reference, num=[2, 3]),
+        mdf.reindex(mdf.index.append(missing), fill_value=0),
+    )
+
+    def add_first(df):
+        index = df if isinstance(df, Index) else df.index
+        return assignlevel(df, first=projectlevel(index, "str").str[:1])
+
+    mdf_w_first = add_first(mdf)
+    assert_frame_equal(
+        add_zeros_like(
+            mdf_w_first,
+            reference,
+            num=[2, 3],
+            derive=dict(first=add_first(Index(["foo", "bar", "baz"], name="str"))),
+        ),
+        mdf_w_first.reindex(mdf_w_first.index.append(add_first(missing)), fill_value=0),
+    )
