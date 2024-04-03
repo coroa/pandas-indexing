@@ -3,6 +3,10 @@
 Changelog
 =========
 
+v0.4.2 (2023-04-03)
+------------------------------------------------------------
+* Add :func:`~core.add_zeros_like` for adding explicit `levels` as 0 values :pull:`51`
+
 v0.4.1 (2023-03-20)
 ------------------------------------------------------------
 * Add :func:`~core.antijoin` for performing anti-joins :pull:`48`
