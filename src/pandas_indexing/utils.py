@@ -99,3 +99,11 @@ def get_axis(data: Union[Index, Series, DataFrame], axis: Axis = 0):
         raise ValueError(
             f"data needs to be a pandas Series or DataFrame, not: {type(data)}"
         )
+
+
+def quote_list(l):
+    return ", ".join(f'"{s}"' for s in l)
+
+
+def s(l):
+    return "s" if len(l) > 1 else ""

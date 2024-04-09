@@ -3,11 +3,13 @@
 Changelog
 =========
 
-v0.4.2 (2023-04-03)
-------------------------------------------------------------
-* Add :func:`~core.add_zeros_like` for adding explicit `levels` as 0 values :pull:`51`
+* Update :func:`~core.projectlevel` to raise ``KeyError`` for wrong level names.
 
-v0.4.1 (2023-03-20)
+v0.4.2 (2024-04-03)
+------------------------------------------------------------
+* Add :func:`~core.add_zeros_like` for adding explicit ``levels`` as 0 values :pull:`51`
+
+v0.4.1 (2024-03-20)
 ------------------------------------------------------------
 * Add :func:`~core.antijoin` for performing anti-joins :pull:`48`
 * Update usage guide for ``antijoin``, but also with more focus on ``extractlevel``
