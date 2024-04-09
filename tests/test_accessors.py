@@ -142,6 +142,30 @@ def test_aggregate(mdf):
     )
 
 
+def test_extract():
+    midx = MultiIndex.from_arrays(
+        [["e|foo", "e|bar", "bar"], [1, 2, 3]], names=["var", "num"]
+    )
+
+    assert_index_equal(
+        midx.pix.extract(var="{e}|{typ}"),
+        MultiIndex.from_arrays(
+            [[1, 2], ["e", "e"], ["foo", "bar"]],
+            names=["num", "e", "typ"],
+        ),
+    )
+
+    # drop=False
+    with pytest.warns(DeprecationWarning):
+        assert_index_equal(
+            midx.pix.extract(var="{e}|{typ}", drop=False),
+            MultiIndex.from_arrays(
+                [["e|foo", "e|bar"], [1, 2], ["e", "e"], ["foo", "bar"]],
+                names=["var", "num", "e", "typ"],
+            ),
+        )
+
+
 def test_add_zeros_like(mdf):
     reference = MultiIndex.from_arrays(
         [["foo", "foo", "bar", "baz"], [1, 2, 3, 4], ["a", "b", "c", "d"]],

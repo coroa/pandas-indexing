@@ -695,8 +695,8 @@ def _extractlevel(
         codes = index.codes[levelnum]
 
         if regex:
-            components = labels.str.extract(f"^{template}$", expand=True)
-            identifiers = list(components.columns)
+            regex_pattern = re.compile(f"^{template}$")
+            identifiers = list(regex_pattern.groupindex)
         else:
             identifiers = re.findall(r"\{([a-zA-Z_]+)\}", template)
             regex_pattern = reduce(
@@ -704,7 +704,9 @@ def _extractlevel(
                 identifiers,
                 re.escape(template),
             )
-            components = labels.str.extract(f"^{regex_pattern}$", expand=True)
+            regex_pattern = re.compile(f"^{regex_pattern}$")
+
+        components = labels.str.extract(regex_pattern, expand=True)
 
         all_identifiers.update(identifiers)
         index = assignlevel(
