@@ -169,7 +169,7 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     """
 )
 def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
-    """Project multiindex to given ``levels``.
+    """Project multiindex to given *levels*.
 
     Drops all levels except the ones explicitly mentioned from a given multiindex
     or an axis of a series or a dataframe.
@@ -516,7 +516,7 @@ def semijoin(
     fill_value: Any = no_default,
     fail_on_reorder: bool = False,
 ) -> S:
-    """Semijoin ``data`` by index ``other``.
+    """Semijoin *frame_or_series* by index *other*.
 
     Parameters
     ----------\
@@ -543,12 +543,12 @@ def semijoin(
     Raises
     ------
     ValueError
-        If fail_on_reorder is True and the new index order does not correspond
+        If *fail_on_reorder* is True and the new index order does not correspond
         to the order of other
     ValueError
-        If axis is not 0, "index" or 1, "columns"
+        If *axis* is not 0, "index" or 1, "columns"
     TypeError
-        if frame_or_series does not derive from DataFrame or Series
+        if *frame_or_series* does not derive from DataFrame or Series
 
     See also
     --------
@@ -612,7 +612,7 @@ def antijoin(
     level: Union[str, int, None] = None,
     axis: Axis = 0,
 ) -> S:
-    """Antijoin ``index_or_data`` with index ``other``.
+    """Antijoin *index_or_data* with index *other*.
 
     ie remove all occurrences of other from data
 
@@ -736,13 +736,17 @@ def extractlevel(
     axis: Axis = 0,
     **templates: str,
 ) -> T:
-    """Extract new index levels with ``templates`` matched against any index
+    """Extract new index levels with *templates* matched against any index
     level.
 
     The ``**templates`` argument defines pairs of level names and templates.
     Given level names are matched against the template, f.ex. ``"Emi|{{gas}}|{{sector}}"``.
     Patterns (``{{gas}}`` or ``{{sector}}``) appearing in the template are extracted
     from the successful matches and added as new levels.
+
+    .. versionchanged:: 0.5.0
+        *drop* replaced by *keep* and default changed to not keep.
+        *regex* added.
 
     Parameters
     ----------\
@@ -830,10 +834,6 @@ def extractlevel(
     See also
     --------
     formatlevel
-
-    .. versionchanged:: 0.5.0
-        *drop* replaced by *keep* and default changed to not keep.
-        *regex* added.
     """
     if drop is not None:
         warnings.warn(
@@ -911,7 +911,7 @@ def formatlevel(
     axis: Axis = 0,
     **templates: str,
 ) -> T:
-    """Format index levels based on a ``template`` which can refer to other
+    """Format index levels based on a *template* which can refer to other
     levels.
 
     Parameters
@@ -931,7 +931,7 @@ def formatlevel(
     Raises
     ------
     ValueError
-        If ``templates`` refer to non-existant levels
+        If *templates* refer to non-existant levels
     """
     if isinstance(index_or_data, Index):
         return _formatlevel(index_or_data, drop, **templates)
@@ -1146,10 +1146,10 @@ def add_zeros_like(
     derive: Optional[Dict[str, MultiIndex]] = None,
     **levels: Sequence[str],
 ) -> T:
-    """Add explicit `levels` to `data` as 0 values.
+    """Add explicit *levels* to *data* as 0 values.
 
-    Remaining levels in `data` not found in `levels` or `derive` are taken from
-    `reference` (or its index).
+    Remaining levels in *data* not found in *levels* or *derive* are taken from
+    *reference* (or its index).
 
     Parameters
     ----------\
