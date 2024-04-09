@@ -3,7 +3,19 @@
 Changelog
 =========
 
-* Update :func:`~core.projectlevel` to raise ``KeyError`` for wrong level names.
+v0.5.0 (2024-04-09)
+------------------------------------------------------------
+* **BREAKING**: Change :func:`~core.extractlevel` to drop split levels by default and
+  accordingly rename the governing argument from ``drop=False`` to ``keep=False``
+  :pull:`53`.
+* Add ``regex=True`` argument to :func:`~core.extractlevel` to use templates as
+  manual extraction regex, f.ex.
+  ``df.pix.extract(variable=r"Emissions\|(?P<gas>.*?)(?:\|(?P<sector>.*?))?",
+  regex=True)`` will also split ``Emissions|CO2`` to ``gas = "CO2"`` and
+  ``sector = NaN``, while ``df.pix.extract(variable="Emissions|{gas}|{sector}")`` would
+  have dropped it.
+* Update :func:`~core.projectlevel` to raise ``KeyError`` for wrong level names
+  :pull:`52`.
 
 v0.4.2 (2024-04-03)
 ------------------------------------------------------------

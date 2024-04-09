@@ -226,8 +226,8 @@ def test_extractlevel(mdf, mseries, midx):
     mseries = mseries.set_axis(midx)
 
     expected_idx = MultiIndex.from_arrays(
-        [["e|foo", "e|bar"], [1, 2], ["e", "e"], ["foo", "bar"]],
-        names=["var", "num", "e", "typ"],
+        [[1, 2], ["e", "e"], ["foo", "bar"]],
+        names=["num", "e", "typ"],
     )
 
     assert_index_equal(extractlevel(midx, var="{e}|{typ}"), expected_idx)
@@ -248,12 +248,12 @@ def test_extractlevel_options(mdf):
     )
     mdf_t = mdf.T.set_axis(midx, axis=1)
 
-    # drop=True
+    # keep=True
     assert_index_equal(
-        extractlevel(midx, var="{e}|{typ}", drop=True),
+        extractlevel(midx, var="{e}|{typ}", keep=True),
         MultiIndex.from_arrays(
-            [[1, 2], ["e", "e"], ["foo", "bar"]],
-            names=["num", "e", "typ"],
+            [["e|foo", "e|bar"], [1, 2], ["e", "e"], ["foo", "bar"]],
+            names=["var", "num", "e", "typ"],
         ),
     )
 
@@ -261,19 +261,14 @@ def test_extractlevel_options(mdf):
     assert_index_equal(
         extractlevel(midx, var="{e}|{typ}", dropna=False),
         MultiIndex.from_arrays(
-            [
-                ["e|foo", "e|bar", "bar"],
-                [1, 2, 3],
-                ["e", "e", nan],
-                ["foo", "bar", nan],
-            ],
-            names=["var", "num", "e", "typ"],
+            [[1, 2, 3], ["e", "e", nan], ["foo", "bar", nan]],
+            names=["num", "e", "typ"],
         ),
     )
 
     # axis=1
     assert_frame_equal(
-        extractlevel(mdf_t, var="{e}|{typ}", drop=True, axis=1),
+        extractlevel(mdf_t, var="{e}|{typ}", axis=1),
         mdf_t.iloc[:, [0, 1]].set_axis(
             MultiIndex.from_arrays(
                 [[1, 2], ["e", "e"], ["foo", "bar"]],
@@ -282,6 +277,25 @@ def test_extractlevel_options(mdf):
             axis=1,
         ),
     )
+
+    # regex
+    assert_index_equal(
+        extractlevel(midx, var=r"((?P<e>.*?)\|)?(?P<typ>.*?)", regex=True),
+        MultiIndex.from_arrays(
+            [[1, 2, 3], ["e", "e", nan], ["foo", "bar", "bar"]],
+            names=["num", "e", "typ"],
+        ),
+    )
+
+    # drop=True
+    with pytest.warns(DeprecationWarning):
+        assert_index_equal(
+            extractlevel(midx, var="{e}|{typ}", drop=False),
+            MultiIndex.from_arrays(
+                [["e|foo", "e|bar"], [1, 2], ["e", "e"], ["foo", "bar"]],
+                names=["var", "num", "e", "typ"],
+            ),
+        )
 
     with pytest.raises(ValueError):
         # mdf does not have the var level

@@ -10,6 +10,7 @@ Examples
 >>> df.pix.multiply(other, how="left")
 """
 
+import warnings
 from typing import Any, Callable, Dict, Literal, Mapping, Optional, Sequence, Union
 
 import pandas as pd
@@ -71,9 +72,31 @@ class _PixAccessor:
 
     @doc(extractlevel, index_or_data="")
     def extract(
-        self, template: Optional[str] = None, *, axis: Axis = 0, **templates: str
+        self,
+        template: Optional[str] = None,
+        *,
+        keep: bool = False,
+        dropna: bool = True,
+        regex: bool = False,
+        axis: Axis = 0,
+        drop: Optional[bool] = None,
+        **templates: str,
     ) -> Union[DataFrame, Series, Index]:
-        return extractlevel(self._obj, template, axis=axis, **templates)
+        if drop is not None:
+            warnings.warn(
+                "Argument `drop` is deprecated (use `keep` instead)", DeprecationWarning
+            )
+            keep = not drop
+
+        return extractlevel(
+            self._obj,
+            template,
+            keep=keep,
+            dropna=dropna,
+            regex=regex,
+            axis=axis,
+            **templates,
+        )
 
     @doc(formatlevel, index_or_data="")
     def format(
