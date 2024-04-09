@@ -3,6 +3,7 @@ Performs general tests.
 """
 
 import sys
+from re import escape
 from textwrap import dedent
 
 import pytest
@@ -408,6 +409,11 @@ def test_projectlevel(midx, mdf):
             [mdf.index.get_level_values("num"), mdf.index.get_level_values("str")]
         ),
     )
+    with pytest.raises(
+        KeyError,
+        match=escape('Index has no level "blub" (existing levels: "str", "num")'),
+    ):
+        projectlevel(mdf, "blub")
 
 
 def test_uniquelevel(mdf, midx):

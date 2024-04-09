@@ -28,7 +28,7 @@ from pandas.core.indexes.frozen import FrozenList
 
 from .selectors import isin
 from .types import Axis, Data, S, T
-from .utils import doc, get_axis, print_list
+from .utils import doc, get_axis, print_list, quote_list, s
 
 
 def _assignlevel(
@@ -147,6 +147,14 @@ def assignlevel(
 
 def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     levels = np.atleast_1d(levels)
+
+    missing_levels = [level for level in levels if level not in index.names]
+    if missing_levels:
+        raise KeyError(
+            f"Index has no level{s(missing_levels)} {quote_list(missing_levels)} "
+            f"(existing levels: {quote_list(index.names)})"
+        )
+
     if len(levels) == 1:
         return index.get_level_values(levels[0])
 
