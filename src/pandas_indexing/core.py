@@ -3,6 +3,7 @@ Core module.
 """
 
 import re
+import warnings
 from functools import reduce
 from itertools import chain, product
 from operator import and_, or_
@@ -671,7 +672,11 @@ def antijoin(
 
 
 def _extractlevel(
-    index: Index, template: Optional[str] = None, drop: bool = False, **templates: str
+    index: Index,
+    template: Optional[str] = None,
+    keep: bool = False,
+    regex: bool = False,
+    **templates: str,
 ) -> Tuple[Index, List[str]]:
     index = ensure_multiindex(index)
     all_identifiers = set()
@@ -682,8 +687,6 @@ def _extractlevel(
         templates[index.names[0]] = template
 
     for dim, template in templates.items():
-        identifiers = re.findall(r"\{([a-zA-Z_]+)\}", template)
-        all_identifiers.update(identifiers)
         if dim not in index.names:
             raise ValueError(f"{dim} not a dimension of index: {index.names}")
 
@@ -691,18 +694,24 @@ def _extractlevel(
         labels = index.levels[levelnum]
         codes = index.codes[levelnum]
 
-        regex_pattern = reduce(
-            lambda s, ident: s.replace(rf"\{{{ident}\}}", rf"(?P<{ident}>.*?)"),
-            identifiers,
-            re.escape(template),
-        )
-        components = labels.str.extract(f"^{regex_pattern}$", expand=True)
+        if regex:
+            components = labels.str.extract(f"^{template}$", expand=True)
+            identifiers = list(components.columns)
+        else:
+            identifiers = re.findall(r"\{([a-zA-Z_]+)\}", template)
+            regex_pattern = reduce(
+                lambda s, ident: s.replace(rf"\{{{ident}\}}", rf"(?P<{ident}>.*?)"),
+                identifiers,
+                re.escape(template),
+            )
+            components = labels.str.extract(f"^{regex_pattern}$", expand=True)
 
+        all_identifiers.update(identifiers)
         index = assignlevel(
             index, **{ident: components[ident].values[codes] for ident in identifiers}
         )
 
-    if drop:
+    if not keep:
         index = index.droplevel(list(set(templates) - all_identifiers))
 
     return index, list(all_identifiers)
@@ -718,8 +727,10 @@ def extractlevel(
     index_or_data: T,
     template: Optional[str] = None,
     *,
-    drop: bool = False,
+    keep: bool = False,
     dropna: bool = True,
+    regex: bool = False,
+    drop: Optional[bool] = None,
     axis: Axis = 0,
     **templates: str,
 ) -> T:
@@ -736,12 +747,17 @@ def extractlevel(
     {index_or_data}
     template : str, optional
         Extraction template for a single level
-    drop : bool, default False
+    keep : bool, default False
         Whether to keep the split dimension
     dropna : bool, default True
         Whether to drop the non-matching levels
+    regex : bool, default False
+        Whether templates are given as regular expressions
+        (regexes must use named captures)
     axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to extract from
+    drop : bool, optional
+        Deprecated argument, use keep instead
     **templates : str
         Templates for splitting one or multiple levels
 
@@ -759,9 +775,12 @@ def extractlevel(
     Examples
     --------
     >>> s = Series(
-    ...     range(3),
+    ...     range(4),
     ...     MultiIndex.from_arrays(
-    ...         [["SE|Elec|Bio", "SE|Elec|Coal", "PE|Coal"], ["GWh", "GWh", "EJ"]],
+    ...         [
+    ...             ["SE|Elec|Bio", "SE|Elec|Coal", "PE|Coal", "SE|Elec"],
+    ...             ["GWh", "GWh", "EJ", "GWh"],
+    ...         ],
     ...         names=["variable", "unit"],
     ...     ),
     ... )
@@ -770,22 +789,37 @@ def extractlevel(
     SE|Elec|Bio   GWh     0
     SE|Elec|Coal  GWh     1
     PE|Coal       EJ      2
+    SE|Elec       GWh     3
     dtype: int64
-    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}")
+    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}", keep=True)
     variable      unit  type  fuel
     SE|Elec|Bio   GWh   Elec  Bio     0
     SE|Elec|Coal  GWh   Elec  Coal    1
     dtype: int64
 
-    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}", dropna=False)
+    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}")
+    unit  type  fuel
+    GWh   Elec  Bio     0
+    GWh   Elec  Coal    1
+    dtype: int64
+
+    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}", keep=True, dropna=False)
     variable      unit  type  fuel
     SE|Elec|Bio   GWh   Elec  Bio     0
     SE|Elec|Coal  GWh   Elec  Coal    1
     PE|Coal       EJ    NaN   NaN     2
+    SE|Elec       GWh   NaN   NaN     3
+    dtype: int64
+
+    >>> extractlevel(s, variable=r"SE\\|(?P<type>.*?)(?:\\|(?P<fuel>.*?))?", regex=True)
+    unit  type  fuel
+    GWh   Elec  Bio     0
+    GWh   Elec  Coal    1
+    GWh   Elec  NaN     3
     dtype: int64
 
     >>> s = Series(range(3), ["SE|Elec|Bio", "SE|Elec|Coal", "PE|Coal"])
-    >>> extractlevel(s, "SE|{{type}}|{{fuel}}", drop=True)
+    >>> extractlevel(s, "SE|{{type}}|{{fuel}}")
     type  fuel
     Elec  Bio     0
           Coal    1
@@ -794,19 +828,31 @@ def extractlevel(
     See also
     --------
     formatlevel
+
+    .. versionchanged:: 0.5.0
+        *drop* replaced by *keep* and default changed to not keep.
+        *regex* added.
     """
+    if drop is not None:
+        warnings.warn(
+            "Argument `drop` is deprecated (use `keep` instead)", DeprecationWarning
+        )
+        keep = not drop
+
     if isinstance(index_or_data, Index):
         index_or_data, identifiers = _extractlevel(
-            index_or_data, template, drop, **templates
+            index_or_data, template, keep=keep, regex=regex, **templates
         )
     else:
         index, identifiers = _extractlevel(
-            get_axis(index_or_data, axis), template, drop, **templates
+            get_axis(index_or_data, axis), template, keep=keep, regex=regex, **templates
         )
         index_or_data = index_or_data.set_axis(index, axis=axis)
 
     if dropna:
-        index_or_data = dropnalevel(index_or_data, subset=identifiers, axis=axis)
+        index_or_data = dropnalevel(
+            index_or_data, subset=identifiers, how="all", axis=axis
+        )
 
     return index_or_data
 
