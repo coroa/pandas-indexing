@@ -305,13 +305,13 @@ def test_extractlevel_options(mdf):
 def test_extractlevel_single(midx):
     sidx = Index(["e|foo", "e|bar", "bar"])
     assert_index_equal(
-        extractlevel(sidx, "{e}|{typ}", drop=True),
+        extractlevel(sidx, "{e}|{typ}"),
         MultiIndex.from_arrays([["e", "e"], ["foo", "bar"]], names=["e", "typ"]),
     )
 
     sidx = Index(["e|foo", "e|bar", "bar"], name="named")
     assert_index_equal(
-        extractlevel(sidx, "{e}|{typ}", drop=True),
+        extractlevel(sidx, "{e}|{typ}"),
         MultiIndex.from_arrays([["e", "e"], ["foo", "bar"]], names=["e", "typ"]),
     )
 
