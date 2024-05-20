@@ -3,6 +3,8 @@
 Changelog
 =========
 
+v0.5.1 (2024-05-20)
+------------------------------------------------------------
 * Fix :func:`~selectors.ismatch` to not interpret brackets as regex symbols
 * Fix :func:`~selectors.isin` to always return a series (instead of a numpy array)
 
