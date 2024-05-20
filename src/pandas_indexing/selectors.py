@@ -135,7 +135,9 @@ class Isin(Selector):
                 return value(index.get_level_values(level))
             return index.isin(np.atleast_1d(value), level=level)
 
-        return reduce(and_, (apply_filter(v, k) for k, v in filters.items()))
+        return Series(
+            reduce(and_, (apply_filter(v, k) for k, v in filters.items())), index
+        )
 
 
 def isin(
