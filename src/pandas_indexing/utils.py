@@ -3,6 +3,7 @@
 Simple utility functions not of greater interest
 """
 
+import re
 from typing import Union
 
 from pandas import DataFrame, Index, Series
@@ -15,18 +16,7 @@ def shell_pattern_to_regex(s):
     """
     Escape characters with specific regexp use.
     """
-    return (
-        str(s)
-        .replace("|", r"\|")
-        .replace(".", r"\.")  # `.` has to be replaced before `*`
-        .replace("**", "__starstar__")  # temporarily __starstar__
-        .replace("*", r"[^|]*")
-        .replace("__starstar__", r".*")
-        .replace("+", r"\+")
-        .replace("(", r"\(")
-        .replace(")", r"\)")
-        .replace("$", r"\$")
-    )
+    return re.escape(s).replace(r"\*\*", ".*").replace(r"\*", r"[^|]*")
 
 
 def print_list(x, n):
