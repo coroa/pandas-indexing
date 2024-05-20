@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Fix :func:`~selectors.ismatch` to not interpret brackets as regex symbols
+
 v0.5.0 (2024-04-09)
 ------------------------------------------------------------
 * **BREAKING**: Change :func:`~core.extractlevel` to drop split levels by default and
