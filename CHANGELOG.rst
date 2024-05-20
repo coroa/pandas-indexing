@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Fix :func:`~selectors.isin` to always return a series (instead of a numpy array)
+
 v0.5.0 (2024-04-09)
 ------------------------------------------------------------
 * **BREAKING**: Change :func:`~core.extractlevel` to drop split levels by default and
