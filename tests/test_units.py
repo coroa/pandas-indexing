@@ -5,17 +5,15 @@ from pandas import DataFrame, Series
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 from pandas_indexing import assignlevel, convert_unit, set_openscm_registry_as_default
-from pandas_indexing.units import has_pint, has_pint_pandas, is_unit
+from pandas_indexing.units import is_unit
 
 
-has_openscm_units = bool(find_spec("openscm_units"))
-
-needs_pint = pytest.mark.skipif(not has_pint, reason="Needs pint package")
+needs_pint = pytest.mark.skipif(not find_spec("pint"), reason="Needs pint package")
 needs_openscm_units = pytest.mark.skipif(
-    not has_openscm_units, reason="Needs openscm-units package"
+    not find_spec("openscm_units"), reason="Needs openscm-units package"
 )
 needs_pint_pandas = pytest.mark.skipif(
-    not has_pint_pandas, reason="Needs pint-pandas package"
+    not find_spec("pint_pandas"), reason="Needs pint-pandas package"
 )
 
 
