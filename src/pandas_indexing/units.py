@@ -56,27 +56,24 @@ from typing import Callable, Mapping, Optional, Union
 
 from pandas import DataFrame, Series
 
-
-INSTALL_PACKAGE_WARNING = "Please install {package} via conda or pip, or use the pandas-indexing[units] variant."
-
-try:
-    from pint_pandas import PintType
-
-    has_pint_pandas = True
-except ImportError:
-    has_pint_pandas = False
-
-try:
-    import pint
-
-    has_pint = True
-except ImportError:
-    has_pint = False
-
-
 from .core import assignlevel, uniquelevel
 from .types import Axis, Data
-from .utils import doc
+from .utils import LazyLoader, doc
+
+
+INSTALL_PACKAGE_WARNING = (
+    "Please install {name} via conda or pip, or use the pandas-indexing[units] variant."
+)
+
+pint_pandas = LazyLoader(
+    "pint_pandas",
+    globals(),
+    "pint_pandas",
+    INSTALL_PACKAGE_WARNING.format(name="pint_pandas"),
+)
+pint = LazyLoader(
+    "pint", globals(), "pint", INSTALL_PACKAGE_WARNING.format(name="pint")
+)
 
 
 @doc(
@@ -144,8 +141,6 @@ def quantify(
     dequantify
     convert_unit
     """
-    assert has_pint_pandas, INSTALL_PACKAGE_WARNING.format(package="pint-pandas")
-
     if unit is None:
         unit = uniquelevel(data, level, axis)
         if len(unit) != 1:
@@ -155,19 +150,17 @@ def quantify(
         unit = unit[0]
         data = data.droplevel(level, axis=axis)
 
-    return data.astype(PintType(unit), copy=copy)
+    return data.astype(pint_pandas.PintType(unit), copy=copy)
 
 
 def format_dtype(dtype):
-    if not isinstance(dtype, PintType):
+    if not isinstance(dtype, pint_pandas.PintType):
         return ""
 
     return ("{:" + dtype.ureg.default_format + "}").format(dtype.units)
 
 
 def dequantify(data: Data, level: str = "unit", axis: Axis = 0, copy: bool = False):
-    assert has_pint_pandas, INSTALL_PACKAGE_WARNING.format(package="pint-pandas")
-
     if isinstance(data, Series):
         unit = format_dtype(data.dtype)
         data = data.pint.magnitude
@@ -328,7 +321,6 @@ def get_openscm_registry(add_co2e: bool = True):
 def set_openscm_registry_as_default(add_co2e: bool = True):
     unit_registry = get_openscm_registry(add_co2e=add_co2e)
 
-    assert has_pint, INSTALL_PACKAGE_WARNING.format(package="pint")
     app_registry = pint.get_application_registry()
     if unit_registry is not app_registry:
         pint.set_application_registry(unit_registry)
@@ -337,7 +329,6 @@ def set_openscm_registry_as_default(add_co2e: bool = True):
 
 
 def is_unit(unit: str) -> bool:
-    assert has_pint, INSTALL_PACKAGE_WARNING.format(package="pint")
     ur = pint.get_application_registry()
     try:
         ur.Unit(unit)
