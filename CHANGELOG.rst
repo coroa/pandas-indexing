@@ -3,6 +3,8 @@
 Changelog
 =========
 
+v0.5.2 (2024-08-24)
+------------------------------------------------------------
 * Bumps minimum python version to 3.9 (which is close to EOL, anyway)
 * Improve :mod:`~selectors` to arbitrarily interact with boolean Series, numpy arrays
   and callables, ie.
