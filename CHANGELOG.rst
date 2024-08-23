@@ -3,6 +3,7 @@
 Changelog
 =========
 
+* Bumps minimum python version to 3.9 (which is close to EOL, anyway)
 * Improve :mod:`~selectors` to arbitrarily interact with boolean Series, numpy arrays
   and callables, ie.
   1. ``pd.Series([True, False]) & isin(model="a")`` produces the same result as
