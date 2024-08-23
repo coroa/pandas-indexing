@@ -3,6 +3,8 @@
 Changelog
 =========
 
+* Load pint and pint-pandas packages only on first use
+
 v0.5.1 (2024-05-20)
 ------------------------------------------------------------
 * Fix :func:`~selectors.ismatch` to not interpret brackets as regex symbols

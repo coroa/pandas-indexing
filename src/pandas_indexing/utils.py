@@ -3,7 +3,9 @@
 Simple utility functions not of greater interest
 """
 
+import importlib
 import re
+from types import ModuleType
 from typing import Union
 
 from pandas import DataFrame, Index, Series
@@ -97,3 +99,51 @@ def quote_list(l):
 
 def s(l):
     return "s" if len(l) > 1 else ""
+
+
+class LazyLoader(ModuleType):
+    """Lazily import a module, mainly to avoid pulling in large dependencies.
+
+    `contrib`, and `ffmpeg` are examples of modules that are large and not always
+    needed, and this allows them to only be loaded when they are used.
+
+    Copied from tensorflow's agents.tf_agents.utils.lazy_loader by The TF-Agents Authors (2020), licensed under Apache 2.0
+    https://github.com/tensorflow/agents/blob/737d758452990dc3c81b8aeab1a6ae4f63afa12c/tf_agents/utils/lazy_loader.py#L28-L68
+    """
+
+    def __init__(self, local_name, parent_module_globals, name, importerrormsg=None):
+        self._local_name = local_name
+        self._parent_module_globals = parent_module_globals
+        self._importerrormsg = importerrormsg
+
+        super().__init__(name)
+
+    def _load(self):
+        """
+        Load the module and insert it into the parent's globals.
+        """
+        # Import the target module and insert it into the parent's namespace
+        try:
+            module = importlib.import_module(self.__name__)
+        except ImportError:
+            if self._importerrormsg is not None:
+                raise ImportError(self._importerrormsg) from None
+            else:
+                raise
+
+        self._parent_module_globals[self._local_name] = module
+
+        # Update this object's dict so that if someone keeps a reference to the
+        #   LazyLoader, lookups are efficient (__getattr__ is only called on lookups
+        #   that fail).
+        self.__dict__.update(module.__dict__)
+
+        return module
+
+    def __getattr__(self, item):
+        module = self._load()
+        return getattr(module, item)
+
+    def __dir__(self):
+        module = self._load()
+        return dir(module)
