@@ -3,6 +3,12 @@
 Changelog
 =========
 
+* Improve :mod:`~selectors` to arbitrarily interact with boolean Series, numpy arrays
+  and callables, ie.
+  1. ``pd.Series([True, False]) & isin(model="a")`` produces the same result as
+     ``isin(model="a") & pd.Series([True, False])`` did earlier.
+  2. ``isin(model="a") & (lambda s: s > 2)`` is now supported as well.
+* Fix a testing incompability introduced by a recent attrs update (24.1.0)
 * Load pint and pint-pandas packages only on first use
 
 v0.5.1 (2024-05-20)
