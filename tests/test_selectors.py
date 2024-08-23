@@ -53,6 +53,10 @@ def test_isin_operations(mdf: DataFrame):
     sel = s_b & isin(str="bar")
     assert sel == And(Isin(dict(str="bar")), Const(EqualIdentity(s_b)))
 
+    assert_frame_equal(
+        mdf.loc[isin(str="foo") & (lambda df: df.two >= 2)], mdf.iloc[[1]]
+    )
+
 
 def test_ismatch_single(sdf: DataFrame):
     sel = ismatch("b*")
