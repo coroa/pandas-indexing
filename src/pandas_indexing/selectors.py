@@ -19,8 +19,9 @@ def maybe_const(x):
 
 
 class Selector:
-    # Tell numpy that we want precedence
+    # Tell numpy and pandas that we want precedence
     __array_ufunc__ = None
+    __pandas_priority__ = 5000
 
     def __invert__(self):
         return Not(self)
@@ -49,8 +50,8 @@ class BinOp(Selector):
 class Const(Selector):
     val: Any
 
-    def __call__(self, _):
-        return self.val
+    def __call__(self, df):
+        return self.val(df) if callable(self.val) else self.val
 
 
 @define
@@ -70,7 +71,7 @@ class Not(Selector):
     a: Selector
 
     def __call__(self, df):
-        return ~self.a.__call__(df)
+        return ~self.a(df)
 
 
 class Special(Selector):
