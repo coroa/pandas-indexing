@@ -15,6 +15,7 @@ from pandas_indexing.selectors import (
     Not,
     Or,
 )
+from pandas_indexing.utils import EqualIdentity
 
 
 def test_isin_mseries(mseries: Series):
@@ -47,7 +48,7 @@ def test_isin_operations(mdf: DataFrame):
 
     s_b = Series([False, True, False], mdf.index)
     sel = isin(str="bar") | s_b
-    assert sel == Or(Isin(dict(str="bar")), Const(s_b))
+    assert sel == Or(Isin(dict(str="bar")), Const(EqualIdentity(s_b)))
 
     with pytest.raises(AttributeError):
         # Series then selector does not work yet

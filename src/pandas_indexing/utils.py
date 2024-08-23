@@ -6,8 +6,9 @@ Simple utility functions not of greater interest
 import importlib
 import re
 from types import ModuleType
-from typing import Union
+from typing import Any, Union
 
+from attrs import define
 from pandas import DataFrame, Index, Series
 from pandas.util._decorators import doc  # noqa: F401
 
@@ -147,3 +148,14 @@ class LazyLoader(ModuleType):
     def __dir__(self):
         module = self._load()
         return dir(module)
+
+
+@define
+class EqualIdentity:
+    __array_ufunc__ = None
+    __pandas_priority__ = 5000
+
+    obj: Any
+
+    def __eq__(self, other):
+        return self.obj is other
