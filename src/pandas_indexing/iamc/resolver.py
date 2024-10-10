@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import operator
+import re
 from contextlib import contextmanager
 from functools import reduce
 from itertools import product
@@ -10,8 +11,9 @@ from attrs import define, evolve
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from .. import arithmetics
-from ..core import concat, isin
-from ..utils import print_list
+from ..core import concat
+from ..selectors import isin, ismatch
+from ..utils import print_list, shell_pattern_to_regex
 
 
 def _summarize(index: MultiIndex, names: Sequence[str]) -> DataFrame:
@@ -395,8 +397,11 @@ class Resolver:
                 inst.add(value)
         return inst
 
-    def add(self, value: str) -> Vars:
-        self.vars[value] = vars = Vars.from_data(self.data, value, context=self.context)
+    def add(self, value: str, iamc_aggregate: bool = False) -> Vars:
+        vars = Vars.from_data(self.data, value, context=self.context)
+        if iamc_aggregate:
+            vars = vars | self.iamc_aggregate(value)
+        self.vars[value] = vars
         return vars
 
     class _LocIndexer:
@@ -497,6 +502,53 @@ class Resolver:
             raise TypeError(f"Expected Vars instance, found: {type(vars)}")
         self.vars[value] = vars
         return vars
+
+    def iamc_aggregate(self, value: str) -> Vars:
+        pattern = f"{value}|*"
+        overwritten_variables = {
+            name: var
+            for name, var in self.vars.items()
+            if (
+                re.match(shell_pattern_to_regex(pattern), name)
+                and (var.data[0].provenance != name or len(var.data) > 1)
+            )
+        }
+
+        data = (
+            concat(
+                [
+                    self.data.loc[
+                        ismatch(**{self.context.level: pattern})
+                    ].pix.antijoin(
+                        Index(overwritten_variables, name=self.context.level)
+                    ),
+                    *(
+                        v.as_df(**{self.context.level: n}).droplevel("provenance")
+                        for n, v in overwritten_variables.items()
+                    ),
+                ]
+            )
+            .groupby(self.data.index.names.difference([self.context.level]))
+            .sum()
+        )
+        if data.empty:
+            return Vars([], self.context)
+
+        conditions = (
+            (
+                " with special "
+                + ", ".join(name.removeprefix(value) for name in overwritten_variables)
+            )
+            if overwritten_variables
+            else ""
+        )
+        provenance = f"sum({pattern}{conditions})"
+
+        return Vars([Var(data, provenance)], self.context)
+
+    def add_iamc_aggregate(self, value: str) -> Resolver:
+        self[value] |= self.iamc_aggregate(value)
+        return self[value]
 
     @contextmanager
     def optional_combinations(self):
