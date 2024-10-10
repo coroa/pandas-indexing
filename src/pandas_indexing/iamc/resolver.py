@@ -184,22 +184,30 @@ class Vars:
     def __repr__(self) -> str:
         index = self.index
         incomplete = not self._missing(index).empty
+
         return (
-            f"Vars for {len(index)}{'*' if incomplete else ''} scenarios:\n"
-            + "\n".join(
-                (
-                    f"* {v.provenance} ("
-                    f"{len(v.index(self.context.index))}"
-                    f"{'*' if not self._missing(v).empty else ''})"
+            (
+                f"Vars for {len(index)}{'*' if incomplete else ''} scenarios:\n"
+                + "\n".join(
+                    (
+                        f"* {v.provenance} ("
+                        f"{len(v.index(self.context.index))}"
+                        f"{'*' if not self._missing(v).empty else ''})"
+                    )
+                    for v in self.data
                 )
-                for v in self.data
             )
-            + "\n"
+            if self.data
+            else "Vars empty"
         )
 
     @property
+    def empty(self) -> bool:
+        return not self
+
+    @property
     def index(self) -> MultiIndex:
-        if not self.data:
+        if self.empty:
             return MultiIndex.from_tuples([], names=self.context.index)
 
         return concat(v.index(self.context.index) for v in self.data).unique()
@@ -397,12 +405,12 @@ class Resolver:
                 inst.add(value)
         return inst
 
-    def add(self, value: str, iamc_aggregate: bool = False) -> Vars:
+    def add(self: SR, value: str, iamc_aggregate: bool = False) -> SR:
         vars = Vars.from_data(self.data, value, context=self.context)
         if iamc_aggregate:
             vars = vars | self.iamc_aggregate(value)
         self.vars[value] = vars
-        return vars
+        return self
 
     class _LocIndexer:
         def __init__(self, obj: Resolver):
@@ -441,9 +449,7 @@ class Resolver:
                     context=self.context,
                 )
             except (KeyError, ValueError):
-                raise KeyError(
-                    f"{value} is not a {self.context.level} in data or external_data"
-                ) from None
+                vars = Vars([], context=self.context)
 
         return vars
 
@@ -464,27 +470,26 @@ class Resolver:
         )
 
     def __repr__(self) -> str:
+        lines = []
         num_scenarios = len(self.data.pix.unique(self.context.index))  # type: ignore
         level = self.context.level
 
-        s = (
+        lines.append(
             f"Resolver with data for {num_scenarios} scenarios, "
-            f"and {len(self)} defined {level}s for {len(self.index)} scenarios:\n"
+            f"and {len(self)} defined {level}s for {len(self.index)} scenarios:"
         )
-        for name, vars in self.vars.items():
-            s += (
-                f"* {name} ({len(vars)}): "
-                + ", ".join(
-                    str(len(var.data.pix.unique(self.context.index)))  # type: ignore
-                    for var in vars.data
-                )
-                + "\n"
+        lines.extend(
+            f"* {name} ({len(vars)}): "
+            + ", ".join(
+                str(len(var.data.pix.unique(self.context.index)))  # type: ignore
+                for var in vars.data
             )
+            for name, vars in self.vars.items()
+        )
 
-        existing_provenances = [
+        existing_provenances = set(
             v.provenance for vars in self.vars.values() for v in vars
-        ]
-
+        )
         unused_values = (
             self.data.pix.unique([*self.context.index, level])  # type: ignore
             .pix.antijoin(Index(self.vars, name=level).union(existing_provenances))
@@ -492,10 +497,11 @@ class Resolver:
             .value_counts()
             .loc[lambda s: s > num_scenarios // 20]
         )
-        s += f"{len(unused_values)} {level}s for more than 5% of scenarios unused:\n"
-        for value, num in unused_values.items():
-            s += f"* {value} ({num})\n"
-        return s
+        lines.append(
+            f"{len(unused_values)} {level}s for more than 5% of scenarios unused:"
+        )
+        lines.extend(f"* {value} ({num})" for value, num in unused_values.items())
+        return "\n".join(lines)
 
     def __setitem__(self, value: str, vars: Vars) -> Vars:
         if not isinstance(vars, Vars):
@@ -503,11 +509,11 @@ class Resolver:
         self.vars[value] = vars
         return vars
 
-    def iamc_aggregate(self, value: str) -> Vars:
+    def iamc_aggregate(self, value: str, **overwrites) -> Vars:
         pattern = f"{value}|*"
         overwritten_variables = {
             name: var
-            for name, var in self.vars.items()
+            for name, var in (self.vars | overwrites).items()
             if (
                 re.match(shell_pattern_to_regex(pattern), name)
                 and (var.data[0].provenance != name or len(var.data) > 1)
@@ -546,9 +552,9 @@ class Resolver:
 
         return Vars([Var(data, provenance)], self.context)
 
-    def add_iamc_aggregate(self, value: str) -> Resolver:
+    def add_iamc_aggregate(self: SR, value: str) -> SR:
         self[value] |= self.iamc_aggregate(value)
-        return self[value]
+        return self
 
     @contextmanager
     def optional_combinations(self):
