@@ -199,21 +199,24 @@ class Vars:
         index = self.index
         incomplete = not self._missing(index).empty
 
-        return (
-            (
-                f"Vars for {len(index)}{'*' if incomplete else ''} scenarios:\n"
-                + "\n".join(
-                    (
-                        f"* {v.provenance} ("
-                        f"{len(v.index(self.context.index))}"
-                        f"{'*' if not self._missing(v).empty else ''})"
-                    )
-                    for v in self.data
+        if self.empty:
+            return "Vars empty"
+
+        s = (
+            f"Vars for {len(index)}{'*' if incomplete else ''} scenarios:\n"
+            + "\n".join(
+                (
+                    f"* {v.provenance} ("
+                    f"{len(v.index(self.context.index))}"
+                    f"{'*' if not self._missing(v).empty else ''})"
                 )
+                for v in self.data
             )
-            if self.data
-            else "Vars empty"
         )
+
+        if len(self) == 1:
+            s += f"\n\nDetails (since only a single variant):\n{self.data[0]}"
+        return s
 
     @property
     def empty(self) -> bool:
