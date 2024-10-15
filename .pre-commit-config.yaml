@@ -27,7 +27,7 @@ repos:
 
 # Make docstrings PEP 257 compliant
 - repo: https://github.com/PyCQA/docformatter
-  rev: v1.7.5
+  rev: 06907d0 # pre-commit >=4.0 needs a fix not yet in v1.7.5 (refer to https://github.com/PyCQA/docformatter/issues/293)
   hooks:
   - id: docformatter
     args: ["--in-place", "--make-summary-multi-line"]
