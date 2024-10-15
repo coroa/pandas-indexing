@@ -134,6 +134,9 @@ class Var:
             lambda x, y: f"{maybe_parens(x)} / {maybe_parens(y)}",
         )
 
+    def __neg__(self: SV) -> SV:
+        return self.__class__(-self.data, "- " + maybe_parens(self.provenance))
+
     def as_df(self, **assign: str) -> DataFrame:
         return self.data.pix.assign(**(assign | dict(provenance=self.provenance)))
 
@@ -180,6 +183,17 @@ class Vars:
             provenance = value
         data = data.loc[isin(**{context.level: value})].droplevel(context.level)  # type: ignore
         return cls([Var(data, provenance)] if not data.empty else [], context)
+
+    @classmethod
+    def from_additionalresolver(
+        cls: type[SV],
+        vars: SV,
+        prefix: str,
+        *,
+        context: Context,
+    ) -> SV:
+        data = [evolve(var, provenance=f"{prefix}({var.provenance})") for var in vars]
+        return cls(data, context)
 
     def __repr__(self) -> str:
         index = self.index
@@ -337,6 +351,9 @@ class Vars:
             return self
         return self._binop(operator.mul, other, self)
 
+    def __neg__(self: SV) -> SV:
+        return self.__class__([-v for v in self], self.context)
+
     def __or__(self: SV, other: SV | float | int) -> SV:
         if isinstance(other, (float, int)):
             provenance = str(other)
@@ -442,12 +459,18 @@ class Resolver:
             try:
                 # get variable from additional data
                 prefix, rem_value = value.split("|", 1)
-                vars = Vars.from_data(
-                    self.external_data[prefix],
-                    rem_value,
-                    provenance=value,
-                    context=self.context,
-                )
+                data = self.external_data[prefix]
+                if isinstance(data, Resolver):
+                    vars = Vars.from_additionalresolver(
+                        data[rem_value], prefix=prefix, context=self.context
+                    )
+                else:
+                    vars = Vars.from_data(
+                        self.external_data[prefix],
+                        rem_value,
+                        provenance=value,
+                        context=self.context,
+                    )
             except (KeyError, ValueError):
                 vars = Vars([], context=self.context)
 
