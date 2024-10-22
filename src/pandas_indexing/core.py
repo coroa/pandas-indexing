@@ -676,6 +676,8 @@ def _extractlevel(
     template: Optional[str] = None,
     keep: bool = False,
     regex: bool = False,
+    optional: frozenset[str] = frozenset(),
+    fallback: str = "Total",
     **templates: str,
 ) -> Tuple[Index, List[str]]:
     index = ensure_multiindex(index)
@@ -686,6 +688,16 @@ def _extractlevel(
             raise ValueError("``template`` may only be non-null for single index level")
         templates[index.names[0]] = template
 
+    def replace_identfier(template, ident):
+        pattern = rf"(?P<{ident}>.*?)"
+
+        if ident in optional:
+            return template.replace(rf"\|\{{{ident}\}}", rf"(?:\|{pattern})?").replace(
+                rf"\{{{ident}\}}", rf"(?:{pattern})?"
+            )
+        else:
+            return template.replace(rf"\{{{ident}\}}", pattern)
+
     for dim, template in templates.items():
         if dim not in index.names:
             raise ValueError(f"{dim} not a dimension of index: {index.names}")
@@ -695,23 +707,30 @@ def _extractlevel(
         codes = index.codes[levelnum]
 
         if regex:
-            regex_pattern = re.compile(f"^{template}$")
+            regex_pattern = re.compile(f"^{template}()$")
             identifiers = list(regex_pattern.groupindex)
         else:
             identifiers = re.findall(r"\{([a-zA-Z_]+)\}", template)
-            regex_pattern = reduce(
-                lambda s, ident: s.replace(rf"\{{{ident}\}}", rf"(?P<{ident}>.*?)"),
-                identifiers,
-                re.escape(template),
-            )
-            regex_pattern = re.compile(f"^{regex_pattern}$")
+            regex_pattern = reduce(replace_identfier, identifiers, re.escape(template))
+            regex_pattern = re.compile(f"^{regex_pattern}()$")
 
         components = labels.str.extract(regex_pattern, expand=True)
+        if optional:
+            # replace optional nans with fallback
+            match = components.iloc[:, -1].notnull()
+            components = components.assign(
+                **{
+                    ident: components[ident].where(
+                        lambda s: match & s.notnull() | ~match, fallback
+                    )
+                    for ident in optional
+                }
+            )
 
         all_identifiers.update(identifiers)
-        index = assignlevel(
-            index, **{ident: components[ident].values[codes] for ident in identifiers}
-        )
+
+        replacements = {ident: components[ident].values[codes] for ident in identifiers}
+        index = assignlevel(index, **replacements)
 
     if not keep:
         index = index.droplevel(list(set(templates) - all_identifiers))
@@ -734,15 +753,22 @@ def extractlevel(
     regex: bool = False,
     drop: Optional[bool] = None,
     axis: Axis = 0,
+    optional: Sequence[str] | None = None,
     **templates: str,
 ) -> T:
     """Extract new index levels with *templates* matched against any index
     level.
 
-    The ``**templates`` argument defines pairs of level names and templates.
-    Given level names are matched against the template, f.ex. ``"Emi|{{gas}}|{{sector}}"``.
-    Patterns (``{{gas}}`` or ``{{sector}}``) appearing in the template are extracted
-    from the successful matches and added as new levels.
+    The ``**templates`` argument defines pairs of level names and templates. Given level
+    names are matched against the template, f.ex. ``"Emi|{{gas}}|{{sector}}"``. Patterns
+    (``{{gas}}`` or ``{{sector}}``) appearing in the template are extracted from the
+    successful matches and added as new levels.
+
+    Pattern names in the ``optional`` argument can be missing (including a leading ``|``
+    character) and are replaced by the string ``"Total"`` then.
+
+    .. versionchanged:: 0.5.3
+        Added optional patterns.
 
     .. versionchanged:: 0.5.0
         *drop* replaced by *keep* and default changed to not keep.
@@ -750,20 +776,21 @@ def extractlevel(
 
     Parameters
     ----------\
-    {index_or_data}
-    template : str, optional
+    {index_or_data} template : str, optional
         Extraction template for a single level
     keep : bool, default False
         Whether to keep the split dimension
     dropna : bool, default True
         Whether to drop the non-matching levels
     regex : bool, default False
-        Whether templates are given as regular expressions
-        (regexes must use named captures)
+        Whether templates are given as regular expressions (regexes must use named
+        captures)
     axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to extract from
     drop : bool, optional
         Deprecated argument, use keep instead
+    optional : [str] or None, optional
+        Marks templates as optional
     **templates : str
         Templates for splitting one or multiple levels
 
@@ -809,6 +836,13 @@ def extractlevel(
     GWh   Elec  Coal    1
     dtype: int64
 
+    >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}", optional=["fuel"])
+    unit  type  fuel
+    GWh   Elec  Bio     0
+    GWh   Elec  Coal    1
+    GWh   Elec  Total   3
+    dtype: int64
+
     >>> extractlevel(s, variable="SE|{{type}}|{{fuel}}", keep=True, dropna=False)
     variable      unit  type  fuel
     SE|Elec|Bio   GWh   Elec  Bio     0
@@ -835,6 +869,8 @@ def extractlevel(
     --------
     formatlevel
     """
+    optional = frozenset() if optional is None else frozenset(optional)
+
     if drop is not None:
         warnings.warn(
             "Argument `drop` is deprecated (use `keep` instead)", DeprecationWarning
@@ -843,11 +879,21 @@ def extractlevel(
 
     if isinstance(index_or_data, Index):
         index_or_data, identifiers = _extractlevel(
-            index_or_data, template, keep=keep, regex=regex, **templates
+            index_or_data,
+            template,
+            keep=keep,
+            regex=regex,
+            optional=optional,
+            **templates,
         )
     else:
         index, identifiers = _extractlevel(
-            get_axis(index_or_data, axis), template, keep=keep, regex=regex, **templates
+            get_axis(index_or_data, axis),
+            template,
+            keep=keep,
+            regex=regex,
+            optional=optional,
+            **templates,
         )
         index_or_data = index_or_data.set_axis(index, axis=axis)
 

@@ -80,6 +80,7 @@ class _PixAccessor:
         regex: bool = False,
         axis: Axis = 0,
         drop: Optional[bool] = None,
+        optional: Sequence[str] | None = None,
         **templates: str,
     ) -> Union[DataFrame, Series, Index]:
         if drop is not None:
@@ -95,6 +96,7 @@ class _PixAccessor:
             dropna=dropna,
             regex=regex,
             axis=axis,
+            optional=optional,
             **templates,
         )
 
