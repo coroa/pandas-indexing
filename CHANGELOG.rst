@@ -3,6 +3,11 @@
 Changelog
 =========
 
+* Add support for so-called optional patterns to :func:`~core.extractlevel` and
+  :func:`~core.formatlevel`, for instance:
+  ``df.pix.extract(variable="Emissions|{gas}|{sector}", optional=["sector"])``
+  decomposes ``Emissions|CO2`` into ``{"gas": "CO2", "sector": "Total"}``.
+
 v0.5.2 (2024-08-24)
 ------------------------------------------------------------
 * Bumps minimum python version to 3.9 (which is close to EOL, anyway)

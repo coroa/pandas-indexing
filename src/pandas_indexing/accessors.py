@@ -80,6 +80,7 @@ class _PixAccessor:
         regex: bool = False,
         axis: Axis = 0,
         drop: Optional[bool] = None,
+        optional: Sequence[str] | None = None,
         **templates: str,
     ) -> Union[DataFrame, Series, Index]:
         if drop is not None:
@@ -95,14 +96,15 @@ class _PixAccessor:
             dropna=dropna,
             regex=regex,
             axis=axis,
+            optional=optional,
             **templates,
         )
 
     @doc(formatlevel, index_or_data="")
     def format(
-        self, axis: Axis = 0, **templates: str
+        self, axis: Axis = 0, optional: Sequence[str] | None = None, **templates: str
     ) -> Union[DataFrame, Series, Index]:
-        return formatlevel(self._obj, axis=axis, **templates)
+        return formatlevel(self._obj, axis=axis, optional=optional, **templates)
 
     @doc(uniquelevel, index_or_data="")
     def unique(
