@@ -905,7 +905,13 @@ def extractlevel(
     return index_or_data
 
 
-def _formatlevel(index: Index, drop: bool = False, **templates: str) -> Index:
+def _formatlevel(
+    index: Index,
+    drop: bool = False,
+    optional: frozenset[str] = frozenset(),
+    fallback: str = "Total",
+    **templates: str,
+) -> Index:
     levels = {}
     used_levels = set()
     for dim, template in templates.items():
@@ -915,7 +921,16 @@ def _formatlevel(index: Index, drop: bool = False, **templates: str) -> Index:
         for m in re.finditer(r"\{([a-zA-Z_]+)\}", template):
             level = m.group(1)
             start, end = m.span()
-            string += template[prev_end:start] + projectlevel(index, level).astype(str)
+
+            labels = projectlevel(index, level).astype(str)
+            if level in optional:
+                if template[start - 1] == "|":
+                    start -= 1
+                    labels = ("|" + labels).where(labels != fallback, "")
+                else:
+                    labels = labels.where(labels != fallback, "")
+
+            string += template[prev_end:start] + labels
             prev_end = end
             used_levels.add(level)
         string += template[prev_end:]
@@ -955,10 +970,14 @@ def formatlevel(
     index_or_data: T,
     drop: bool = False,
     axis: Axis = 0,
+    optional: Sequence[str] | None = None,
     **templates: str,
 ) -> T:
     """Format index levels based on a *template* which can refer to other
     levels.
+
+    .. versionchanged:: 0.5.3
+        Added optional patterns.
 
     Parameters
     ----------\
@@ -967,6 +986,8 @@ def formatlevel(
         Whether to drop the used index levels
     axis : {{0, 1, "index", "columns"}}, default 0
         Axis of DataFrame to modify
+    optional : [str], optional
+        Marks levels as optional (including a leading | character)
     **templates : str
         Format templates for one or multiple levels
 
@@ -979,11 +1000,15 @@ def formatlevel(
     ValueError
         If *templates* refer to non-existant levels
     """
+    optional = frozenset() if optional is None else frozenset(optional)
+
     if isinstance(index_or_data, Index):
-        return _formatlevel(index_or_data, drop, **templates)
+        return _formatlevel(index_or_data, drop, optional=optional, **templates)
 
     index = get_axis(index_or_data, axis)
-    return index_or_data.set_axis(_formatlevel(index, drop, **templates), axis=axis)
+    return index_or_data.set_axis(
+        _formatlevel(index, drop, optional=optional, **templates), axis=axis
+    )
 
 
 def _fixindexna(index: Index):

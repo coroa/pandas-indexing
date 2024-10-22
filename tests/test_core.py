@@ -192,6 +192,13 @@ def test_formatlevel_options(mdf: DataFrame):
         ),
     )
 
+    # optional
+    mdf_total = assignlevel(mdf, num=["one", "two", "Total"])
+    assert_frame_equal(
+        formatlevel(mdf_total, new="{str}|{num}", drop=True, optional=["num"]),
+        mdf_total.set_axis(Index(idx_str + Index(["|one", "|two", ""]), name="new")),
+    )
+
 
 def test_formatlevel_data(mdf, mseries, midx):
     idx_str = midx.get_level_values(0)

@@ -102,9 +102,9 @@ class _PixAccessor:
 
     @doc(formatlevel, index_or_data="")
     def format(
-        self, axis: Axis = 0, **templates: str
+        self, axis: Axis = 0, optional: Sequence[str] | None = None, **templates: str
     ) -> Union[DataFrame, Series, Index]:
-        return formatlevel(self._obj, axis=axis, **templates)
+        return formatlevel(self._obj, axis=axis, optional=optional, **templates)
 
     @doc(uniquelevel, index_or_data="")
     def unique(
