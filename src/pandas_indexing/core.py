@@ -753,7 +753,7 @@ def extractlevel(
     regex: bool = False,
     drop: Optional[bool] = None,
     axis: Axis = 0,
-    optional: Sequence[str] | None = None,
+    optional: Optional[Sequence[str]] = None,
     **templates: str,
 ) -> T:
     """Extract new index levels with *templates* matched against any index
@@ -970,7 +970,7 @@ def formatlevel(
     index_or_data: T,
     drop: bool = False,
     axis: Axis = 0,
-    optional: Sequence[str] | None = None,
+    optional: Optional[Sequence[str]] = None,
     **templates: str,
 ) -> T:
     """Format index levels based on a *template* which can refer to other
