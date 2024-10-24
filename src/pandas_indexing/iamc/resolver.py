@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import operator
 import re
-from contextlib import contextmanager
 from functools import reduce
 from itertools import product
 from typing import Any, Callable, Iterator, Sequence, TypeVar
 
-from attrs import define, evolve
+from attrs import define, evolve, field
 from pandas import DataFrame, Index, MultiIndex, Series
 
 from .. import arithmetics
@@ -46,6 +45,22 @@ def maybe_parens(provenance: str) -> str:
 
 
 @define
+class SharedTrigger:
+    active: int = field(default=0, converter=int)
+
+    def __enter__(self):
+        self.active += 1
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.active -= 1
+        return False
+
+    def __bool__(self):
+        return bool(self.active)
+
+
+@define
 class Context:
     """Context shared between all Vars instances in a Resolver.
 
@@ -58,7 +73,7 @@ class Context:
     full_index: MultiIndex
     columns: Index
     index: list[str]
-    optional_combinations: bool = False
+    optional_combinations: SharedTrigger = field(factory=SharedTrigger)
 
 
 @define
@@ -193,7 +208,7 @@ class Vars:
         context: Context,
     ) -> SV:
         data = [evolve(var, provenance=f"{prefix}({var.provenance})") for var in vars]
-        return cls(data, context)
+        return cls(data, evolve(context, full_index=vars.context.full_index))
 
     def __repr__(self) -> str:
         index = self.index
@@ -487,6 +502,10 @@ class Resolver:
         return comps
 
     @property
+    def optional_combinations(self):
+        return self.context.optional_combinations
+
+    @property
     def index(self) -> MultiIndex:
         if not self.vars:
             return MultiIndex.from_tuples([], names=self.context.index)
@@ -581,15 +600,6 @@ class Resolver:
     def add_iamc_aggregate(self: SR, value: str) -> SR:
         self[value] |= self.iamc_aggregate(value)
         return self
-
-    @contextmanager
-    def optional_combinations(self):
-        active = self.context.optional_combinations
-        try:
-            self.context.optional_combinations = True
-            yield
-        finally:
-            self.context.optional_combinations = active
 
     def as_df(self, only_consistent: bool = True) -> DataFrame:
         if only_consistent:
