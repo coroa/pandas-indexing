@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.6.0 (2024-10-24)
+------------------------------------------------------------
+* Add :mod:`~iamc.resolver` module with the class :class:`~iamc.Resolver` that
+  supports consolidating IAMC-style scenario data with non-homogeneous variable
+  coverage. Documentation is unfortunately still missing.
 * Add support for so-called optional patterns to :func:`~core.extractlevel` and
   :func:`~core.formatlevel`, for instance:
   ``df.pix.extract(variable="Emissions|{gas}|{sector}", optional=["sector"])``
