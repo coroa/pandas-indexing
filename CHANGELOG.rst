@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.6.1 (2024-12-01)
+------------------------------------------------------------
+* Fix :meth:`~iamc.resolver.Resolver.iamc_aggregate` to return NaN instead of 0
+  if no sub-sectors exist.
+
 v0.6.0 (2024-10-24)
 ------------------------------------------------------------
 * Add :mod:`~iamc.resolver` module with the class :class:`~iamc.Resolver` that
