@@ -484,10 +484,7 @@ class Resolver:
                     )
                 else:
                     vars = Vars.from_data(
-                        self.external_data[prefix],
-                        rem_value,
-                        provenance=value,
-                        context=self.context,
+                        data, rem_value, provenance=value, context=self.context
                     )
             except (KeyError, ValueError):
                 vars = Vars([], context=self.context)
@@ -580,7 +577,7 @@ class Resolver:
                 ]
             )
             .groupby(self.data.index.names.difference([self.context.level]))
-            .sum()
+            .sum(min_count=1)
         )
         if data.empty:
             return Vars([], self.context)
