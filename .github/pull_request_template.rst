@@ -6,5 +6,5 @@ Thank you for contributing to this project! Before you submit a Pull Request:
 * summarize the approach used to address the issue
 
 
-.. _contribution guidelines: https://github.com/coroa/pandas-indexing/blob/latest/docs/CONTRIBUTING.rst
+.. _contribution guidelines: https://github.com/coroa/pandas-indexing/blob/main/docs/contributing.rst
 .. _issue: https://github.com/coroa/pandas-indexing/issues
