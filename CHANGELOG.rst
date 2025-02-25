@@ -3,6 +3,14 @@
 Changelog
 =========
 
+v0.6.2 (2024-02-26)
+------------------------------------------------------------
+* Make :func:`~core.semijoin` and :func:`~core.antijoin` accept a Series or
+  DataFrame argument to join against :pull:`64`
+* Add py.typed file to signal available type hints to downstream packages :pull:`63`
+
+Special thanks to @znichollscr for his first contribution.
+
 v0.6.1 (2024-12-01)
 ------------------------------------------------------------
 * Fix :meth:`~iamc.resolver.Resolver.iamc_aggregate` to return NaN instead of 0

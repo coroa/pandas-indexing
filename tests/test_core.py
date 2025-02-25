@@ -540,6 +540,15 @@ def test_semijoin(mdf, mseries):
         ),
     )
 
+    # Right-join on series with series input
+    assert_series_equal(
+        semijoin(mseries, Series(7, index), how="right"),
+        Series(
+            r_[mseries.values[1:3], nan],
+            index=index.reorder_levels(["new", "str", "num"]),
+        ),
+    )
+
 
 def test_antijoin(mdf, mseries):
     index = MultiIndex.from_tuples(
@@ -554,6 +563,9 @@ def test_antijoin(mdf, mseries):
 
     # Index
     assert_index_equal(antijoin(mseries.index, index), mseries.index[[0]])
+
+    # Series with Series other
+    assert_series_equal(antijoin(mseries, Series(7, index)), mseries.iloc[[0]])
 
 
 def test_to_tidy(mdf, mseries, midx):

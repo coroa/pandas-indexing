@@ -507,7 +507,7 @@ def ensure_multiindex(s: T) -> T:
 )
 def semijoin(
     frame_or_series: S,
-    other: Index,
+    other: Union[Index, Data],
     *,
     how: Literal["left", "right", "inner", "outer"] = "left",
     level: Union[str, int, None] = None,
@@ -518,11 +518,15 @@ def semijoin(
 ) -> S:
     """Semijoin *frame_or_series* by index *other*.
 
+    Joins indexes of both inputs and then reindexes the primary data input with
+    the resulting joined index allowing for filling values.
+
     Parameters
     ----------\
     {frame_or_series}
-    other : Index
-        Other index to join with
+    other : Index or Data
+        Other index to join with, if a DataFrame or Series is provided
+        its axis is extracted.
     how : {{'left', 'right', 'inner', 'outer'}}
         Join method to use
     level : None or str or int or
@@ -556,6 +560,9 @@ def semijoin(
     """
 
     index = get_axis(frame_or_series, axis)
+
+    if isinstance(other, (Series, DataFrame)):
+        other = get_axis(other, axis)
 
     if level is None:
         index = ensure_multiindex(index)
@@ -607,7 +614,7 @@ def semijoin(
 )
 def antijoin(
     index_or_data: S,
-    other: Index,
+    other: Union[Index, Data],
     *,
     level: Union[str, int, None] = None,
     axis: Axis = 0,
@@ -643,6 +650,9 @@ def antijoin(
     """
 
     index = get_axis(index_or_data, axis)
+
+    if isinstance(other, (Series, DataFrame)):
+        other = get_axis(other, axis)
 
     _, left_idx, right_idx = index.join(
         other, how="left", level=level, return_indexers=True
