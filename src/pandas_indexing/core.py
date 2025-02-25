@@ -561,7 +561,7 @@ def semijoin(
 
     index = get_axis(frame_or_series, axis)
 
-    if isinstance(other, Data):
+    if isinstance(other, (Series, DataFrame)):
         other = get_axis(other, axis)
 
     if level is None:
@@ -651,7 +651,7 @@ def antijoin(
 
     index = get_axis(index_or_data, axis)
 
-    if isinstance(other, Data):
+    if isinstance(other, (Series, DataFrame)):
         other = get_axis(other, axis)
 
     _, left_idx, right_idx = index.join(
