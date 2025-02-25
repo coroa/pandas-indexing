@@ -157,7 +157,7 @@ class _PixAccessor:
         return fixindexna(self._obj, axis=axis)
 
     @doc(antijoin, index_or_data="")
-    def antijoin(self, other: Index, *, axis: Axis = 0):
+    def antijoin(self, other: Union[Index, Data], *, axis: Axis = 0):
         return antijoin(self._obj, other, axis=axis)
 
 
@@ -165,7 +165,7 @@ class _DataPixAccessor(_PixAccessor):
     @doc(semijoin, frame_or_series="")
     def semijoin(
         self,
-        other: Index,
+        other: Union[Index, Data],
         *,
         how: Literal["left", "right", "inner", "outer"] = "left",
         level: Union[str, int, None] = None,
