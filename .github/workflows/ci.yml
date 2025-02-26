@@ -27,15 +27,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Install uv and set the python version
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
+        enable-cache: true
 
     - name: Install tox
       run: |
-        python -m pip install tox
+        uv tool install tox --with tox-uv
 
     - name: Run tox environments for testing
       run: tox -e ${{ join(matrix.tox-envs, ',') }}
