@@ -6,7 +6,7 @@ Changelog
 v0.6.2 (2024-02-26)
 ------------------------------------------------------------
 * Make :func:`~core.semijoin` and :func:`~core.antijoin` accept a Series or
-  DataFrame argument to join against :pull:`64`
+  DataFrame argument to join against :pull:`65`
 * Add py.typed file to signal available type hints to downstream packages :pull:`63`
 
 Special thanks to @znichollscr for his first contribution.
