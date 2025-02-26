@@ -1,10 +1,10 @@
 import pytest
 from numpy import array
 from numpy.testing import assert_array_equal
-from pandas import DataFrame, Series
+from pandas import DataFrame, MultiIndex, Series
 from pandas.testing import assert_frame_equal, assert_series_equal
 
-from pandas_indexing import isin, ismatch
+from pandas_indexing import assignlevel, isin, ismatch
 from pandas_indexing.selectors import (
     AllSelector,
     And,
@@ -56,6 +56,31 @@ def test_isin_operations(mdf: DataFrame):
     assert_frame_equal(
         mdf.loc[isin(str="foo") & (lambda df: df.two >= 2)], mdf.iloc[[1]]
     )
+
+
+def test_isin_index(mdf: DataFrame, midx: MultiIndex):
+    sel = isin(midx[1:])
+    assert_frame_equal(mdf.loc[sel], mdf.iloc[1:])
+
+    # inverted level order
+    sel = isin(midx[1:].reorder_levels(midx.names[::-1]))
+    assert_frame_equal(mdf.loc[sel], mdf.iloc[1:])
+
+    # ignore_missing_levels
+    with pytest.raises(KeyError):
+        sel = isin(assignlevel(midx[1:], nonexisting=1))
+        mdf.loc[sel]
+
+    sel = isin(assignlevel(midx[1:], nonexisting=1), ignore_missing_levels=True)
+    assert_frame_equal(mdf.loc[sel], mdf.iloc[1:])
+
+    # mdf with additional level
+    mdf_extra = assignlevel(mdf, add=2)
+    sel = isin(midx[1:])
+    assert_frame_equal(mdf_extra.loc[sel], mdf_extra.iloc[1:])
+
+    # using first two positional arguments
+    assert_series_equal(isin(mdf, midx[1:]), isin(midx[1:])(mdf))
 
 
 def test_ismatch_single(sdf: DataFrame):

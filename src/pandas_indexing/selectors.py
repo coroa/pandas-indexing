@@ -8,8 +8,9 @@ from typing import Any, Mapping, Optional, Union
 
 import numpy as np
 from attrs import define, field
-from pandas import DataFrame, Index, Series
+from pandas import DataFrame, Index, MultiIndex, Series
 
+from .core import ensure_multiindex, projectlevel
 from .types import Data
 from .utils import shell_pattern_to_regex
 
@@ -141,8 +142,36 @@ class Isin(Selector):
         )
 
 
+@define
+class IsinIndex(Selector):
+    index: MultiIndex
+    ignore_missing_levels: bool = field(default=False, repr=False)
+
+    def __call__(self, df):
+        if isinstance(df, Index):
+            index = df
+        else:
+            index = df.index
+
+        missing_levels = self.index.names.difference(index.names)
+        if missing_levels:
+            if not self.ignore_missing_levels:
+                raise KeyError(
+                    f"selecting on levels {self.index.names}, but only given: {index.names}"
+                )
+            sel_index = self.index.droplevel(list(missing_levels))
+        else:
+            sel_index = self.index
+
+        return Series(projectlevel(index, sel_index.names).isin(sel_index), index)
+
+
 def isin(
-    df: Optional[Data] = None, ignore_missing_levels: bool = False, **filters: Any
+    df: Union[Data, Index, None] = None,
+    index: Optional[Index] = None,
+    /,
+    ignore_missing_levels: bool = False,
+    **filters: Any,
 ) -> Union[Isin, Series]:
     """Constructs a MultiIndex selector.
 
@@ -150,6 +179,9 @@ def isin(
     ---------
     df : Data, optional
         Data on which to match, if missing an ``Isin`` object is returned
+    index : Index, optional
+        Filter based on common levels given in index. Can also be passed as the
+        ``df`` argument. Cannot be combined with filters.
     ignore_missing_levels : bool, default False
         If set, levels missing in data index will be ignored
     **filters
@@ -169,7 +201,17 @@ def isin(
     >>> isin(df, region="World", gas=["CO2", "N2O"])
     """
 
-    tester = Isin(filters, ignore_missing_levels=ignore_missing_levels)
+    if not filters and (index is not None or isinstance(df, Index)):
+        if index is None and isinstance(df, Index):
+            # Special case: index argument was passed into df
+            index, df = df, None
+
+        tester = IsinIndex(
+            ensure_multiindex(index), ignore_missing_levels=ignore_missing_levels
+        )
+    else:
+        tester = Isin(filters, ignore_missing_levels=ignore_missing_levels)
+
     return tester if df is None else tester(df)
 
 
@@ -225,6 +267,7 @@ class Ismatch(Selector):
 def ismatch(
     df: Union[None, Index, DataFrame, Series, str] = None,
     singlefilter: Optional[str] = None,
+    /,
     regex: bool = False,
     ignore_missing_levels: bool = False,
     **filters,

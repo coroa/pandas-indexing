@@ -27,7 +27,6 @@ from pandas import DataFrame, Index, MultiIndex, Series
 from pandas.api.extensions import no_default
 from pandas.core.indexes.frozen import FrozenList
 
-from .selectors import isin
 from .types import Axis, Data, S, T
 from .utils import doc, get_axis, print_list, quote_list, s
 
@@ -1182,7 +1181,7 @@ def aggregatelevel(
         for level, mapping in levels.items():
             new_data.extend(
                 assignlevel(
-                    df.loc(axis=axis)[isin(**{level: old_lbls})],
+                    df.loc(axis=axis)[get_axis(df, axis).isin(old_lbls, level=level)],
                     **{level: new_lbl},
                     axis=axis,
                 )
