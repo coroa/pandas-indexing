@@ -1,40 +1,37 @@
 [project]
-authors = [
-  {name = "Jonas Hörsch", email = "coroa@posteo.de"},
-]
+authors = [{ name = "Jonas Hörsch", email = "coroa@posteo.de" }]
 description = "Helpers to facilitate working with pandas indices in particular multiindices"
-license = {text = "MIT"}
+license = { text = "MIT" }
 name = "pandas-indexing"
 readme = "README.rst"
 
 # complete classifier list:
 # http://pypi.org/classifiers/
 classifiers = [
-  'Development Status :: 4 - Beta', # 'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-  'License :: OSI Approved :: MIT License',
-  'Intended Audience :: Science/Research',
-  'Natural Language :: English',
-  'Operating System :: POSIX',
-  'Operating System :: MacOS',
-  'Operating System :: Microsoft',
-  'Programming Language :: Python :: 3.9',
-  'Programming Language :: Python :: 3.10',
-  'Programming Language :: Python :: 3.11',
-  'Programming Language :: Python :: 3.12',
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: MIT License',
+    'Intended Audience :: Science/Research',
+    'Natural Language :: English',
+    'Operating System :: POSIX',
+    'Operating System :: MacOS',
+    'Operating System :: Microsoft',
+    "Programming Language :: Python :: 3",
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
 ]
 
 keywords = [
-  'pandas', # eg: 'keyword1', 'keyword2', 'keyword3',
+    'pandas', # eg: 'keyword1', 'keyword2', 'keyword3',
 ]
 
 dependencies = [
-  # https://stackoverflow.com/questions/14399534
-  'pandas>=1.2',
-  'deprecated',
-  "attrs",
+    # https://stackoverflow.com/questions/14399534
+    'pandas>=1.2',
+    'deprecated',
+    "attrs",
 ]
 requires-python = ">=3.9, <4"
 
@@ -49,28 +46,18 @@ repository = "https://github.com/coroa/pandas-indexing.git"
 [project.optional-dependencies]
 # Add dependencies for building docs and running tests
 docs = [
-  "sphinx>=2.2",
-  "sphinx-argparse",
-  "sphinx-rtd-theme",
-  "myst_nb",
-  "ipython",
+    "sphinx>=2.2",
+    "sphinx-argparse",
+    "sphinx-rtd-theme",
+    "myst_nb",
+    "ipython",
 ]
 
-test = [
-  "coverage",
-  "pytest",
-  "pytest-cov",
-  "hypothesis",
-]
+test = ["coverage", "pytest", "pytest-cov", "hypothesis"]
 
-units = [
-  "pint>=0.21",
-  "openscm-units",
-]
+units = ["pint>=0.21", "openscm-units"]
 
-lint = [
-  "ruff",
-]
+lint = ["ruff"]
 
 [project.scripts]
 
@@ -82,48 +69,33 @@ lint = [
 #norecursedirs =
 #migrations
 addopts = "-p pytest_cov"
-python_files = [
-  "test_*.py",
-  "*_test.py",
-  "tests.py",
-]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
 #addopts =
 #    -ra
 #    --strict
 #    --doctest-modules
 #    --doctest-glob=\*.rst
 #    --tb=short
-testpaths = [
-  "tests",
-]
+testpaths = ["tests"]
 
 [tool.ruff]
 builtins = ["ellipsis"]
 target-version = "py38"
 
 [tool.ruff.lint]
-exclude = [
-  ".eggs",
-  "doc",
-  "_typed_ops.pyi",
-]
+exclude = [".eggs", "doc", "_typed_ops.pyi"]
 # E402: module level import not at top of file
 # E501: line too long - let black worry about that
 # E731: do not assign a lambda expression, use a def
 # E741: ambiguous variable names
-ignore = [
-  "E402",
-  "E501",
-  "E731",
-  "E741",
-]
+ignore = ["E402", "E501", "E731", "E741"]
 select = [
-  # Pyflakes
-  "F", # Pycodestyle
-  "E",
-  "W", # isort
-  "I", # Pyupgrade
-  "UP",
+    # Pyflakes
+    "F",  # Pycodestyle
+    "E",
+    "W",  # isort
+    "I",  # Pyupgrade
+    "UP",
 ]
 
 [tool.ruff.lint.per-file-ignores]
