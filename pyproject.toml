@@ -44,7 +44,10 @@ homepage = "https://github.com/coroa/pandas-indexing"
 repository = "https://github.com/coroa/pandas-indexing.git"
 
 [project.optional-dependencies]
-# Add dependencies for building docs and running tests
+units = ["pint>=0.21", "openscm-units"]
+
+
+[dependency-groups]
 docs = [
     "sphinx>=2.2",
     "sphinx-argparse",
@@ -52,12 +55,11 @@ docs = [
     "myst_nb",
     "ipython",
 ]
-
 test = ["coverage", "pytest", "pytest-cov", "hypothesis"]
-
-units = ["pint>=0.21", "openscm-units"]
-
 lint = ["ruff"]
+
+[tool.uv]
+default-groups = ["test", "lint"]
 
 [project.scripts]
 

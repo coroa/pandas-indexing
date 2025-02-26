@@ -10,6 +10,7 @@ from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 import pandas_indexing  # noqa: F401
+from tests.test_units import needs_pint
 
 
 def test_assign_index(midx: MultiIndex):
@@ -112,6 +113,7 @@ def test_unique(mdf):
     assert_index_equal(mdf.pix.unique("str"), Index(["foo", "bar"], name="str"))
 
 
+@needs_pint
 def test_convert_unit(mseries):
     assert_series_equal(
         mseries.pix.convert_unit({"m": "km"}, level=None),
