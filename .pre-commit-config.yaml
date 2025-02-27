@@ -10,12 +10,6 @@ repos:
   - id: check-added-large-files
     args: ["--maxkb=2000"]
 
-# # Convert relative imports to absolute imports
-# - repo: https://github.com/MarcoGorelli/absolufy-imports
-#   rev: v0.3.1
-#   hooks:
-#   - id: absolufy-imports
-
 # Find common spelling mistakes in comments and docstrings
 - repo: https://github.com/codespell-project/codespell
   rev: v2.2.6
@@ -25,29 +19,25 @@ repos:
     types_or: [python, rst, markdown]
     files: ^(scripts|doc)/
 
-# Make docstrings PEP 257 compliant
-- repo: https://github.com/PyCQA/docformatter
-  rev: 06907d0 # pre-commit >=4.0 needs a fix not yet in v1.7.5 (refer to https://github.com/PyCQA/docformatter/issues/293)
+- repo: https://github.com/roy-ht/pre-commit-jupyter
+  rev: v1.2.1
   hooks:
-  - id: docformatter
-    args: ["--in-place", "--make-summary-multi-line"]
+    - id: jupyter-notebook-cleanup
+      args:
+        # - --remove-kernel-metadata
+        - --pin-patterns
+        - "[pin];[donotremove]"
 
-- repo: https://github.com/keewis/blackdoc
-  rev: v0.3.9
-  hooks:
-  - id: blackdoc
-    additional_dependencies: ["black==23.3.0"]
-
-# Linting with ruff
-- repo: https://github.com/charliermarsh/ruff-pre-commit
+# Run ruff to lint and format
+- repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: 'v0.1.6'
+  rev: v0.9.4
   hooks:
-    - id: ruff
-      types_or: [ python, pyi, jupyter ]
-      args: [--fix, --exit-non-zero-on-fix]
-    - id: ruff-format
-      types_or: [ python, pyi, jupyter ]
+    # Run the linter.
+  - id: ruff
+    args: [--fix]
+    # Run the formatter.
+  - id: ruff-format
 
 # # Check for FSFE REUSE compliance (licensing)
 # - repo: https://github.com/fsfe/reuse-tool

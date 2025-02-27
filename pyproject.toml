@@ -83,26 +83,50 @@ testpaths = ["tests"]
 [tool.ruff]
 builtins = ["ellipsis"]
 target-version = "py38"
+extend-include = ['*.ipynb']
 
 [tool.ruff.lint]
-exclude = [".eggs", "doc", "_typed_ops.pyi"]
-# E402: module level import not at top of file
-# E501: line too long - let black worry about that
-# E731: do not assign a lambda expression, use a def
-# E741: ambiguous variable names
-ignore = ["E402", "E501", "E731", "E741"]
 select = [
-    # Pyflakes
-    "F",  # Pycodestyle
-    "E",
-    "W",  # isort
-    "I",  # Pyupgrade
-    "UP",
+    'F',  # pyflakes
+    'E',  # pycodestyle: Error
+    'W',  # pycodestyle: Warning
+    'I',  # isort
+    'D',  # pydocstyle
+    'UP', # pyupgrade
+    #'ANN', # flake-8 annotations
+    'TID',    # flake8-tidy-imports
+    'NPY',    # numpy
+    'RUF013', # ruff
 ]
+
+ignore = [
+    'ANN401', # Dynamically typed expressions are forbidden
+    'E501',   # line too long
+    'E731',   # do not assign a lambda expression, use a def
+    'E741',   # ambiguous variable names
+    'D100',   # Missing docstring in public module
+    'D101',   # Missing docstring in public class
+    'D102',   # Missing docstring in public method
+    'D103',   # Missing docstring in public function
+    'D104',   # Missing docstring in public package
+    'D105',   # Missing docstring in magic method
+    'D107',   # Missing docstring in `__init__`
+    'D200',   # One-line docstring should fit on one line
+    'D203',   # 1 blank line required before class docstring
+    'D212',   # Multi-line docstring summary should start at the second line
+    'D401',   # First line should be in imperative mood
+    'D407',   # Missing dashed line
+    'D417',   # Missing argument description in the doc-string
+    'TID252', # Prefer absolute imports over relative imports from parent modules
+]
+
+
+exclude = [".eggs", "doc", "_typed_ops.pyi", "tests/*.py"]
 
 [tool.ruff.lint.per-file-ignores]
 # F401: imported but unsued
 "__init__.py" = ["F401"]
+"src/pandas_indexing/iamc/resolver.py" = ["D200", "D400", "D415"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pandas_indexing"]
