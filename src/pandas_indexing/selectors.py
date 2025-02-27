@@ -172,7 +172,7 @@ def isin(
     /,
     ignore_missing_levels: bool = False,
     **filters: Any,
-) -> Union[Isin, Series]:
+) -> Union[Isin, IsinIndex, Series]:
     """Constructs a MultiIndex selector.
 
     Arguments
@@ -190,7 +190,7 @@ def isin(
 
     Returns
     -------
-    Isin or Series
+    Isin, IsinIndex or Series
 
     Example
     -------
@@ -199,6 +199,14 @@ def isin(
     or with explicit df to get a boolean mask
 
     >>> isin(df, region="World", gas=["CO2", "N2O"])
+
+    For selecting across multiple levels, a multiindex is passed as positional argument:
+
+    >>> index = pd.MultiIndex.from_tuples(
+    ...     [("World", "CO2"), ("R10_EUROPE", "N2O")],
+    ...     names=["region", "gas"],
+    ... )
+    >>> df.loc[isin(index)]
     """
 
     if not filters and (index is not None or isinstance(df, Index)):
