@@ -15,11 +15,9 @@ build:
       - asdf plugin add uv
       - asdf install uv latest
       - asdf global uv latest
+      - uv sync --extra units --group docs
     install:
       - "true"
-    build:
-      html:
-        - uv run --extra units --group docs -- sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
