@@ -6,7 +6,7 @@ Changelog
 v0.6.3 (2024-02-28)
 ------------------------------------------------------------
 * Extend :func:`~core.concat` with ``DataFrame`` to also reorder the
-  non-concatenation axis if it is a multiindex in :pull:`70`. Refer to
+  non-concatenation axis if it is a multiindex in :pull:`71`. Refer to
   issue:`69` for an example (thanks to @mikapfl for the idea).
 * Add multiindex filtering to :func:`~selectors.isin` in :pull:`68`.
   ``df.loc[isin(index)]`` is similar to ``df.pix.semijoin(index, how="inner")``,
