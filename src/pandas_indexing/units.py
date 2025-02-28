@@ -82,7 +82,7 @@ pint = LazyLoader(
 @doc(
     data="""
     data : DataFrame or Series
-        DataFrame or Series to quantify\
+        DataFrame or Series to quantify
     """,
     example_call="quantify(s)",
 )
@@ -100,9 +100,7 @@ def quantify(
     unit per column and is somewhat brittle.
 
     Parameters
-    ----------
-    ----------\
-    {data}
+    ----------{data}
     unit : str, optional
         If given, assumes data is currently in this unit.
     level : str, optional
@@ -197,7 +195,7 @@ def dequantify(data: Data, level: str = "unit", axis: Axis = 0, copy: bool = Fal
 @doc(
     data="""
     data : DataFrame or Series
-        DataFrame or Series with a "unit" level\
+        DataFrame or Series with a "unit" level
     """,
     convert_unit_s_km='convert_unit(s, "km")',
     convert_unit_s_m_to_km='convert_unit(s, {"m": "km"})',
@@ -212,9 +210,7 @@ def convert_unit(
     Converts units in a dataframe or series.
 
     Parameters
-    ----------
-    ----------\
-    {data}
+    ----------{data}
     unit : str or dict or function from old to new unit
         Either a single target unit or a mapping from old unit to target unit
         (a unit missing from the mapping or with a return value of None is kept)
