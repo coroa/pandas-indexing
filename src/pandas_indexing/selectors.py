@@ -177,8 +177,8 @@ def isin(
     """
     Constructs a MultiIndex selector.
 
-    Arguments:
-    ---------
+    Parameters
+    ----------
     df : Data, optional
         Data on which to match, if missing an ``Isin`` object is returned
     index : Index, optional
@@ -190,11 +190,11 @@ def isin(
         Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
         Callables are evaluated on the index level values.
 
-    Returns:
+    Returns
     -------
     Isin, IsinIndex or Series
 
-    Example:
+    Example
     -------
     >>> df.loc[isin(region="World", gas=["CO2", "N2O"])]
 
@@ -285,8 +285,8 @@ def ismatch(
     """
     Constructs an Index or MultiIndex selector based on pattern matching.
 
-    Arguments:
-    ---------
+    Parameters
+    ----------
     df : Data, optional
         Data on which to match, if missing an ``Isin`` object is returned.
     singlefilter : str, optional
@@ -300,11 +300,11 @@ def ismatch(
     **filters
         Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
 
-    Returns:
+    Returns
     -------
     Isin or Series
 
-    Example:
+    Example
     -------
     for a multiindex:
 

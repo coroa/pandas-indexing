@@ -6,14 +6,20 @@ Simple utility functions not of greater interest
 
 import importlib
 import re
+from textwrap import dedent
 from types import ModuleType
 from typing import Any, Union
 
 from attrs import define
 from pandas import DataFrame, Index, Series
-from pandas.util._decorators import doc  # noqa: F401
+from pandas.util._decorators import doc as pandadoc
 
 from .types import Axis
+
+
+@pandadoc(pandadoc)
+def doc(*docstrings, **params):
+    return pandadoc(*docstrings, **{p: dedent(v).rstrip() for p, v in params.items()})
 
 
 def shell_pattern_to_regex(s):

@@ -37,9 +37,11 @@ v0.5.2 (2024-08-24)
 * Bumps minimum python version to 3.9 (which is close to EOL, anyway)
 * Improve :mod:`~selectors` to arbitrarily interact with boolean Series, numpy arrays
   and callables, ie.
+
   1. ``pd.Series([True, False]) & isin(model="a")`` produces the same result as
      ``isin(model="a") & pd.Series([True, False])`` did earlier.
   2. ``isin(model="a") & (lambda s: s > 2)`` is now supported as well.
+
 * Fix a testing incompability introduced by a recent attrs update (24.1.0)
 * Load pint and pint-pandas packages only on first use
 
@@ -91,7 +93,7 @@ v0.3 (2023-09-17)
 ------------------------------------------------------------
 * **BREAKING** :func:`~core.assignlevel` aligns :class:`~pandas.Series` and
   :class:`~pandas.DataFrame` before adding them to the index :pull:`38`
-* Address pandas 2.1's ``FutureWarning``s and improve test coverage :pull:`40`
+* Address pandas 2.1's ``FutureWarning`` and improve test coverage :pull:`40`
 
 v0.2.10 (2023-08-31)
 ------------------------------------------------------------

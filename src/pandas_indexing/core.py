@@ -167,7 +167,7 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
 @doc(
     index_or_data="""
     index_or_data : DataFrame, Series or Index
-        Index, Series or DataFrame to project\
+        Index, Series or DataFrame to project
     """
 )
 def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
@@ -178,9 +178,7 @@ def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
     or an axis of a series or a dataframe.
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     levels : sequence of str
         Names of levels to project on (to keep)
     axis : {{0, 1, "index", "columns"}}, default 0
@@ -328,7 +326,7 @@ def isna(
 @doc(
     index_or_data="""
     index_or_data : DataFrame, Series or Index
-        Index, Series or DataFrame of which to drop rows or columns\
+        Index, Series or DataFrame of which to drop rows or columns
     """
 )
 def dropnalevel(
@@ -344,9 +342,7 @@ def dropnalevel(
     undefined.
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     subset : Sequence[str], optional
         Names of levels on which to check for NA values
     how : {{"any", "all"}}
@@ -377,7 +373,7 @@ def dropnalevel(
 @doc(
     index_or_data="""
     index_or_data : DataFrame, Series or Index
-        Index, Series or DataFrame of which to describe index levels\
+        Index, Series or DataFrame of which to describe index levels
     """
 )
 def uniquelevel(
@@ -389,9 +385,7 @@ def uniquelevel(
     Return unique index levels.
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     levels : str or Sequence[str], optional
         Names of levels to get unique values of
     axis : {{0, 1, "index", "columns"}}, default 0
@@ -432,7 +426,7 @@ def _describelevel(index: Index, n: int = 80) -> str:
 @doc(
     index_or_data="""
     index_or_data : DataFrame, Series or Index
-        Index, Series or DataFrame of which to describe index levels\
+        Index, Series or DataFrame of which to describe index levels
     """
 )
 def describelevel(
@@ -442,9 +436,7 @@ def describelevel(
     Describe index levels.
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     n : int, default 80
         The maximum line length
     as_str : bool, default False
@@ -517,7 +509,7 @@ def ensure_multiindex(s: T) -> T:
 @doc(
     frame_or_series="""
     frame_or_series : DataFrame or Series
-        Data to be filtered\
+        Data to be filtered
     """
 )
 def semijoin(
@@ -538,9 +530,7 @@ def semijoin(
     the resulting joined index allowing for filling values.
 
     Parameters
-    ----------
-    ----------\
-    {frame_or_series}
+    ----------{frame_or_series}
     other : Index or Data
         Other index to join with, if a DataFrame or Series is provided
         its axis is extracted.
@@ -626,7 +616,7 @@ def semijoin(
 @doc(
     index_or_data="""
     index_or_data : Index or DataFrame or Series
-        Data to be filtered\
+        Data to be filtered
     """
 )
 def antijoin(
@@ -642,9 +632,7 @@ def antijoin(
     ie remove all occurrences of other from data
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     other : Index
         Other index to join with
     level : None or str or int or
@@ -770,7 +758,7 @@ def _extractlevel(
 @doc(
     index_or_data="""
     index_or_data : DataFrame, Series or Index
-        Data to modify\
+        Data to modify
     """
 )
 def extractlevel(
@@ -804,9 +792,8 @@ def extractlevel(
         *regex* added.
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data} template : str, optional
+    ----------{index_or_data}
+    template : str, optional
         Extraction template for a single level
     keep : bool, default False
         Whether to keep the split dimension
@@ -881,7 +868,7 @@ def extractlevel(
     SE|Elec       GWh   NaN   NaN     3
     dtype: int64
 
-    >>> extractlevel(s, variable=r"SE\\|(?P<type>.*?)(?:\\|(?P<fuel>.*?))?", regex=True)
+    >>> extractlevel(s, variable=r"SE\|(?P<type>.*?)(?:\|(?P<fuel>.*?))?", regex=True)
     unit  type  fuel
     GWh   Elec  Bio     0
     GWh   Elec  Coal    1
@@ -994,7 +981,7 @@ def _formatlevel(
 @doc(
     index_or_data="""
     index_or_data : DataFrame, Series or Index
-        Data to modify\
+        Data to modify
     """
 )
 def formatlevel(
@@ -1011,8 +998,7 @@ def formatlevel(
         Added optional patterns.
 
     Parameters
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     drop : bool, default False
         Whether to drop the used index levels
     axis : {{0, 1, "index", "columns"}}, default 0
@@ -1050,7 +1036,7 @@ def _fixindexna(index: Index):
 @doc(
     index_or_data="""
     index_or_data : Index, Series or DataFrame
-        Data\
+        Data
     """
 )
 def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
@@ -1060,9 +1046,7 @@ def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
     Refer to https://github.com/coroa/pandas-indexing/issues/25 for details
 
     Parameters
-    ----------
-    ----------\
-    {index_or_data}
+    ----------{index_or_data}
     axis : Axis, optional
         Axis to fix, by default 0
 
@@ -1081,7 +1065,7 @@ def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
 @doc(
     data="""
     data : Data
-        Data in time-series representation with years on columns\
+        Data in time-series representation with years on columns
     """
 )
 def to_tidy(
@@ -1094,9 +1078,7 @@ def to_tidy(
     Convert multi-indexed time-series dataframe to tidy dataframe.
 
     Parameters
-    ----------
-    ----------\
-    {data}
+    ----------{data}
     meta : DataFrame, optional
         Meta data that is joined before tidying up
     value_name : str, optional
@@ -1145,7 +1127,7 @@ def _aggregatelevel(
 @doc(
     data="""
     data : Data
-        Series or DataFrame to aggregate\
+        Series or DataFrame to aggregate
     """
 )
 def aggregatelevel(
@@ -1160,9 +1142,7 @@ def aggregatelevel(
     Aggregate labels on one or multiple levels together.
 
     Parameters
-    ----------
-    ----------\
-    {data}
+    ----------{data}
     agg_func : str, optional
         Function for aggregating values, default "sum"
         Other sensible options are "mean" or "first"
@@ -1247,7 +1227,7 @@ def aggregatelevel(
 @doc(
     data="""
     data : Data
-        Series or DataFrame to extend with zeros\
+        Series or DataFrame to extend with zeros
     """
 )
 def add_zeros_like(
@@ -1264,9 +1244,7 @@ def add_zeros_like(
     *reference* (or its index).
 
     Parameters
-    ----------
-    ----------\
-    {data}
+    ----------{data}
     reference : Index
         expected level labels (like model, scenario combinations)
     derive : dict
