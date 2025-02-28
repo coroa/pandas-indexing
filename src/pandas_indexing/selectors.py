@@ -2,14 +2,16 @@
 Selectors improve ``.loc[]`` indexing for multi-index pandas data.
 """
 
+from collections.abc import Mapping
 from functools import reduce
 from operator import and_
-from typing import Any, Mapping, Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from attrs import define, field
-from pandas import DataFrame, Index, Series
+from pandas import DataFrame, Index, MultiIndex, Series
 
+from .core import ensure_multiindex, projectlevel
 from .types import Data
 from .utils import shell_pattern_to_regex
 
@@ -141,35 +143,85 @@ class Isin(Selector):
         )
 
 
-def isin(
-    df: Optional[Data] = None, ignore_missing_levels: bool = False, **filters: Any
-) -> Union[Isin, Series]:
-    """Constructs a MultiIndex selector.
+@define
+class IsinIndex(Selector):
+    index: MultiIndex
+    ignore_missing_levels: bool = field(default=False, repr=False)
 
-    Arguments
+    def __call__(self, df):
+        if isinstance(df, Index):
+            index = df
+        else:
+            index = df.index
+
+        missing_levels = self.index.names.difference(index.names)
+        if missing_levels:
+            if not self.ignore_missing_levels:
+                raise KeyError(
+                    f"selecting on levels {self.index.names}, but only given: {index.names}"
+                )
+            sel_index = self.index.droplevel(list(missing_levels))
+        else:
+            sel_index = self.index
+
+        return Series(projectlevel(index, sel_index.names).isin(sel_index), index)
+
+
+def isin(
+    df: Union[Data, Index, None] = None,
+    index: Optional[Index] = None,
+    /,
+    ignore_missing_levels: bool = False,
+    **filters: Any,
+) -> Union[Isin, IsinIndex, Series]:
+    """
+    Constructs a MultiIndex selector.
+
+    Arguments:
     ---------
     df : Data, optional
         Data on which to match, if missing an ``Isin`` object is returned
+    index : Index, optional
+        Filter based on common levels given in index. Can also be passed as the
+        ``df`` argument. Cannot be combined with filters.
     ignore_missing_levels : bool, default False
         If set, levels missing in data index will be ignored
     **filters
         Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
         Callables are evaluated on the index level values.
 
-    Returns
+    Returns:
     -------
-    Isin or Series
+    Isin, IsinIndex or Series
 
-    Example
+    Example:
     -------
     >>> df.loc[isin(region="World", gas=["CO2", "N2O"])]
 
     or with explicit df to get a boolean mask
 
     >>> isin(df, region="World", gas=["CO2", "N2O"])
-    """
 
-    tester = Isin(filters, ignore_missing_levels=ignore_missing_levels)
+    For selecting across multiple levels, a multiindex is passed as positional argument:
+
+    >>> index = pd.MultiIndex.from_tuples(
+    ...     [("World", "CO2"), ("R10_EUROPE", "N2O")],
+    ...     names=["region", "gas"],
+    ... )
+    >>> df.loc[isin(index)]
+
+    """
+    if not filters and (index is not None or isinstance(df, Index)):
+        if index is None and isinstance(df, Index):
+            # Special case: index argument was passed into df
+            index, df = df, None
+
+        tester = IsinIndex(
+            ensure_multiindex(index), ignore_missing_levels=ignore_missing_levels
+        )
+    else:
+        tester = Isin(filters, ignore_missing_levels=ignore_missing_levels)
+
     return tester if df is None else tester(df)
 
 
@@ -197,7 +249,7 @@ class Ismatch(Selector):
         matches = self.index_match(levels, patterns)
 
         (indices,) = np.where(matches)
-        return np.in1d(index.codes[level_num], indices)
+        return np.isin(index.codes[level_num], indices)
 
     def __call__(self, df):
         if isinstance(df, Index):
@@ -225,13 +277,15 @@ class Ismatch(Selector):
 def ismatch(
     df: Union[None, Index, DataFrame, Series, str] = None,
     singlefilter: Optional[str] = None,
+    /,
     regex: bool = False,
     ignore_missing_levels: bool = False,
     **filters,
 ) -> Union[Ismatch, Series]:
-    """Constructs an Index or MultiIndex selector based on pattern matching.
+    """
+    Constructs an Index or MultiIndex selector based on pattern matching.
 
-    Arguments
+    Arguments:
     ---------
     df : Data, optional
         Data on which to match, if missing an ``Isin`` object is returned.
@@ -246,11 +300,11 @@ def ismatch(
     **filters
         Filter to apply on given levels (lists are ``or`` ed, levels are ``and`` ed)
 
-    Returns
+    Returns:
     -------
     Isin or Series
 
-    Example
+    Example:
     -------
     for a multiindex:
 
@@ -259,8 +313,8 @@ def ismatch(
     for a single index:
 
     >>> df.loc[ismatch("*bla*")]
-    """
 
+    """
     if not filters and singlefilter is not None:
         filters = {None: singlefilter}
 

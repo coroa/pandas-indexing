@@ -17,7 +17,6 @@ def test_assign_index(midx: MultiIndex):
     """
     Checks scalar setting of new and old levels.
     """
-
     # Check for adding to multilevel
     assert_index_equal(
         midx.pix.assign(new=[1, 2, 3]),

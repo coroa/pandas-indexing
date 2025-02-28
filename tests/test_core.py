@@ -35,7 +35,6 @@ def test_assignlevel_index(sidx: Index, midx: MultiIndex):
     """
     Checks scalar setting of new and old levels.
     """
-
     # Check adding to single index
     assert_index_equal(
         assignlevel(sidx, new=2),

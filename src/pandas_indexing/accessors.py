@@ -1,5 +1,5 @@
-"""Registers convenience accessors into the ``pix`` namespace of each pandas
-object.
+"""
+Registers convenience accessors into the ``pix`` namespace of each pandas object.
 
 Examples
 --------
@@ -8,6 +8,7 @@ Examples
 >>> df.index.pix.assign(unit="Mt CO2")
 
 >>> df.pix.multiply(other, how="left")
+
 """
 
 import warnings
