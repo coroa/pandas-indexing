@@ -213,7 +213,7 @@ def concat(
     """
     Concatenate pandas objects along a particular axis.
 
-    In addition to the functionality provided by pd.concat, if the concat axis has a multiindex
+    In addition to the functionality provided by pd.concat, if an axis has a multiindex
     then the level order is reordered consistently.
 
     Parameters
@@ -263,22 +263,35 @@ def concat(
         # make sure the order list does not include the new axis name
         order = [o for o in order if o != keys.name]
 
-    orderset = frozenset(order)
-
-    def reorder(df_ser_or_idx):
+    def reorder_one(df_ser_or_idx, axis=axis, order=order):
         ax = get_axis(df_ser_or_idx, axis=axis)
         if ax.names == order:
             return df_ser_or_idx
-        elif not set(ax.names) == orderset:
+        elif set(ax.names) != set(order):
             raise ValueError(
-                "All objects need to have the same index levels, but "
-                f"{set(orderset)} != {set(ax.names)}"
+                f"All objects need to have the same axis levels (for axis={axis}), but "
+                f"{set(order)} != {set(ax.names)}"
             )
         idx = ax.reorder_levels(order)
         if isinstance(df_ser_or_idx, Index):
             return idx
 
         return df_ser_or_idx.set_axis(idx, axis=axis, copy=False)
+
+    reorder = reorder_one
+
+    if isinstance(objs[0], DataFrame):
+        # there might be a second multiindex axis
+        other_axis = 1 if axis in (0, "index") else 0
+        other_index = get_axis(objs[0], other_axis)
+
+        if isinstance(other_index, MultiIndex):
+            other_order = other_index.names
+
+            def reorder_both(df):
+                return reorder_one(reorder_one(df), axis=other_axis, order=other_order)
+
+            reorder = reorder_both
 
     objs = [reorder(o) for o in objs]
     if not isinstance(objs[0], Index):

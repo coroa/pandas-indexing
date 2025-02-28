@@ -402,6 +402,22 @@ def test_concat(mdf, midx, sidx):
         concat([])
 
 
+def test_concat_orthogonal(mseries):
+    # concat(…, axis="columns") doesn't reorder the index
+    # https://github.com/coroa/pandas-indexing/issues/69
+
+    df1 = DataFrame({"2015": mseries})
+    df2 = DataFrame({"2016": mseries.swaplevel() + 4})
+
+    assert_frame_equal(
+        concat([df1, df2], axis="columns"),
+        DataFrame({"2015": mseries, "2016": mseries + 4}),
+    )
+
+    with pytest.raises(ValueError):
+        concat([df1, df2.rename_axis(index=["bla", "blub"])], axis="columns")
+
+
 def test_isna(mdf, mseries):
     midx = MultiIndex.from_tuples(
         [("foo", nan, nan), ("foo", nan, 2), ("bar", 3, 3)],
