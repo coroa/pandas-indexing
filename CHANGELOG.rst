@@ -3,10 +3,11 @@
 Changelog
 =========
 
-* Add multiindex filtering to :func:`~selectors.isin` in :pull:`68`
+* Add multiindex filtering to :func:`~selectors.isin` in :pull:`68`.
   ``df.loc[isin(index)]`` is equivalent to ``df.pix.semijoin(index, how="inner")``,
   but does not alter the index of `df` and can be combined with other selectors,
-  like ``df.loc[isin(index) & isin(gas="CO2")]``
+  like ``df.loc[isin(index) & isin(gas="CO2")]``. Refer also to guide section
+  :ref:`Selecting based on a multi-index`.
 
 v0.6.2 (2024-02-26)
 ------------------------------------------------------------
