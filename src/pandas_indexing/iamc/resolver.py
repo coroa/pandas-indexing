@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import operator
 import re
+from collections.abc import Iterator, Sequence
 from functools import reduce
 from itertools import product
-from typing import Any, Callable, Iterator, Sequence, TypeVar
+from typing import Any, Callable, TypeVar
 
 from attrs import define, evolve, field
 from pandas import DataFrame, Index, MultiIndex, Series
@@ -16,7 +17,8 @@ from ..utils import print_list, shell_pattern_to_regex
 
 
 def _summarize(index: MultiIndex, names: Sequence[str]) -> DataFrame:
-    """Summarize unique level values grouped by `names` levels.
+    """
+    Summarize unique level values grouped by `names` levels.
 
     Parameters
     ----------
@@ -29,6 +31,7 @@ def _summarize(index: MultiIndex, names: Sequence[str]) -> DataFrame:
     -------
     DataFrame
         Summary frame
+
     """
     return (
         index.to_frame()
@@ -62,11 +65,13 @@ class SharedTrigger:
 
 @define
 class Context:
-    """Context shared between all Vars instances in a Resolver.
+    """
+    Context shared between all Vars instances in a Resolver.
 
     Notes
     -----
     Not to be instantiated by the user herself
+
     """
 
     level: str
@@ -78,7 +83,8 @@ class Context:
 
 @define
 class Var:
-    """Instance for a single variant.
+    """
+    Instance for a single variant.
 
     Attributes
     ----------
@@ -91,6 +97,7 @@ class Var:
     -----
     User does not interact with individual `Var` instances, instead she only ever holds
     `Vars` instances.
+
     """
 
     data: DataFrame
@@ -158,9 +165,10 @@ class Var:
 
 @define
 class Vars:
-    """`Vars` holds several derivations of a variable from data in a `Resolver`
+    """
+    `Vars` holds several derivations of a variable from data in a `Resolver`
 
-    Attributes
+    Attributes:
     ----------
     data : list of Var
         Disjunct derivations of a single variable
@@ -168,15 +176,16 @@ class Vars:
         Shared context from the resolver
     index : MultiIndex for which any derivation has data
 
-    Notes
+    Notes:
     -----
     `Vars` are created with a Resolver and are to be composed with one another.
 
-    Example
+    Example:
     -------
     >>> r = Resolver.from_data(co2emissions, level="sector")
     >>> energy = r["Energy"] | (r["Energy|Supply"] + r["Energy|Demand"])
     >>> r["Energy and Industrial Processes"] | (energy + r["Industrial Processes"])
+
     """
 
     data: list[Var]
@@ -283,7 +292,8 @@ class Vars:
         return reduce(lambda d, v: d.pix.antijoin(v.data.index), vars.data, data)  # type: ignore
 
     def antijoin(self: SV, other: SV) -> SV:
-        """Remove everything from self that is already in `other`
+        """
+        Remove everything from self that is already in `other`
 
         Parameters
         ----------
@@ -294,6 +304,7 @@ class Vars:
         -------
         Vars
             Subset of self that is not already provided by `other`
+
         """
         return self.__class__(
             [
@@ -401,7 +412,8 @@ class Vars:
 
 @define
 class Resolver:
-    """Resolver allows to consolidate variables by composing variants.
+    """
+    Resolver allows to consolidate variables by composing variants.
 
     Usage
     -----

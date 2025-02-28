@@ -1,4 +1,5 @@
-"""Utils module.
+"""
+Utils module.
 
 Simple utility functions not of greater interest
 """
@@ -23,7 +24,8 @@ def shell_pattern_to_regex(s):
 
 
 def print_list(x, n):
-    """Return a printable string of a list shortened to n characters.
+    """
+    Return a printable string of a list shortened to n characters.
 
     Copied from pyam.utils.print_list by Daniel Huppmann, licensed under
     Apache 2.0.
@@ -73,7 +75,7 @@ def print_list(x, n):
 
 def get_axis(data: Union[Index, Series, DataFrame], axis: Axis = 0):
     """
-    Get axis `axis` from `data`
+    Get axis `axis` from `data`.
     """
     if isinstance(data, Index):
         return data
@@ -103,7 +105,8 @@ def s(l):
 
 
 class LazyLoader(ModuleType):
-    """Lazily import a module, mainly to avoid pulling in large dependencies.
+    """
+    Lazily import a module, mainly to avoid pulling in large dependencies.
 
     `contrib`, and `ffmpeg` are examples of modules that are large and not always
     needed, and this allows them to only be loaded when they are used.

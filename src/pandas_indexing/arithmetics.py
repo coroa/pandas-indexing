@@ -1,4 +1,5 @@
-"""Provide aligned basic arithmetic ops.
+"""
+Provide aligned basic arithmetic ops.
 
 Simple arithmetic operations :py:func:`add`, :py:func:`divide`, :py:func:`multiply` and
 :py:func:`subtract` which allow setting the standard how="outer" alignment that pandas
@@ -9,9 +10,10 @@ the results for only the items index items existing in both indices (``how="inne
 whether to prefer the axis from the first (``how="left"``) or the right (``how="right``)
 operand.
 
-See also
+See Also
 --------
 pandas.DataFrame.align
+
 """
 
 import operator

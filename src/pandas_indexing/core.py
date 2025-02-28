@@ -112,9 +112,11 @@ def assignlevel(
     ignore_index: bool = False,
     **labels: Any,
 ) -> T:
-    """Add or overwrite levels on a multiindex.
+    """
+    Add or overwrite levels on a multiindex.
 
     Parameters
+    ----------
     ----------\
     {df}
     frame : Series or DataFrame, optional
@@ -132,6 +134,7 @@ def assignlevel(
     -------
     df
         Series or DataFrame with changed index or new MultiIndex
+
     """
     if isinstance(df, Index):
         return _assignlevel(
@@ -168,12 +171,14 @@ def _projectlevel(index: Index, levels: Sequence[str]) -> Index:
     """
 )
 def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
-    """Project multiindex to given *levels*.
+    """
+    Project multiindex to given *levels*.
 
     Drops all levels except the ones explicitly mentioned from a given multiindex
     or an axis of a series or a dataframe.
 
     Parameters
+    ----------
     ----------\
     {index_or_data}
     levels : sequence of str
@@ -185,11 +190,12 @@ def projectlevel(index_or_data: T, levels: Sequence[str], axis: Axis = 0) -> T:
     -------
     index_or_data : Index|MultiIndex|Series|DataFrame
 
-    See also
+    See Also
     --------
     pandas.MultiIndex.droplevel
     pandas.Series.droplevel
     pandas.DataFrame.droplevel
+
     """
     if isinstance(index_or_data, Index):
         return _projectlevel(index_or_data, levels)
@@ -206,7 +212,8 @@ def concat(
     copy: bool = False,
     **concat_kwds,
 ) -> T:
-    """Concatenate pandas objects along a particular axis.
+    """
+    Concatenate pandas objects along a particular axis.
 
     In addition to the functionality provided by pd.concat, if the concat axis has a multiindex
     then the level order is reordered consistently.
@@ -237,11 +244,11 @@ def concat(
     ValueError
         If the level names of `objs` do not match
 
-    See also
+    See Also
     --------
     pandas.concat
-    """
 
+    """
     if isinstance(objs, dict):
         objs = {k: v for k, v in objs.items() if v is not None}
         keys = Index(objs.keys(), name=keys)
@@ -330,12 +337,14 @@ def dropnalevel(
     how: Literal["any", "all"] = "any",
     axis: Axis = 0,
 ) -> T:
-    """Remove missing index values.
+    """
+    Remove missing index values.
 
     Drops all index entries for which any or all (``how``) levels are
     undefined.
 
     Parameters
+    ----------
     ----------\
     {index_or_data}
     subset : Sequence[str], optional
@@ -349,11 +358,12 @@ def dropnalevel(
     -------
     index_or_data : Index|MultiIndex|Series|DataFrame
 
-    See also
+    See Also
     --------
     pandas.DataFrame.dropna
     pandas.Series.dropna
     pandas.Index.dropna
+
     """
     if isinstance(index_or_data, Index):
         return index_or_data[_notna(index_or_data, subset, how)]
@@ -375,9 +385,11 @@ def uniquelevel(
     levels: Union[str, Sequence[str], None],
     axis: Axis = 0,
 ) -> Index:
-    """Return unique index levels.
+    """
+    Return unique index levels.
 
     Parameters
+    ----------
     ----------\
     {index_or_data}
     levels : str or Sequence[str], optional
@@ -389,9 +401,10 @@ def uniquelevel(
     -------
     unique_index : Index
 
-    See also
+    See Also
     --------
     pandas.Index.unique
+
     """
     index = get_axis(index_or_data, axis)
 
@@ -425,9 +438,11 @@ def _describelevel(index: Index, n: int = 80) -> str:
 def describelevel(
     index_or_data: Union[DataFrame, Series, Index], n: int = 80, as_str: bool = False
 ) -> Optional[str]:
-    """Describe index levels.
+    """
+    Describe index levels.
 
     Parameters
+    ----------
     ----------\
     {index_or_data}
     n : int, default 80
@@ -440,9 +455,10 @@ def describelevel(
     description : str, optional
         if as_str is True
 
-    See also
+    See Also
     --------
     pandas.DataFrame.describe
+
     """
     if isinstance(index_or_data, DataFrame):
         index_desc = _describelevel(index_or_data.index, n=n)
@@ -515,12 +531,14 @@ def semijoin(
     fill_value: Any = no_default,
     fail_on_reorder: bool = False,
 ) -> S:
-    """Semijoin *frame_or_series* by index *other*.
+    """
+    Semijoin *frame_or_series* by index *other*.
 
     Joins indexes of both inputs and then reindexes the primary data input with
     the resulting joined index allowing for filling values.
 
     Parameters
+    ----------
     ----------\
     {frame_or_series}
     other : Index or Data
@@ -553,11 +571,11 @@ def semijoin(
     TypeError
         if *frame_or_series* does not derive from DataFrame or Series
 
-    See also
+    See Also
     --------
     pandas.Index.join
-    """
 
+    """
     index = get_axis(frame_or_series, axis)
 
     if isinstance(other, (Series, DataFrame)):
@@ -618,11 +636,13 @@ def antijoin(
     level: Union[str, int, None] = None,
     axis: Axis = 0,
 ) -> S:
-    """Antijoin *index_or_data* with index *other*.
+    """
+    Antijoin *index_or_data* with index *other*.
 
     ie remove all occurrences of other from data
 
     Parameters
+    ----------
     ----------\
     {index_or_data}
     other : Index
@@ -643,11 +663,11 @@ def antijoin(
     TypeError
         if index_or_data does not derive from DataFrame or Series
 
-    See also
+    See Also
     --------
     pandas.Index.join
-    """
 
+    """
     index = get_axis(index_or_data, axis)
 
     if isinstance(other, (Series, DataFrame)):
@@ -765,8 +785,8 @@ def extractlevel(
     optional: Optional[Sequence[str]] = None,
     **templates: str,
 ) -> T:
-    """Extract new index levels with *templates* matched against any index
-    level.
+    r"""
+    Extract new index levels with *templates* matched against any index level.
 
     The ``**templates`` argument defines pairs of level names and templates. Given level
     names are matched against the template, f.ex. ``"Emi|{{gas}}|{{sector}}"``. Patterns
@@ -784,6 +804,7 @@ def extractlevel(
         *regex* added.
 
     Parameters
+    ----------
     ----------\
     {index_or_data} template : str, optional
         Extraction template for a single level
@@ -874,9 +895,10 @@ def extractlevel(
           Coal    1
     dtype: int64
 
-    See also
+    See Also
     --------
     formatlevel
+
     """
     optional = frozenset() if optional is None else frozenset(optional)
 
@@ -982,8 +1004,8 @@ def formatlevel(
     optional: Optional[Sequence[str]] = None,
     **templates: str,
 ) -> T:
-    """Format index levels based on a *template* which can refer to other
-    levels.
+    """
+    Format index levels based on a *template* refering to other levels.
 
     .. versionchanged:: 0.5.3
         Added optional patterns.
@@ -1008,6 +1030,7 @@ def formatlevel(
     ------
     ValueError
         If *templates* refer to non-existant levels
+
     """
     optional = frozenset() if optional is None else frozenset(optional)
 
@@ -1031,11 +1054,13 @@ def _fixindexna(index: Index):
     """
 )
 def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
-    """Fix broken MultiIndex NA representation from .groupby(..., dropna=False)
+    """
+    Fix broken MultiIndex NA representation from .groupby(..., dropna=False).
 
     Refer to https://github.com/coroa/pandas-indexing/issues/25 for details
 
     Parameters
+    ----------
     ----------\
     {index_or_data}
     axis : Axis, optional
@@ -1044,6 +1069,7 @@ def fixindexna(index_or_data: T, axis: Axis = 0) -> T:
     Returns
     -------
     index_or_data
+
     """
     if isinstance(index_or_data, Index):
         return _fixindexna(index_or_data)
@@ -1064,9 +1090,11 @@ def to_tidy(
     value_name: Optional[str] = "value",
     columns: Optional[str] = "year",
 ) -> DataFrame:
-    """Convert multi-indexed time-series dataframe to tidy dataframe.
+    """
+    Convert multi-indexed time-series dataframe to tidy dataframe.
 
     Parameters
+    ----------
     ----------\
     {data}
     meta : DataFrame, optional
@@ -1082,6 +1110,7 @@ def to_tidy(
     -------
     DataFrame
         Tidy dataframe without index
+
     """
     if isinstance(data, DataFrame):
         if columns is not None:
@@ -1127,9 +1156,11 @@ def aggregatelevel(
     mode: Literal["replace", "append", "return"] = "replace",
     **levels: Dict[str, Sequence[Any]],
 ) -> T:
-    """Aggregate labels on one or multiple levels together.
+    """
+    Aggregate labels on one or multiple levels together.
 
     Parameters
+    ----------
     ----------\
     {data}
     agg_func : str, optional
@@ -1157,11 +1188,11 @@ def aggregatelevel(
     If you already have a complete mapping from country to region, then prefer
     to use groupby directly instead of relying on this relatively slow method.
 
-    See also
+    See Also
     --------
     pandas.DataFrame.groupby
-    """
 
+    """
     if mode == "replace":
         for level, mapping in levels.items():
             data = data.rename(
@@ -1226,12 +1257,14 @@ def add_zeros_like(
     derive: Optional[Dict[str, MultiIndex]] = None,
     **levels: Sequence[str],
 ) -> T:
-    """Add explicit *levels* to *data* as 0 values.
+    """
+    Add explicit *levels* to *data* as 0 values.
 
     Remaining levels in *data* not found in *levels* or *derive* are taken from
     *reference* (or its index).
 
     Parameters
+    ----------
     ----------\
     {data}
     reference : Index
@@ -1245,8 +1278,8 @@ def add_zeros_like(
     -------
     DataFrame
         unsorted data with additional zero data
-    """
 
+    """
     if any(len(labels) == 0 for labels in levels.values()):
         return data
 

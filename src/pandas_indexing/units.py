@@ -1,4 +1,5 @@
-"""Unit handling in pandas data.
+"""
+Unit handling in pandas data.
 
 Enables unit conversions based on pint's application registry (see also Notes).
 
@@ -47,12 +48,14 @@ References
 .. [1] https://github.com/hgrecco/pint-pandas
 .. [2] https://github.com/openscm/openscm-units
 
-See also
+See Also
 --------
 pint.set_application_registry
+
 """
 
-from typing import Callable, Mapping, Optional, Union
+from collections.abc import Mapping
+from typing import Callable, Optional, Union
 
 from pandas import DataFrame, Series
 
@@ -90,12 +93,14 @@ def quantify(
     axis: Axis = 0,
     copy: bool = False,
 ) -> Data:
-    """Convert columns in `data` to pint extension types to handle units.
+    """
+    Convert columns in `data` to pint extension types to handle units.
 
     `pint-pandas <https://github.com/grecco/pint-pandas>`_ can only represent a single
     unit per column and is somewhat brittle.
 
     Parameters
+    ----------
     ----------\
     {data}
     unit : str, optional
@@ -135,11 +140,12 @@ def quantify(
     :py:func:`pint.set_application_registry` or
     :py:func:`set_openscm_registry_as_default`.
 
-    See also
+    See Also
     --------
     set_openscm_registry_as_default
     dequantify
     convert_unit
+
     """
     if unit is None:
         unit = uniquelevel(data, level, axis)
@@ -202,9 +208,11 @@ def convert_unit(
     level: Optional[str] = "unit",
     axis: Axis = 0,
 ):
-    """Converts units in a dataframe or series.
+    """
+    Converts units in a dataframe or series.
 
     Parameters
+    ----------
     ----------\
     {data}
     unit : str or dict or function from old to new unit
@@ -247,11 +255,12 @@ def convert_unit(
     :py:func:`pint.set_application_registry` or
     :py:func:`set_openscm_registry_as_default`.
 
-    See also
+    See Also
     --------
     set_openscm_registry_as_default
     quantify
     dequantify
+
     """
     if callable(unit):
         unit_map = unit
