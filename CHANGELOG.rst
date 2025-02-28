@@ -3,8 +3,13 @@
 Changelog
 =========
 
+v0.6.3 (2024-02-28)
+------------------------------------------------------------
+* Extend :func:`~core.concat` with ``DataFrame`` to also reorder the
+  non-concatenation axis if it is a multiindex in :pull:`70`. Refer to
+  issue:`69` for an example (thanks to @mikapfl for the idea).
 * Add multiindex filtering to :func:`~selectors.isin` in :pull:`68`.
-  ``df.loc[isin(index)]`` is equivalent to ``df.pix.semijoin(index, how="inner")``,
+  ``df.loc[isin(index)]`` is similar to ``df.pix.semijoin(index, how="inner")``,
   but does not alter the index of `df` and can be combined with other selectors,
   like ``df.loc[isin(index) & isin(gas="CO2")]``. Refer also to guide section
   :ref:`Selecting based on a multi-index`.
