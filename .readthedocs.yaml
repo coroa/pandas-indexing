@@ -11,13 +11,11 @@ build:
   tools:
     python: "3.12"
   jobs:
-    create_environment:
+    install:
       - asdf plugin add uv
       - asdf install uv latest
       - asdf global uv latest
       - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --extra units --group docs
-    install:
-      - "true"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
