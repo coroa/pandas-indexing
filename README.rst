@@ -1,8 +1,8 @@
 pandas-indexing helper
 ======================
 
-.. image:: https://github.com/coroa/pandas-indexing/workflows/ci/badge.svg?branch=main
-    :target: https://github.com/coroa/pandas-indexing/actions?workflow=ci
+.. image:: https://github.com/coroa/pandas-indexing/actions/workflows/ci.yml/badge.svg?branch=main
+    :target: https://github.com/coroa/pandas-indexing/actions/workflows/ci.yml
     :alt: CI
 
 .. image:: https://codecov.io/gh/coroa/pandas-indexing/branch/main/graph/badge.svg
@@ -17,6 +17,9 @@ pandas-indexing helper
     :target: https://pypi.org/project/pandas-indexing/
     :alt: PyPI
 
+.. image:: https://img.shields.io/conda/vn/conda-forge/pandas-indexing.svg
+    :target: https://anaconda.org/conda-forge/pandas-indexing
+    :alt: Conda
 
 Summary
 -------
