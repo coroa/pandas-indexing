@@ -1281,15 +1281,15 @@ def add_zeros_like(
         derive = {}
 
     target_levels = data.index.names
-    index = reference.pix.unique(
-        target_levels.difference(levels.keys()).difference(derive.keys())
+    index = uniquelevel(
+        reference, target_levels.difference(levels.keys()).difference(derive.keys())
     )
 
     zero_index = concat(
         reduce(
             lambda ind, d: ind.join(d, how="left"),
             derive.values(),
-            index.pix.assign(**dict(zip(levels.keys(), labels))),
+            assignlevel(index, **dict(zip(levels.keys(), labels))),
         ).reorder_levels(target_levels)
         for labels in product(*levels.values())
     )
