@@ -8,7 +8,7 @@ import importlib
 import re
 from textwrap import dedent
 from types import ModuleType
-from typing import Any, Union
+from typing import Any, Callable, TypeVar, Union
 
 from attrs import define
 from pandas import DataFrame, Index, Series
@@ -17,8 +17,10 @@ from pandas.util._decorators import doc as pandadoc
 from .types import Axis
 
 
-@pandadoc(pandadoc)
-def doc(*docstrings, **params):
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+def doc(*docstrings: Any, **params: Any) -> Callable[[F], F]:
     return pandadoc(*docstrings, **{p: dedent(v).rstrip() for p, v in params.items()})
 
 
