@@ -31,3 +31,41 @@ except Exception:
     # Local copy or not installed with setuptools.
     # Disable minimum version checks on downstream libraries.
     __version__ = "999"
+
+
+__all__ = [
+    "__version__",
+    # modules
+    "accessors",
+    "core",
+    "datasets",
+    # arithmetics
+    "add",
+    "divide",
+    "multiply",
+    "subtract",
+    # core
+    "aggregatelevel",
+    "antijoin",
+    "assignlevel",
+    "concat",
+    "describelevel",
+    "dropnalevel",
+    "extractlevel",
+    "formatlevel",
+    "index_names",
+    "projectlevel",
+    "semijoin",
+    "to_tidy",
+    "uniquelevel",
+    # selectors
+    "All",
+    "None_",
+    "isin",
+    "ismatch",
+    # units
+    "convert_unit",
+    "dequantify",
+    "quantify",
+    "set_openscm_registry_as_default",
+]
