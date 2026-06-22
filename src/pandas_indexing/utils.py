@@ -19,8 +19,13 @@ from .types import Axis
 
 F = TypeVar("F", bound=Callable[..., Any])
 
-
 def doc(*docstrings: Any, **params: Any) -> Callable[[F], F]:
+    """
+    A decorator to take docstring templates, concatenate them and perform string substitution on them.
+
+    This dedents docstrings before delegating to `pandas`'s `doc` decorator, 
+    which performs the actual string substitution.
+    """
     return pandadoc(*docstrings, **{p: dedent(v).rstrip() for p, v in params.items()})
 
 
