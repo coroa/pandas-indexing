@@ -5,12 +5,29 @@ Performs general tests.
 from textwrap import dedent
 
 import pytest
+import subprocess
+import sys
 from numpy import nan
 from pandas import DataFrame, Index, MultiIndex
 from pandas.testing import assert_frame_equal, assert_index_equal, assert_series_equal
 
 import pandas_indexing  # noqa: F401
+import pandas_indexing.accessors  # noqa: F401
 from tests.test_units import needs_pint
+
+
+def test_import_does_not_register_accessor():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import pandas_indexing; import pandas; print(hasattr(pandas.DataFrame, 'pix'))",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.stdout.strip() == "False"
 
 
 def test_assign_index(midx: MultiIndex):

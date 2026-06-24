@@ -10,7 +10,10 @@ from typing import Any, Callable, TypeVar
 from attrs import define, evolve, field
 from pandas import DataFrame, Index, MultiIndex, Series
 
-from .. import arithmetics
+from .. import (
+    accessors,  # noqa: F401
+    arithmetics,
+)
 from ..core import concat
 from ..selectors import isin, ismatch
 from ..utils import print_list, shell_pattern_to_regex
